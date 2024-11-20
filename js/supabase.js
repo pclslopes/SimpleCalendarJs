@@ -1,5 +1,6 @@
 const user = {
     isLoggedIn: false,
+    access_token: null,
     username: null,
     useremail: null
 };
@@ -16,6 +17,12 @@ const { data } = _supabase.auth.onAuthStateChange((event, session) => {
         // handle initial session
     } else if (event === 'SIGNED_IN') {
         // handle sign in event
+        user.isLoggedIn = session !== null;
+        user.access_token = session?.access_token || null;
+        user.username= session?.user?.user_metadata?.name || null;
+        user.useremail = session?.user?.email || null;
+
+        console.log(user);
     } else if (event === 'SIGNED_OUT') {
         // handle sign out event
     } else if (event === 'PASSWORD_RECOVERY') {
