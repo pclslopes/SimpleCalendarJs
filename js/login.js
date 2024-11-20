@@ -24,7 +24,7 @@ $(document).ready(function () {
 
     $('#logoutButton').on('click', async (e) => {
         try {
-            const {error} = await _supabase.auth.signout();
+            const {error} = await _supabase.auth.signOut();
 
             if(error) throw error;
             
