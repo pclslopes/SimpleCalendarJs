@@ -2,31 +2,35 @@
 $(document).ready(function () {
     $('#magicLinkForm').on('submit', async (e) => {
         e.preventDefault();
-        if(user.isLoggedIn){
+        
+        const email = $('#emailInput').value;
+
+        try {
+            const { error } = await _supabase.auth.signInWithOtp({
+                email,
+                options: {
+                    emailRedirectTo: window.location.origin
+                }
+            });
+
+            if (error) throw error;
+
+            alert('Magic link sent! Check your email.');
+            $('#authModal').modal('hide');
+        } catch (error) {
+            alert(`Error: ${error.message}`);
+        }
+    });
+
+    $('#logoutButton').on('click', async (e) => {
+        try {
             const {error} = await _supabase.auth.signout();
 
             if(error) throw error;
             
             window.location = 'index.html';
-        }else{
-
-            const email = $('#emailInput').value;
-
-            try {
-                const { error } = await _supabase.auth.signInWithOtp({
-                    email,
-                    options: {
-                        emailRedirectTo: window.location.origin
-                    }
-                });
-
-                if (error) throw error;
-
-                alert('Magic link sent! Check your email.');
-                $('#authModal').modal('hide');
-            } catch (error) {
-                alert(`Error: ${error.message}`);
-            }
+        } catch (error) {
+            alert(`Error: ${error.message}`);
         }
     });
 
@@ -38,10 +42,13 @@ $(document).ready(function () {
             $('#emailInputLabel').html(user.useremail);
             $('#subMessage').html('You are logged in!');
             $('#emailInput').hide();
-            $('#loginSubmit').html('Logout');
+            $('#loginSubmit').hide();
+            $('#logoutButton').show();
         }else{
             $('#emailInput').show();
             $('#loginSubmit').html('Login');
+            $('#loginSubmit').show();
+            $('#logoutButton').hide();
         }
     });
 
