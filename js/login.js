@@ -1,10 +1,10 @@
-//const authModal = new bootstrap.Modal(document.getElementById('authModal'));
 $(document).ready(function () {
     $('#magicLinkForm').on('submit', async (e) => {
         e.preventDefault();
         
         const email = $('#emailInput').value;
-
+        console.log('email: ' + email);
+        
         try {
             const { error } = await _supabase.auth.signInWithOtp({
                 email,
