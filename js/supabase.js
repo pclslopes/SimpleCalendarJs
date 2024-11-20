@@ -1,0 +1,54 @@
+const user = {
+    isLoggedIn: false,
+    username: null,
+    useremail: null
+};
+
+const { createClient } = supabase
+const _supabase = createClient('https://cznwtzffiumbdivohifm.supabase.co', 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImN6bnd0emZmaXVtYmRpdm9oaWZtIiwicm9sZSI6ImFub24iLCJpYXQiOjE3MzIxMDc5NDYsImV4cCI6MjA0NzY4Mzk0Nn0.gFcY2dsFGdgPbVmsknLeEO0jRxO8QJQpbWZ8anGJp34')
+
+console.log('Supabase Instance: ', _supabase)
+
+const { data } = _supabase.auth.onAuthStateChange((event, session) => {
+    console.log(event, session)
+    
+    if (event === 'INITIAL_SESSION') {
+        // handle initial session
+    } else if (event === 'SIGNED_IN') {
+        // handle sign in event
+    } else if (event === 'SIGNED_OUT') {
+        // handle sign out event
+    } else if (event === 'PASSWORD_RECOVERY') {
+        // handle password recovery event
+    } else if (event === 'TOKEN_REFRESHED') {
+        // handle token refreshed event
+    } else if (event === 'USER_UPDATED') {
+        // handle user updated event
+    }
+});
+
+
+async function registerUser(email, password){
+    const { data, error } = await _supabase.auth.signUp({
+        email,
+        password,
+    });
+}
+
+async function signInUser(email, password){
+    return await _supabase.auth.signInWithPassword({
+        email,
+        password,
+    });
+}
+
+async function signInWithEmail(email) {
+    const { data, error } = await supabase.auth.signInWithOtp({
+      email,
+      options: {
+        // set this to false if you do not want the user to be automatically signed up
+        shouldCreateUser: false,
+        emailRedirectTo: 'https://simplecalendarJs.com/',
+      },
+    })
+  }
