@@ -34,8 +34,8 @@
                     <li class="nav-item"><a class="nav-link" href="pricing.html">Pricing</a></li>
                 </ul>
                 <div class="ms-3">
-                    <button class="btn btn-outline-primary" data-bs-toggle="modal" data-bs-target="#authModal">
-                        <i class="fas fa-user me-1"></i>&nbsp;Login
+                    <button id="loginButton" class="btn btn-outline-primary rounded-circle p-0 d-flex align-items-center justify-content-center" style="width: 40px; height: 40px;">
+                        <i class="fas fa-user"></i>
                     </button>
                 </div>
             </div>
@@ -99,11 +99,11 @@
                 <div class="modal-body">
                     <form id="magicLinkForm">
                         <div class="mb-3">
-                            <label for="emailInput" class="form-label">Email Address</label>
+                            <label id="emailInputLabel" for="emailInput" class="form-label">Email Address</label>
                             <input type="email" class="form-control" id="emailInput" required>
-                            <div class="form-text">We'll send a magic link to this email</div>
+                            <div id="subMessage" class="form-text">We'll send a magic link to this email</div>
                         </div>
-                        <button type="submit" class="btn btn-primary w-100">Send Magic Link</button>
+                        <button id="loginSubmit" type="submit" class="btn btn-primary w-100">Send Magic Link</button>
                     </form>
                 </div>
             </div>

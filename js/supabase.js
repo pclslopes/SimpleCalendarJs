@@ -22,7 +22,8 @@ const { data } = _supabase.auth.onAuthStateChange((event, session) => {
         user.username= session?.user?.user_metadata?.name || null;
         user.useremail = session?.user?.email || null;
 
-        console.log(user);
+
+        
     } else if (event === 'SIGNED_OUT') {
         // handle sign out event
     } else if (event === 'PASSWORD_RECOVERY') {
@@ -59,3 +60,21 @@ async function signInWithEmail(email) {
       },
     })
   }
+
+  async function logoutFromSupabase() {
+    try {
+        const { error } = await _supabase.auth.signOut();
+        
+        if (error) {
+            console.error('Logout error:', error.message);
+            return false;
+        }
+        
+        // Optional: Additional logout handling
+        console.log('Logged out successfully');
+        return true;
+    } catch (err) {
+        console.error('Unexpected logout error:', err);
+        return false;
+    }
+}
