@@ -35,7 +35,7 @@ const { data } = _supabase.auth.onAuthStateChange((event, session) => {
     }
 });
 
-
+/*
 async function registerUser(email, password){
     const { data, error } = await _supabase.auth.signUp({
         email,
@@ -78,3 +78,4 @@ async function signInWithEmail(email) {
         return false;
     }
 }
+*/
