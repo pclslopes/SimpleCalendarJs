@@ -1,0 +1,115 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>SimpleCalendarJs</title>
+    
+    <!-- Bootstrap CSS -->
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/bootstrap/5.3.0/css/bootstrap.min.css" rel="stylesheet">
+    
+    <!-- Font Awesome -->
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" rel="stylesheet">
+   
+    <!-- Custom CSS -->
+    <link href="css/styles.css" rel="stylesheet">
+    <link href="css/calendar.css" rel="stylesheet">
+</head>
+<body>
+    <!-- Navigation -->
+    <nav class="navbar navbar-expand-lg navbar-light bg-light">
+        <div class="container">
+            <a class="navbar-brand d-flex align-items-center" href="#">
+                <img src="images/calendar-logo.svg" width="40" height="40" class="me-2" alt="Logo">
+                <strong class="text-secondary">SimpleCalendarJs</strong>
+            </a>
+            <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav">
+                <span class="navbar-toggler-icon"></span>
+            </button>
+            <div class="collapse navbar-collapse justify-content-end" id="navbarNav">
+                <ul class="navbar-nav">
+                    <li class="nav-item"><a class="nav-link" href="#home">Home</a></li>
+                    <li class="nav-item"><a class="nav-link" href="#home">Examples</a></li>
+                    <li class="nav-item"><a class="nav-link" href="#about">Docs</a></li>
+                    <li class="nav-item"><a class="nav-link" href="pricing.html">Pricing</a></li>
+                </ul>
+                <div class="ms-3">
+                    <a href="#" class="btn btn-outline-primary" data-bs-toggle="modal" data-bs-target="#loginModal">
+                        <i class="fas fa-user me-1"></i>Login
+                    </a>
+                </div>
+            </div>
+        </div>
+    </nav>
+
+    <!-- Jumbotron -->
+    <div class="container mt-4">
+        <div class="p-5 mb-4 bg-transparent rounded-3 jumbotron-background">
+            <div class="container-fluid py-5 text-white">
+                <h1 class="display-5 fw-bold">Welcome to SimpleCalendarJs</h1>
+                <p class="col-md-8 fs-4">A bootstrap fuelled calendar.</p>
+                <button class="btn btn-primary btn-lg" type="button">Learn More</button>
+            </div>
+        </div>
+    </div>
+
+    
+
+    <!-- Cards Section -->
+    <div class="container">
+        <div class="row">
+            <div id='calendar'></div>
+        </div>
+        <div class="row">
+            <div class="col-md-4 mb-4">
+                <div class="card">
+                    <div class="card-body">
+                        <h5 class="card-title">Calendar Options</h5>
+                        <p class="card-text">You can experiment with the several options of the calendar here.</p>
+                    </div>
+                </div>
+            </div>
+            <div class="col-md-4 mb-4">
+                <div class="card">
+                    <div class="card-body">
+                        <h5 class="card-title">Card 2</h5>
+                        <p class="card-text">Some quick example text for card 2.</p>
+                    </div>
+                </div>
+            </div>
+            <div class="col-md-4 mb-4">
+                <div class="card">
+                    <div class="card-body">
+                        <h5 class="card-title">Card 3</h5>
+                        <p class="card-text">Some quick example text for card 3.</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Footer -->
+    <footer class="footer mt-auto py-3 bg-light">
+        <div class="container text-center">
+            <span class="text-muted">&copy; 2024 Your Company. All Rights Reserved.</span>
+        </div>
+    </footer>
+
+    <!-- Bootstrap JS -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/bootstrap/5.3.0/js/bootstrap.bundle.min.js"></script>
+    
+    <!-- jQuery -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.6.0/jquery.min.js"></script>
+
+    <!-- Moment -->
+    <script src='https://cdnjs.cloudflare.com/ajax/libs/moment.js/2.29.4/moment.min.js'></script>
+
+    <!-- Calendar -->
+    <script src="js/calendar.js"></script>
+
+    <!-- Custom JS -->
+    <script src="js/script.js"></script>
+
+    
+</body>
+</html>
