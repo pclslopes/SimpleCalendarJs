@@ -2,9 +2,9 @@ $(document).ready(function () {
     $('#magicLinkForm').on('submit', async (e) => {
         e.preventDefault();
         
-        const email = $('#emailInput').value;
+        const email = $('#emailInput').val();
         console.log('email: ' + email);
-        
+
         try {
             const { error } = await _supabase.auth.signInWithOtp({
                 email,
