@@ -1,13 +1,13 @@
 <!DOCTYPE html>
-<html lang="en">
+<html lang="en" data-bs-theme="auto">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>SimpleCalendarJs</title>
     
     <link rel="preconnect" href="https://fonts.googleapis.com">
-<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-<link href="https://fonts.googleapis.com/css2?family=Dancing+Script&family=Geist+Mono:wght@100..900&family=Handlee&family=Source+Code+Pro:wght@300&display=swap" rel="stylesheet">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Dancing+Script&family=Geist+Mono:wght@100..900&family=Handlee&family=Source+Code+Pro:wght@300&display=swap" rel="stylesheet">
 
     <!-- Bootstrap CSS -->
     <link href="https://cdnjs.cloudflare.com/ajax/libs/bootstrap/5.3.0/css/bootstrap.min.css" rel="stylesheet">
@@ -18,6 +18,10 @@
     <!-- Custom CSS -->
     <link href="css/styles.css" rel="stylesheet">
     <link href="css/calendar.css" rel="stylesheet">
+
+    <!-- jQuery -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.6.0/jquery.min.js"></script>
+    <script src="js/darkmode.js"></script>
 </head>
 <body>
     <!-- Navigation -->
@@ -32,7 +36,7 @@
             </button>
             <div class="collapse navbar-collapse justify-content-end" id="navbarNav">
                 <ul class="navbar-nav">
-                    <li class="nav-item"><a class="nav-link" href="index.html">Home</a></li>
+                    <li class="nav-item"><a href="index.html" class="nav-link">Home</a></li>
                     <li class="nav-item"><a class="nav-link" href="#calendar">Example</a></li>
                     <li class="nav-item"><a class="nav-link" href="docs.html">Docs</a></li>
                     <li class="nav-item"><a class="nav-link" href="#pricing">Pricing</a></li>
@@ -57,39 +61,98 @@
         </div>
     </div>
 
-    
-
-    <!-- Cards Section -->
     <div class="container">
-        <div class="row">
-            <div id='calendar'></div>
+
+        <div class="container">
+            <br/>
+            <hr class="hr" />
         </div>
+
+        <div class="text-center">
+            <br/>
+            <h1 class="display-5">Powerful Simple Calendar Javascript Component</h1>
+            <p class="lead">Streamline your scheduling and collaboration workflows with our feature-rich, customizable calendar.</p>
+        </div>
+
+        <div class="container">
+            <br/>
+            <hr class="hr" />
+        </div>
+
         <div class="row">
+            <div class="col-md-8 mb-8">
+                <div id='calendar'></div>
+            </div>
             <div class="col-md-4 mb-4">
+                <h2 class="h4 text-info">Key Features</h2>
+                <ul class="list-group list-group-flush">
+                    <li class="list-group-item"><strong>Month View:</strong> See all scheduled items across the month at a glance.</li>
+                    <li class="list-group-item"><strong>Week View:</strong> Zoom in on weekly tasks for detailed planning.</li>
+                    <li class="list-group-item"><strong>Day View:</strong> Focus on single-day priorities.</li>
+                    <li class="list-group-item"><strong>Year, Month, Week, and Day Selectors:</strong> Easily navigate between time frames.</li>
+                    <li class="list-group-item"><strong>Multi-Item Display:</strong> Track multiple overlapping events without clutter.</li>
+                    <li class="list-group-item"><strong>Customizable Appearance:</strong> Fully adaptable to your SaaS brand.</li>
+                    <li class="list-group-item"><strong>Drag-and-Drop Support:</strong> Rearrange tasks with ease.</li>
+                    <li class="list-group-item"><strong>Event Metadata:</strong> Add descriptions, links, and attachments for better context.</li>
+                    <li class="list-group-item"><strong>Responsive Design:</strong> Works seamlessly across all devices.</li>
+                    <li class="list-group-item"><strong>Integration-Ready:</strong> Compatible with popular backends and APIs.</li>
+                </ul>
+            </div>
+        </div>
+        
+        <div class="container">
+            <br/>
+            <hr class="hr" />
+        </div>
+
+        <div class="row">
+            <h2 class="h4"><strong>How It Benefits Developers and Teams</strong></h2>
+            <br/>
+            <div class="col-md-6 mb-6">
                 <div class="card">
                     <div class="card-body">
-                        <h5 class="card-title">Calendar Options</h5>
-                        <p class="card-text">You can experiment with the several options of the calendar here.</p>
+                        <h5 class="card-title">For Developers</h5>
+                        <p class="card-text">
+                            <ul>
+                                <li>Easy-to-implement API and detailed documentation.</li>
+                                <li>Save time with built-in features.</li>
+                                <li>Extend functionality with custom hooks and events.</li>
+                              </ul>
+                        </p>
                     </div>
                 </div>
             </div>
-            <div class="col-md-4 mb-4">
+            <div class="col-md-6 mb-6">
                 <div class="card">
                     <div class="card-body">
-                        <h5 class="card-title">Card 2</h5>
-                        <p class="card-text">Some quick example text for card 2.</p>
-                    </div>
-                </div>
-            </div>
-            <div class="col-md-4 mb-4">
-                <div class="card">
-                    <div class="card-body">
-                        <h5 class="card-title">Card 3</h5>
-                        <p class="card-text">Some quick example text for card 3.</p>
+                        <h5 class="card-title">For Teams</h5>
+                        <p class="card-text">
+                            <ul>
+                                <li>Improve alignment with shared visibility of deadlines.</li>
+                                <li>Enable seamless collaboration in real time.</li>
+                                <li>Reduce scheduling conflicts by visualizing overlaps.</li>
+                              </ul>
+                        </p>
                     </div>
                 </div>
             </div>
         </div>
+    </div>
+
+    <div class="container">
+        <br/>
+        <hr class="hr" />
+    </div>
+
+    <div class="container my-5">
+        <div class="mt-5 text-center">
+          <a href="#" class="btn btn-primary btn-lg">Get Started Today</a>
+        </div>
+    </div>
+
+    <div class="container">
+        <br/>
+        <hr class="hr" />
     </div>
 
     <!-- Pricing Header -->
@@ -103,48 +166,48 @@
         <div class="row">
             <!-- Basic Plan -->
             <div class="col-md-4 mb-4">
-                <div class="card h-100 text-center">
+                <div class="card h-100 text-center border-primary">
                     <div class="card-body">
-                        <h5 class="card-title">Project Plan</h5>
+                        <h5 class="card-title text-primary">Project Plan</h5>
                         <h6 class="card-subtitle mb-2 text-muted">For Individuals</h6>
-                        <p class="display-6 my-4">$10.00<br/><span class="h6">Single Payment</span></p>
+                        <p class="display-6 my-4">$40.00<br/><span class="h6">Single Payment</span></p>
                         <ul class="list-unstyled">
-                            <li>1 Project</li>
+                            <li>Per Project</li>
                             <li>Basic Support</li>
                         </ul>
-                        <a href="#" class="btn btn-outline-primary mt-3">Choose Basic</a>
+                        <a href="#" class="btn btn-primary mt-3">Choose Basic</a>
                     </div>
                 </div>
             </div>
 
             <!-- Pro Plan -->
             <div class="col-md-4 mb-4">
-                <div class="card h-100 text-center border-primary">
+                <div class="card h-100 text-center border-warning">
                     <div class="card-body">
-                        <h5 class="card-title text-primary">Pro Plan</h5>
+                        <h5 class="card-title text-warning">Pro Plan</h5>
                         <h6 class="card-subtitle mb-2 text-muted">For Teams</h6>
-                        <p class="display-6 my-4">$40.00<br/><span class="h6">Single Payment</span></p>
+                        <p class="display-6 my-4">$140.00<br/><span class="h6">Single Payment</span></p>
                         <ul class="list-unstyled">
-                            <li>5 Projects</li>
+                            <li>Per Project</li>
                             <li>Priority Support</li>
                         </ul>
-                        <a href="#" class="btn btn-primary mt-3">Choose Pro</a>
+                        <a href="#" class="btn btn-warning mt-3">Choose Pro</a>
                     </div>
                 </div>
             </div>
 
             <!-- Enterprise Plan -->
             <div class="col-md-4 mb-4">
-                <div class="card h-100 text-center">
+                <div class="card h-100 text-center border-danger">
                     <div class="card-body">
-                        <h5 class="card-title">Unlimited Plan</h5>
+                        <h5 class="card-title text-danger">Unlimited Plan</h5>
                         <h6 class="card-subtitle mb-2 text-muted">For...ever!</h6>
-                        <p class="display-6 my-4">$100.00<br/><span class="h6">Single Payment</span></p>
+                        <p class="display-6 my-4">$600.00<br/><span class="h6">Single Payment</span></p>
                         <ul class="list-unstyled">
                             <li>Unlimited Projects</li>
                             <li>Dedicated Support</li>
                         </ul>
-                        <a href="#" class="btn btn-outline-primary mt-3">Contact Sales</a>
+                        <a href="#" class="btn btn-danger mt-3">Chose Unlimited</a>
                     </div>
                 </div>
             </div>
@@ -178,15 +241,17 @@
     <footer class="footer mt-auto py-3 bg-light">
         <div class="container text-center">
             <span class="text-muted">&copy; 2024 SimpleCalendarJs. All Rights Reserved.</span>
+            &nbsp;&nbsp;
+            <button id="mode-toggle" class="btn btn-outline-secondary mode-toggle">
+                <span id="mode-icon">🌓</span> Toggle Mode
+            </button>
         </div>
     </footer>
 
     <!-- Bootstrap JS -->
     <script src="https://cdnjs.cloudflare.com/ajax/libs/bootstrap/5.3.0/js/bootstrap.bundle.min.js"></script>
     
-    <!-- jQuery -->
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.6.0/jquery.min.js"></script>
-
+    
     <!-- Moment -->
     <script src='https://cdnjs.cloudflare.com/ajax/libs/moment.js/2.29.4/moment.min.js'></script>
 

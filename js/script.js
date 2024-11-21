@@ -2,6 +2,7 @@ var currentDate = new Date();
 
  
 $(document).ready(function () {
+
     $('#calendar').calendar({
         date: new Date(), // todays date
         showTimeInEvent: true,
@@ -118,8 +119,8 @@ function requestData(calendarRequestObject, callback) {
           "title": "🎉 Product Launch",
           "text": "Launch the new feature update.",
           "Description": "Launch the new feature update.",
-          "start": "2024-" + currentMonth + "-15",
-          "end": "2024-" + currentMonth + "-23",
+          "start": "2024-" + currentMonth + "-15T11:00:00",
+          "end": "2024-" + currentMonth + "-23T11:00:00",
           "backgroundColor": "#d9edf7"
         },
         {
