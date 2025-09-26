@@ -34,6 +34,7 @@ $(document).ready(function () {
 
 function requestData(calendarRequestObject, callback) {
     const currentMonth = new Date().getMonth() + 1;
+    const currentYear = new Date().getFullYear();
     callback([
         {
           "Id": 1,
@@ -42,8 +43,8 @@ function requestData(calendarRequestObject, callback) {
           "title": "📅 Team Standup",
           "text": "Daily standup meeting to discuss progress.",
           "Description": "Daily standup meeting to discuss progress.",
-          "start": "2024-" + currentMonth + "-01",
-          "end": "2024-" + currentMonth + "-06",
+          "start": currentYear + "-" + currentMonth + "-01",
+          "end": currentYear + "-" + currentMonth + "-06",
           "backgroundColor": "#dff0d8"
         },
         {
@@ -53,8 +54,8 @@ function requestData(calendarRequestObject, callback) {
           "title": "⏰ Project Milestone Due",
           "text": "Submit the project milestone documentation.",
           "Description": "Submit the project milestone documentation.",
-          "start": "2024-" + currentMonth + "-03",
-          "end": "2024-" + currentMonth + "-07",
+          "start": currentYear + "-" + currentMonth + "-03",
+          "end": currentYear + "-" + currentMonth + "-07",
           "backgroundColor": "#dec1ff"
         },
         {
@@ -64,8 +65,8 @@ function requestData(calendarRequestObject, callback) {
           "title": "🎉 Team Building Activity",
           "text": "Outdoor activities with the team.",
           "Description": "Outdoor activities with the team.",
-          "start": "2024-" + currentMonth + "-05",
-          "end": "2024-" + currentMonth + "-07",
+          "start": currentYear + "-" + currentMonth + "-05",
+          "end": currentYear + "-" + currentMonth + "-07",
           "backgroundColor": "#dff0d8"
         },
         {
@@ -75,8 +76,8 @@ function requestData(calendarRequestObject, callback) {
           "title": "📋 Complete Bug Fixes",
           "text": "Resolve reported issues in the app.",
           "Description": "Resolve reported issues in the app.",
-          "start": "2024-" + currentMonth + "-08",
-          "end": "2024-" + currentMonth + "-08",
+          "start": currentYear + "-" + currentMonth + "-08",
+          "end": currentYear + "-" + currentMonth + "-08",
           "backgroundColor": "#f0cea0"
         },
         {
@@ -86,8 +87,8 @@ function requestData(calendarRequestObject, callback) {
           "title": "📅 Client Presentation",
           "text": "Present the Q3 project results to the client.",
           "Description": "Present the Q3 project results to the client.",
-          "start": "2024-" + currentMonth + "-08",
-          "end": "2024-" + currentMonth + "-10",
+          "start": currentYear + "-" + currentMonth + "-08",
+          "end": currentYear + "-" + currentMonth + "-10",
           "backgroundColor": "#e74c3c"
         },
         {
@@ -97,8 +98,8 @@ function requestData(calendarRequestObject, callback) {
           "title": "🔔 Send Progress Update",
           "text": "Email weekly updates to the stakeholders.",
           "Description": "Email weekly updates to the stakeholders.",
-          "start": "2024-" + currentMonth + "-10",
-          "end": "2024-" + currentMonth + "-12",
+          "start": currentYear + "-" + currentMonth + "-10",
+          "end": currentYear + "-" + currentMonth + "-12",
           "backgroundColor": "#f0cea0"
         },
         {
@@ -108,8 +109,8 @@ function requestData(calendarRequestObject, callback) {
           "title": "📋 Review Design Proposals",
           "text": "Evaluate new designs for the project.",
           "Description": "Evaluate new designs for the project.",
-          "start": "2024-" + currentMonth + "-13",
-          "end": "2024-" + currentMonth + "-13",
+          "start": currentYear + "-" + currentMonth + "-13",
+          "end": currentYear + "-" + currentMonth + "-13",
           "backgroundColor": "#DAF7A6"
         },
         {
@@ -119,8 +120,8 @@ function requestData(calendarRequestObject, callback) {
           "title": "🎉 Product Launch",
           "text": "Launch the new feature update.",
           "Description": "Launch the new feature update.",
-          "start": "2024-" + currentMonth + "-15T11:00:00",
-          "end": "2024-" + currentMonth + "-23T11:00:00",
+          "start": currentYear + "-" + currentMonth + "-15T11:00:00",
+          "end": currentYear + "-" + currentMonth + "-23T11:00:00",
           "backgroundColor": "#d9edf7"
         },
         {
@@ -130,8 +131,8 @@ function requestData(calendarRequestObject, callback) {
           "title": "⏰ Submit Reports",
           "text": "Prepare and submit monthly reports.",
           "Description": "Prepare and submit monthly reports.",
-          "start": "2024-" + currentMonth + "-17",
-          "end": "2024-" + currentMonth + "-17",
+          "start": currentYear + "-" + currentMonth + "-17",
+          "end": currentYear + "-" + currentMonth + "-17",
           "backgroundColor": "#d9edf7"
         },
         {
@@ -141,8 +142,8 @@ function requestData(calendarRequestObject, callback) {
           "title": "📅 Budget Planning",
           "text": "Discuss budget allocations for next year.",
           "Description": "Discuss budget allocations for next year.",
-          "start": "2024-" + currentMonth + "-17",
-          "end": "2024-" + currentMonth + "-17",
+          "start": currentYear + "-" + currentMonth + "-17",
+          "end": currentYear + "-" + currentMonth + "-17",
           "backgroundColor": "#d9edf7"
         },
         {
@@ -152,8 +153,8 @@ function requestData(calendarRequestObject, callback) {
           "title": "🔔 Invoice Payment Due",
           "text": "Pay vendor invoices by EOD.",
           "Description": "Pay vendor invoices by EOD.",
-          "start": "2024-" + currentMonth + "-18",
-          "end": "2024-" + currentMonth + "-23",
+          "start": currentYear + "-" + currentMonth + "-18",
+          "end": currentYear + "-" + currentMonth + "-23",
           "backgroundColor": "#FFC300"
         },
         {
@@ -163,8 +164,8 @@ function requestData(calendarRequestObject, callback) {
           "title": "📋 Backup Server Data",
           "text": "Create a backup of all servers.",
           "Description": "Create a backup of all servers.",
-          "start": "2024-" + currentMonth + "-20",
-          "end": "2024-" + currentMonth + "-23",
+          "start": currentYear + "-" + currentMonth + "-20",
+          "end": currentYear + "-" + currentMonth + "-23",
           "backgroundColor": "#dff0d8"
         },
         {
@@ -174,8 +175,8 @@ function requestData(calendarRequestObject, callback) {
           "title": "🎉 Thanksgiving Celebration",
           "text": "Office gathering for Thanksgiving.",
           "Description": "Office gathering for Thanksgiving.",
-          "start": "2024-" + currentMonth + "-24",
-          "end": "2024-" + currentMonth + "-24",
+          "start": currentYear + "-" + currentMonth + "-24",
+          "end": currentYear + "-" + currentMonth + "-24",
           "backgroundColor": "#DAF7A6"
         },
         {
@@ -185,8 +186,8 @@ function requestData(calendarRequestObject, callback) {
           "title": "📅 Annual Review",
           "text": "Discuss yearly achievements and future goals.",
           "Description": "Discuss yearly achievements and future goals.",
-          "start": "2024-" + currentMonth + "-26",
-          "end": "2024-" + currentMonth + "-26",
+          "start": currentYear + "-" + currentMonth + "-26",
+          "end": currentYear + "-" + currentMonth + "-26",
           "backgroundColor": "#dec1ff"
         },
         {
@@ -196,8 +197,8 @@ function requestData(calendarRequestObject, callback) {
           "title": "🔔 Renew Licenses",
           "text": "Renew all software licenses.",
           "Description": "Renew all software licenses.",
-          "start": "2024-" + currentMonth + "-28",
-          "end": "2024-" + currentMonth + "-28",
+          "start": currentYear + "-" + currentMonth + "-28",
+          "end": currentYear + "-" + currentMonth + "-28",
           "backgroundColor": "#e74c3c"
         }
       ]);

@@ -14,12 +14,25 @@
     background-color: #eee;
 }
 
+.date, .c-name{
+    text-align: center;
+}
+
 .outside .date {
     color: #808080;
 }
 
 .currentdate .date {
     color: #e74c3c;
+    font-weight: 800;
+    /*border-radius: 50%;*/
+    background-color: #eeeded;
+    border-top-left-radius: 10px;
+    border-top-right-radius: 10px;
+}
+
+.today-date {
+    background-color: #eeeded;
 }
 
 .timetitle {
