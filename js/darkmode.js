@@ -24,5 +24,26 @@ $(document).ready(function () {
     $('#mode-toggle').on('click',()=>{
         toggleTheme();
     });
+
+    // Calendar theme testing button
+    $('#calendar-theme-test').on('click', function() {
+        toggleTheme();
+        
+        // Update button text based on current theme
+        const currentTheme = $('html').attr('data-bs-theme');
+        const buttonText = currentTheme === 'dark' ? 
+            '<i class="fas fa-sun"></i> Switch to Light Theme' : 
+            '<i class="fas fa-moon"></i> Switch to Dark Theme';
+        $(this).html(buttonText);
+    });
+
+    // Initialize button text on page load
+    $(window).on('load', function() {
+        const currentTheme = $('html').attr('data-bs-theme');
+        const buttonText = currentTheme === 'dark' ? 
+            '<i class="fas fa-sun"></i> Switch to Light Theme' : 
+            '<i class="fas fa-moon"></i> Switch to Dark Theme';
+        $('#calendar-theme-test').html(buttonText);
+    });
 });
 

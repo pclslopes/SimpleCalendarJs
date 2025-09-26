@@ -22,6 +22,10 @@
     color: #808080;
 }
 
+.calendar-day.currentdate {
+    background-color: #eeeded !important;
+}
+
 .currentdate .date {
     color: #e74c3c;
     font-weight: 800;
@@ -33,6 +37,19 @@
 
 .today-date {
     background-color: #eeeded;
+}
+
+/* Dark mode styles */
+[data-bs-theme="dark"] .calendar-day.currentdate {
+    background-color: #3a3a3a !important;
+}
+
+[data-bs-theme="dark"] .currentdate .date {
+    background-color: #3a3a3a;
+}
+
+[data-bs-theme="dark"] .today-date {
+    background-color: #3a3a3a;
 }
 
 .timetitle {
