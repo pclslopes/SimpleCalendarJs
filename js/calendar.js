@@ -33,8 +33,8 @@ var template = `{{
               <tr>
                 <td style="text-align: left;">
                   <span class="cal-nav-group">
-                    <button class="js-cal-prev cal-nav-button">‹</button>
-                    <button class="js-cal-next cal-nav-button">›</button>
+                    <button class="js-cal-prev cal-nav-button">←</button>
+                    <button class="js-cal-next cal-nav-button">→</button>
                   </span>
                   <button class="js-cal-option cal-nav-button button btn-today {{: first.toDateInt() <= today.toDateInt() && today.toDateInt() <= last.toDateInt() ? 'cal-nav-primary':'' }}" data-date="{{: today.toISOString()}}" data-mode="month">{{: todayname }}</button>
                 </td>
@@ -54,8 +54,8 @@ var template = `{{
                           <span class="js-cal-year-dropdown cal-nav-button cal-nav-primary">{{: year }} ▼</span>
                           <div class="year-dropdown-menu">
                             <div class="year-nav-buttons">
-                              <button class="year-nav-prev cal-nav-button">‹</button>
-                              <button class="year-nav-next cal-nav-button">›</button>
+                              <button class="year-nav-prev cal-nav-button">←</button>
+                              <button class="year-nav-next cal-nav-button">→</button>
                             </div>
                           </div>
                         </div>
