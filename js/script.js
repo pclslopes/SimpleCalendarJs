@@ -10,6 +10,7 @@ $(document).ready(function () {
         showBackground: true, // Enable backgrounds for this example
         headerBackgroundColor: '#e3f2fd', // Custom header background
         bodyBackgroundColor: '#fafafa', // Custom body background
+        useShortDays: true, // Set to true to always use short day names (Sun, Mon, etc.), false uses responsive CSS
         events: requestData,
         eventClick: function (infoObj) {
             alert('An even was clicked! Event data: ' + JSON.stringify(infoObj));

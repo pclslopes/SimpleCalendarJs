@@ -491,3 +491,35 @@
     background-color: #555555;
     border-color: #666666;
 }
+
+/* Responsive day name display */
+.day-short {
+    display: none;
+}
+
+.day-long {
+    display: inline;
+}
+
+/* Show short day names on small screens */
+@media (max-width: 768px) {
+    .day-long {
+        display: none;
+    }
+    
+    .day-short {
+        display: inline;
+    }
+}
+
+/* Very small screens - even shorter day names */
+@media (max-width: 480px) {
+    .day-short {
+        font-size: 0.8em;
+    }
+    
+    .calendar-table thead .c-name {
+        padding: 6px 2px;
+        font-size: 0.75em;
+    }
+}

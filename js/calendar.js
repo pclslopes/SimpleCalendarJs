@@ -88,7 +88,12 @@ var template = `{{
         <tr class="c-weeks">
           {{ for (i = 0; i < 7; i++) { }}
             <th class="c-name">
-              {{: days[i] }}
+              {{ if (useShortDays) { }}
+                {{: shortDays[i] }}
+              {{ } else { }}
+                <span class="day-long">{{: days[i] }}</span>
+                <span class="day-short">{{: shortDays[i] }}</span>
+              {{ } }}
             </th>
           {{ } }}
         </tr>
@@ -554,6 +559,7 @@ $(document).ready(function () {
                 });
             })({
                 days: ["Sunday", "Monday", "Tuesday", "Wednesday", "Thursday", "Friday", "Saturday"],
+                shortDays: ["Sun", "Mon", "Tue", "Wed", "Thu", "Fri", "Sat"],
                 months: ["January", "February", "March", "April", "May", "June", "July", "August", "September", "October", "November", "December"],
                 shortMonths: ["Jan", "Feb", "Mar", "Apr", "May", "Jun", "Jul", "Aug", "Sep", "Oct", "Nov", "Dec"],
                 date: (new Date()),
@@ -563,6 +569,7 @@ $(document).ready(function () {
                 lastmonthcss: "outside",
                 nextmonthcss: "outside",
                 mode: "month",
+                useShortDays: false,
                 data: []
             }, jQuery, window, document);
 
