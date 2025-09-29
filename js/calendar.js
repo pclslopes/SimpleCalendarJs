@@ -265,7 +265,19 @@ $(document).ready(function () {
                     var $t = $(this), o = $t.data();
                     if (o.date) { o.date = new Date(o.date); }
                     $.extend(options, o);
-                    dateParam.dateClick = o.date;
+                    
+                    // Ensure dateClick is always set for calendar days
+                    if (o.date) {
+                        dateParam.dateClick = o.date;
+                    } else if ($(this).hasClass('calendar-day') || $(this).closest('.calendar-day').length) {
+                        // If clicking on a calendar day without date data, find it from the closest calendar-day
+                        var $calendarDay = $(this).hasClass('calendar-day') ? $(this) : $(this).closest('.calendar-day');
+                        var dayData = $calendarDay.data();
+                        if (dayData.date) {
+                            dateParam.dateClick = new Date(dayData.date);
+                        }
+                    }
+                    
                     // Day click outside of events
                     if (!$(this).hasClass('button')) {
                         options.dayClick(dateParam);
@@ -372,7 +384,7 @@ $(document).ready(function () {
                     var e = new Date(event.start),
                         dateclass = e.toDateCssClass(),
                         day = $('.' + e.toDateCssClass()),
-                        empty = $('<div/>', { 'class': 'clear event', html: ' ' }),
+                        empty = $('<div/>', { 'class': 'clear event js-cal-option', html: ' ' }),
                         numbevents = 0,
                         time = new Date(event.start).toTimeString(),
                         endday = event.end && $('.' + new Date(event.end).toDateCssClass()).length > 0,
