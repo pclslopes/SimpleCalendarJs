@@ -46,7 +46,7 @@ var template = `{{
                           <span class="js-cal-month-dropdown cal-nav-button button cal-nav-primary">{{: months[month] }} ▼</span>
                           <div class="month-dropdown-menu">
                             {{ for (var i = 0; i < 12; i++) { }}
-                              <div class="month-dropdown-item" data-date="{{: new Date(year, i, 1).toISOString() }}" data-mode="month">{{: months[i] }}</div>
+                              <div class="month-dropdown-item {{: i === month ? 'active' : '' }}" data-date="{{: new Date(year, i, 1).toISOString() }}" data-mode="month">{{: months[i] }}</div>
                             {{ } }}
                           </div>
                         </div>
@@ -69,11 +69,24 @@ var template = `{{
                   </span>
                 </td>
                 <td style="text-align: right">
-                  <span class="cal-nav-group">
+                  <!-- Desktop view switcher -->
+                  <span class="cal-nav-group desktop-view-switcher">
                     <button class="js-cal-option cal-nav-button button {{: mode==='month'? 'active cal-nav-primary':'' }}" data-mode="month">Month</button>
                     <button class="js-cal-option cal-nav-button button {{: mode==='week'? 'active cal-nav-primary':'' }}" data-mode="week">Week</button>
                     <button class="js-cal-option cal-nav-button button {{: mode==='day'? 'active cal-nav-primary':'' }}" data-mode="day">Day</button>
                   </span>
+                  
+                  <!-- Mobile hamburger menu -->
+                  <div class="mobile-view-switcher">
+                    <div class="view-dropdown-container">
+                      <span class="js-cal-view-dropdown cal-nav-button cal-nav-primary">{{: mode === 'month' ? 'Month' : mode === 'week' ? 'Week' : 'Day' }} ≡</span>
+                      <div class="view-dropdown-menu">
+                        <div class="view-dropdown-item js-cal-option {{: mode==='month'? 'active':'' }}" data-mode="month">Month</div>
+                        <div class="view-dropdown-item js-cal-option {{: mode==='week'? 'active':'' }}" data-mode="week">Week</div>
+                        <div class="view-dropdown-item js-cal-option {{: mode==='day'? 'active':'' }}" data-mode="day">Day</div>
+                      </div>
+                    </div>
+                  </div>
                 </td>
               </tr>
             </table>
@@ -281,8 +294,14 @@ $(document).ready(function () {
                     // trigger callback event
                     options.events({ defaultDate: new Date(dateCopy), start: new Date(startDate), end: new Date(endDate) }, eventCallback);
                 }).on('click', '.js-cal-option', function () {
+                    // Skip view dropdown items - they have their own handler
+                    if ($(this).hasClass('view-dropdown-item')) {
+                        return;
+                    }
+                    
                     // Close year dropdown when clicking other calendar buttons
                     $('.year-dropdown-menu').hide();
+                    $('.view-dropdown-menu').hide();
                     options.keepYearDropdownOpen = false;
                     
                     var dateParam = { monthDate: options.date };
@@ -320,6 +339,19 @@ $(document).ready(function () {
                             draw();
                         }
                     }
+                }).on('click', '.view-dropdown-item', function (e) {
+                    e.preventDefault();
+                    e.stopPropagation();
+                    
+                    // Get the mode from data attribute
+                    var $t = $(this), o = $t.data();
+                    if (o.mode) {
+                        $.extend(options, o);
+                        draw();
+                    }
+                    
+                    $('.view-dropdown-menu').hide();
+                    return false;
                 }).on('click', '.event', function () {
                     if (!$(this).hasClass('js-cal-option')) {
                         var eventObj = { event: $(this).data('json'), monthDate: options.date };
@@ -329,8 +361,9 @@ $(document).ready(function () {
                 }).on('click', '.js-cal-month-dropdown', function (e) {
                     e.preventDefault();
                     e.stopPropagation();
-                    // Close year dropdown when opening month dropdown
+                    // Close other dropdowns when opening month dropdown
                     $('.year-dropdown-menu').hide();
+                    $('.view-dropdown-menu').hide();
                     options.keepYearDropdownOpen = false;
                     $('.month-dropdown-menu').toggle();
                     return false;
@@ -357,8 +390,9 @@ $(document).ready(function () {
                 }).on('click', '.js-cal-year-dropdown', function (e) {
                     e.preventDefault();
                     e.stopPropagation();
-                    // Close month dropdown when opening year dropdown
+                    // Close other dropdowns when opening year dropdown
                     $('.month-dropdown-menu').hide();
+                    $('.view-dropdown-menu').hide();
                     $('.year-dropdown-menu').toggle();
                     return false;
                 }).on('click', '.year-nav-next', function (e) {
@@ -397,6 +431,15 @@ $(document).ready(function () {
                     options.events({ defaultDate: new Date(dateCopy), start: new Date(startDate), end: new Date(endDate) }, eventCallback);
                     
                     return false;
+                }).on('click', '.js-cal-view-dropdown', function (e) {
+                    e.preventDefault();
+                    e.stopPropagation();
+                    // Close other dropdowns when opening view dropdown
+                    $('.month-dropdown-menu').hide();
+                    $('.year-dropdown-menu').hide();
+                    options.keepYearDropdownOpen = false;
+                    $('.view-dropdown-menu').toggle();
+                    return false;
                 })
                 
                 // Close dropdown when clicking outside
@@ -408,6 +451,9 @@ $(document).ready(function () {
                         $('.year-dropdown-menu').hide();
                         // Clear the flag when dropdown is manually closed
                         options.keepYearDropdownOpen = false;
+                    }
+                    if (!$(e.target).closest('.view-dropdown-container').length) {
+                        $('.view-dropdown-menu').hide();
                     }
                 });
                         ; /*.on('click', '.js-cal-years', function () {
