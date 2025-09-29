@@ -50,11 +50,19 @@ var template = `{{
                             {{ } }}
                           </div>
                         </div>
+                        <div class="year-dropdown-container">
+                          <span class="js-cal-year-dropdown cal-nav-button cal-nav-primary">{{: year }} ▼</span>
+                          <div class="year-dropdown-menu">
+                            <div class="year-nav-buttons">
+                              <button class="year-nav-prev cal-nav-button">‹</button>
+                              <button class="year-nav-next cal-nav-button">›</button>
+                            </div>
+                          </div>
+                        </div>
                       {{ } }}
                       {{ if (mode ==='week') { }}
                         <span class="cal-nav-button cal-nav-primary">{{: shortMonths[first.getMonth()] }} {{: first.getDate() }} - {{: shortMonths[last.getMonth()] }} {{: last.getDate() }}</span>
                       {{ } }}
-                      <span class="js-cal-years cal-nav-button cal-nav-primary">{{: year}}</span>
                     {{ } else { }}
                       <span class="cal-nav-button cal-nav-primary">{{: date.toDateString() }}</span>
                     {{ } }}
@@ -234,6 +242,10 @@ $(document).ready(function () {
                 console.log('data: ' + JSON.stringify(options.data));
                 //actions aren't currently in the template, but could be added easily...
                 $el.on('click', '.js-cal-prev', function () {
+                    // Close year dropdown when clicking main navigation buttons
+                    $('.year-dropdown-menu').hide();
+                    options.keepYearDropdownOpen = false;
+                    
                     switch (options.mode) {
                         case 'year': options.date.setFullYear(options.date.getFullYear() - 1); break;
                         case 'month': options.date.setMonth(options.date.getMonth() - 1); break;
@@ -250,6 +262,10 @@ $(document).ready(function () {
                     //options.events({ start: options.date, end: new Date(endDate) }, eventCallback);
                     //draw();
                 }).on('click', '.js-cal-next', function () {
+                    // Close year dropdown when clicking main navigation buttons
+                    $('.year-dropdown-menu').hide();
+                    options.keepYearDropdownOpen = false;
+                    
                     switch (options.mode) {
                         case 'year': options.date.setFullYear(options.date.getFullYear() + 1); break;
                         case 'month': options.date.setMonth(options.date.getMonth() + 1); break;
@@ -265,6 +281,10 @@ $(document).ready(function () {
                     // trigger callback event
                     options.events({ defaultDate: new Date(dateCopy), start: new Date(startDate), end: new Date(endDate) }, eventCallback);
                 }).on('click', '.js-cal-option', function () {
+                    // Close year dropdown when clicking other calendar buttons
+                    $('.year-dropdown-menu').hide();
+                    options.keepYearDropdownOpen = false;
+                    
                     var dateParam = { monthDate: options.date };
                     var $t = $(this), o = $t.data();
                     if (o.date) { o.date = new Date(o.date); }
@@ -309,6 +329,9 @@ $(document).ready(function () {
                 }).on('click', '.js-cal-month-dropdown', function (e) {
                     e.preventDefault();
                     e.stopPropagation();
+                    // Close year dropdown when opening month dropdown
+                    $('.year-dropdown-menu').hide();
+                    options.keepYearDropdownOpen = false;
                     $('.month-dropdown-menu').toggle();
                     return false;
                 }).on('click', '.month-dropdown-item', function (e) {
@@ -331,12 +354,60 @@ $(document).ready(function () {
                     
                     $('.month-dropdown-menu').hide();
                     return false;
+                }).on('click', '.js-cal-year-dropdown', function (e) {
+                    e.preventDefault();
+                    e.stopPropagation();
+                    // Close month dropdown when opening year dropdown
+                    $('.month-dropdown-menu').hide();
+                    $('.year-dropdown-menu').toggle();
+                    return false;
+                }).on('click', '.year-nav-next', function (e) {
+                    e.preventDefault();
+                    e.stopPropagation();
+                    
+                    // Move to next year
+                    options.date.setFullYear(options.date.getFullYear() + 1);
+                    var dateCopy = new Date('' + options.date);
+                    var defaultDate = new Date(options.date);
+                    var startDate = defaultDate.setMonth(defaultDate.getMonth() - 1.5);
+                    var endDate = defaultDate.setMonth(defaultDate.getMonth() + 3);
+                    console.log('Year Next - Current Date: ' + new Date(options.date));
+                    console.log('Date Range: ' + new Date(startDate) + ' > ' + new Date(endDate));
+                    
+                    // Set flag to keep dropdown open after redraw
+                    options.keepYearDropdownOpen = true;
+                    options.events({ defaultDate: new Date(dateCopy), start: new Date(startDate), end: new Date(endDate) }, eventCallback);
+                    
+                    return false;
+                }).on('click', '.year-nav-prev', function (e) {
+                    e.preventDefault();
+                    e.stopPropagation();
+                    
+                    // Move to previous year
+                    options.date.setFullYear(options.date.getFullYear() - 1);
+                    var dateCopy = new Date('' + options.date);
+                    var defaultDate = new Date(options.date);
+                    var startDate = defaultDate.setMonth(defaultDate.getMonth() - 1.5);
+                    var endDate = defaultDate.setMonth(defaultDate.getMonth() + 3);
+                    console.log('Year Previous - Current Date: ' + new Date(options.date));
+                    console.log('Date Range: ' + new Date(startDate) + ' > ' + new Date(endDate));
+                    
+                    // Set flag to keep dropdown open after redraw
+                    options.keepYearDropdownOpen = true;
+                    options.events({ defaultDate: new Date(dateCopy), start: new Date(startDate), end: new Date(endDate) }, eventCallback);
+                    
+                    return false;
                 })
                 
                 // Close dropdown when clicking outside
                 $(document).on('click', function(e) {
                     if (!$(e.target).closest('.month-dropdown-container').length) {
                         $('.month-dropdown-menu').hide();
+                    }
+                    if (!$(e.target).closest('.year-dropdown-container').length) {
+                        $('.year-dropdown-menu').hide();
+                        // Clear the flag when dropdown is manually closed
+                        options.keepYearDropdownOpen = false;
                     }
                 });
                         ; /*.on('click', '.js-cal-years', function () {
@@ -522,7 +593,12 @@ $(document).ready(function () {
                     //console.log('newData: ' + JSON.stringify(newData));
                     options.data = newData;
                     draw();
-
+                    
+                    // Reopen year dropdown if flag is set
+                    if (options.keepYearDropdownOpen) {
+                        $('.year-dropdown-menu').show();
+                        options.keepYearDropdownOpen = false; // Reset the flag
+                    }
                 }
 
                 function getEventBaseCssStyle(event, isBegin, isEnd) {
