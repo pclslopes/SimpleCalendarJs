@@ -41,7 +41,16 @@ var template = `{{
                 <td>
                   <span class="cal-nav-group">
                     {{ if (mode !== 'day') { }}
-                      {{ if (mode === 'month') { }}<span class="js-cal-option cal-nav-button button cal-nav-primary" data-mode="year">{{: months[month] }}</span>{{ } }}
+                      {{ if (mode === 'month') { }}
+                        <div class="month-dropdown-container">
+                          <span class="js-cal-month-dropdown cal-nav-button button cal-nav-primary">{{: months[month] }} ▼</span>
+                          <div class="month-dropdown-menu">
+                            {{ for (var i = 0; i < 12; i++) { }}
+                              <div class="month-dropdown-item" data-date="{{: new Date(year, i, 1).toISOString() }}" data-mode="month">{{: months[i] }}</div>
+                            {{ } }}
+                          </div>
+                        </div>
+                      {{ } }}
                       {{ if (mode ==='week') { }}
                         <span class="cal-nav-button cal-nav-primary">{{: shortMonths[first.getMonth()] }} {{: first.getDate() }} - {{: shortMonths[last.getMonth()] }} {{: last.getDate() }}</span>
                       {{ } }}
@@ -53,7 +62,6 @@ var template = `{{
                 </td>
                 <td style="text-align: right">
                   <span class="cal-nav-group">
-                    <button class="js-cal-option cal-nav-button button {{: mode==='year'? 'active cal-nav-primary':'' }}" data-mode="year">Year</button>
                     <button class="js-cal-option cal-nav-button button {{: mode==='month'? 'active cal-nav-primary':'' }}" data-mode="month">Month</button>
                     <button class="js-cal-option cal-nav-button button {{: mode==='week'? 'active cal-nav-primary':'' }}" data-mode="week">Week</button>
                     <button class="js-cal-option cal-nav-button button {{: mode==='day'? 'active cal-nav-primary':'' }}" data-mode="day">Day</button>
@@ -65,23 +73,14 @@ var template = `{{
           </td>
         </tr>
       </thead>
-      {{ if (mode ==='year') {
-        month = 0;
-      }}
-      <tbody>
-        {{ for (j = 0; j < 3; j++) { }}
-        <tr>
-          {{ for (i = 0; i < 4; i++) { }}
-          <td class="calendar-month month-{{:month}} js-cal-option button" data-date="{{: new Date(year, month, 1).toISOString() }}" data-mode="month">
-            <span style="cursor: pointer;">
-                {{: months[month] }}
-                {{ month++;}}
-            </span>
-          </td>
-          {{ } }}
-        </tr>
-        {{ } }}
-      </tbody>
+      {{ if (mode ==='year') { }}
+        <tbody>
+          <tr>
+            <td colspan="7" style="text-align: center; padding: 40px;">
+              <p>Use the month dropdown in the header to select a month, then switch to Month view.</p>
+            </td>
+          </tr>
+        </tbody>
       {{ } }}
       {{ if (mode ==='month' || mode ==='week') { }}
       <thead>
@@ -307,7 +306,39 @@ $(document).ready(function () {
                         options.eventClick(eventObj);       
                     }
                     return false;
+                }).on('click', '.js-cal-month-dropdown', function (e) {
+                    e.preventDefault();
+                    e.stopPropagation();
+                    $('.month-dropdown-menu').toggle();
+                    return false;
+                }).on('click', '.month-dropdown-item', function (e) {
+                    e.preventDefault();
+                    e.stopPropagation();
+                    
+                    // Get the selected date from data attribute
+                    var $t = $(this), o = $t.data();
+                    if (o.date) { 
+                        options.date = new Date(o.date);
+                        var dateCopy = new Date('' + options.date);
+                        var defaultDate = new Date(options.date);
+                        var startDate = defaultDate.setMonth(defaultDate.getMonth() - 1.5);
+                        var endDate = defaultDate.setMonth(defaultDate.getMonth() + 3);
+                        console.log('Month Selected - Current Date: ' + new Date(options.date));
+                        console.log('Date Range: ' + new Date(startDate) + ' > ' + new Date(endDate));
+                        // trigger callback event to load new month data
+                        options.events({ defaultDate: new Date(dateCopy), start: new Date(startDate), end: new Date(endDate) }, eventCallback);
+                    }
+                    
+                    $('.month-dropdown-menu').hide();
+                    return false;
                 })
+                
+                // Close dropdown when clicking outside
+                $(document).on('click', function(e) {
+                    if (!$(e.target).closest('.month-dropdown-container').length) {
+                        $('.month-dropdown-menu').hide();
+                    }
+                });
                         ; /*.on('click', '.js-cal-years', function () {
                                         alert('here');
                                         var $t = $(this),
