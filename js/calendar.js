@@ -25,38 +25,38 @@ var template = `{{
     }
 
     }}
-    <table class="calendar-table table table-condensed table-tight">
+    <table class="calendar-table">
       <thead>
         <tr>
           <td colspan="7" style="text-align: center">
             <table style="white-space: nowrap; width: 100%">
               <tr>
                 <td style="text-align: left;">
-                  <span class="btn-group">
-                    <button class="js-cal-prev btn btn-default"><span class="glyphicon glyphicon-chevron-left"></span></button>
-                    <button class="js-cal-next btn btn-default"><span class="glyphicon glyphicon-chevron-right"></span></button>
+                  <span class="cal-nav-group">
+                    <button class="js-cal-prev cal-nav-button">‹</button>
+                    <button class="js-cal-next cal-nav-button">›</button>
                   </span>
-                  <button class="js-cal-option btn btn-default button btn-today {{: first.toDateInt() <= today.toDateInt() && today.toDateInt() <= last.toDateInt() ? 'btn-primary':'' }}" data-date="{{: today.toISOString()}}" data-mode="month">{{: todayname }}</button>
+                  <button class="js-cal-option cal-nav-button button btn-today {{: first.toDateInt() <= today.toDateInt() && today.toDateInt() <= last.toDateInt() ? 'cal-nav-primary':'' }}" data-date="{{: today.toISOString()}}" data-mode="month">{{: todayname }}</button>
                 </td>
                 <td>
-                  <span class="btn-group btn-group">
+                  <span class="cal-nav-group">
                     {{ if (mode !== 'day') { }}
-                      {{ if (mode === 'month') { }}<span class="js-cal-option btn button btn-primary" data-mode="year">{{: months[month] }}</span>{{ } }}
+                      {{ if (mode === 'month') { }}<span class="js-cal-option cal-nav-button button cal-nav-primary" data-mode="year">{{: months[month] }}</span>{{ } }}
                       {{ if (mode ==='week') { }}
-                        <span class="btn btn-primary">{{: shortMonths[first.getMonth()] }} {{: first.getDate() }} - {{: shortMonths[last.getMonth()] }} {{: last.getDate() }}</span>
+                        <span class="cal-nav-button cal-nav-primary">{{: shortMonths[first.getMonth()] }} {{: first.getDate() }} - {{: shortMonths[last.getMonth()] }} {{: last.getDate() }}</span>
                       {{ } }}
-                      <span class="js-cal-years btn btn-primary">{{: year}}</span>
+                      <span class="js-cal-years cal-nav-button cal-nav-primary">{{: year}}</span>
                     {{ } else { }}
-                      <span class="btn btn-primary">{{: date.toDateString() }}</span>
+                      <span class="cal-nav-button cal-nav-primary">{{: date.toDateString() }}</span>
                     {{ } }}
                   </span>
                 </td>
                 <td style="text-align: right">
-                  <span class="btn-group">
-                    <button class="js-cal-option btn btn-default button {{: mode==='year'? 'active btn-primary':'' }}" data-mode="year">Year</button>
-                    <button class="js-cal-option btn btn-default button {{: mode==='month'? 'active btn-primary':'' }}" data-mode="month">Month</button>
-                    <button class="js-cal-option btn btn-default button {{: mode==='week'? 'active btn-primary':'' }}" data-mode="week">Week</button>
-                    <button class="js-cal-option btn btn-default button {{: mode==='day'? 'active btn-primary':'' }}" data-mode="day">Day</button>
+                  <span class="cal-nav-group">
+                    <button class="js-cal-option cal-nav-button button {{: mode==='year'? 'active cal-nav-primary':'' }}" data-mode="year">Year</button>
+                    <button class="js-cal-option cal-nav-button button {{: mode==='month'? 'active cal-nav-primary':'' }}" data-mode="month">Month</button>
+                    <button class="js-cal-option cal-nav-button button {{: mode==='week'? 'active cal-nav-primary':'' }}" data-mode="week">Week</button>
+                    <button class="js-cal-option cal-nav-button button {{: mode==='day'? 'active cal-nav-primary':'' }}" data-mode="day">Day</button>
                   </span>
                 </td>
               </tr>
@@ -113,7 +113,7 @@ var template = `{{
       <tbody>
         <tr>
           <td colspan="7">
-            <table class="table table-striped table-condensed table-tight-vert" >
+            <table class="calendar-events-table"  >
               <thead>
                 <tr>
                   <th> </th>
@@ -300,7 +300,7 @@ $(document).ready(function () {
                                             l = y + 5;
                                         if (haspop) { return true; }
                                         for (; y < l; y++) {
-                                            s += '<button type="button" class="btn btn-default btn-lg btn-block js-cal-option" data-date="' + (new Date(y, 1, 1)).toISOString() + '" data-mode="year">' + y + '</button>';
+                                            s += '<button type="button" class="cal-nav-button js-cal-option" style="display: block; width: 100%; margin: 2px 0; padding: 8px;" data-date="' + (new Date(y, 1, 1)).toISOString() + '" data-mode="year">' + y + '</button>';
                                         }
                                         $t.popover({ content: s, html: true, placement: 'auto top' }).popover('toggle');
                                         return false;
@@ -405,11 +405,11 @@ $(document).ready(function () {
                             // Set css style
                             $event.css(getEventBaseCssStyle(event, dateclass === new Date(event.start).toDateCssClass(), dateclass === new Date(event.end).toDateCssClass()));
                             day.append($event);
-                            /*day.append(
+                            day.append(
                                 $event.
                                     toggleClass('begin', dateclass === new Date(event.start).toDateCssClass()).
                                     toggleClass('end', dateclass === new Date(event.end).toDateCssClass())
-                            );*/
+                            );
                             $event = $event.clone();
                             $event.html(' ');
                         }
@@ -435,6 +435,26 @@ $(document).ready(function () {
 
                 function draw() {
                     $el.html(t(options));
+                    
+                    // Add background class if showBackground option is true
+                    if (options.showBackground) {
+                        $el.addClass('calendar-with-background');
+                        
+                        // Apply custom background colors if provided
+                        if (options.headerBackgroundColor) {
+                            $el.find('.calendar-table thead td, .calendar-table thead .c-name').css('background-color', options.headerBackgroundColor);
+                        }
+                        
+                        if (options.bodyBackgroundColor) {
+                            $el.find('.calendar-day').css('background-color', options.bodyBackgroundColor);
+                            $el.find('.calendar-table').css('background-color', options.bodyBackgroundColor);
+                        }
+                    } else {
+                        $el.removeClass('calendar-with-background');
+                        // Remove any custom background colors
+                        $el.find('.calendar-table thead td, .calendar-table thead .c-name, .calendar-day, .calendar-table').css('background-color', '');
+                    }
+                    
                     //potential optimization (untested), this object could be keyed into a dictionary on the dateclass string; the object would need to be reset and the first entry would have to be made here
                     $('.' + (new Date()).toDateCssClass()).addClass('today');
                     if (options.data && options.data.length) {

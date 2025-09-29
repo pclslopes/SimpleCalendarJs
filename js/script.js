@@ -1,6 +1,5 @@
 var currentDate = new Date();
 
- 
 $(document).ready(function () {
 
     $('#calendar').calendar({
@@ -8,6 +7,9 @@ $(document).ready(function () {
         showTimeInEvent: true,
         showYears: true,
         showDayAsAllDayEvents: false,
+        showBackground: true, // Enable backgrounds for this example
+        headerBackgroundColor: '#e3f2fd', // Custom header background
+        bodyBackgroundColor: '#fafafa', // Custom body background
         events: requestData,
         eventClick: function (infoObj) {
             alert('An even was clicked! Event data: ' + JSON.stringify(infoObj));
