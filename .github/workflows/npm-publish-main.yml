@@ -38,9 +38,14 @@ jobs:
             echo "version_changed=false" >> $GITHUB_OUTPUT
           fi
           
-      - name: Install dependencies
+      - name: Install dependencies (if any)
         if: steps.version-check.outputs.version_changed == 'true'
-        run: npm ci
+        run: |
+          if [ -f package-lock.json ]; then
+            npm ci
+          else
+            echo "No package-lock.json found, skipping dependency installation"
+          fi
         
       - name: Publish to NPM
         if: steps.version-check.outputs.version_changed == 'true'
