@@ -110,6 +110,9 @@ $('#calendar').calendar({
 | `showMonthYear` | boolean | `true` | Show/hide month/year navigation |
 | `showModeButtons` | boolean | `true` | Show/hide Month/Week/Day buttons |
 | `todayname` | string | `'Today'` | Text for the Today button |
+| `monthText` | string | `'Month'` | Text for the Month button |
+| `weekText` | string | `'Week'` | Text for the Week button |
+| `dayText` | string | `'Day'` | Text for the Day button |
 | `days` | array | `['Sunday', 'Monday', ...]` | Full day names |
 | `shortDays` | array | `['Sun', 'Mon', ...]` | Short day names |
 | `months` | array | `['January', 'February', ...]` | Full month names |
@@ -171,17 +174,86 @@ $('#calendar').calendar({
 
 ### Localization & Customization
 
-Customize text and language settings:
+SimpleCalendarJs provides comprehensive localization support for multiple languages. You can customize all text elements including button labels, day names, and month names.
+
+#### Built-in Language Support
+
+Choose from pre-configured languages:
 
 ```javascript
+// English (default)
 $('#calendar').calendar({
-    todayname: 'Heute',    // Custom Today button text
+    todayname: 'Today',
+    monthText: 'Month',
+    weekText: 'Week', 
+    dayText: 'Day',
+    days: ['Sunday', 'Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday'],
+    shortDays: ['Sun', 'Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat'],
+    months: ['January', 'February', 'March', 'April', 'May', 'June', 
+             'July', 'August', 'September', 'October', 'November', 'December'],
+    shortMonths: ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 
+                  'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec']
+});
+
+// German
+$('#calendar').calendar({
+    todayname: 'Heute',
+    monthText: 'Monat',
+    weekText: 'Woche',
+    dayText: 'Tag',
     days: ['Sonntag', 'Montag', 'Dienstag', 'Mittwoch', 'Donnerstag', 'Freitag', 'Samstag'],
     shortDays: ['So', 'Mo', 'Di', 'Mi', 'Do', 'Fr', 'Sa'],
     months: ['Januar', 'Februar', 'März', 'April', 'Mai', 'Juni', 
              'Juli', 'August', 'September', 'Oktober', 'November', 'Dezember'],
     shortMonths: ['Jan', 'Feb', 'Mär', 'Apr', 'Mai', 'Jun',
                   'Jul', 'Aug', 'Sep', 'Okt', 'Nov', 'Dez']
+});
+
+// Spanish
+$('#calendar').calendar({
+    todayname: 'Hoy',
+    monthText: 'Mes',
+    weekText: 'Semana',
+    dayText: 'Día',
+    days: ['Domingo', 'Lunes', 'Martes', 'Miércoles', 'Jueves', 'Viernes', 'Sábado'],
+    shortDays: ['Dom', 'Lun', 'Mar', 'Mié', 'Jue', 'Vie', 'Sáb'],
+    months: ['Enero', 'Febrero', 'Marzo', 'Abril', 'Mayo', 'Junio', 
+             'Julio', 'Agosto', 'Septiembre', 'Octubre', 'Noviembre', 'Diciembre'],
+    shortMonths: ['Ene', 'Feb', 'Mar', 'Abr', 'May', 'Jun',
+                  'Jul', 'Ago', 'Sep', 'Oct', 'Nov', 'Dic']
+});
+
+// French
+$('#calendar').calendar({
+    todayname: 'Aujourd\'hui',
+    monthText: 'Mois',
+    weekText: 'Semaine',
+    dayText: 'Jour',
+    days: ['Dimanche', 'Lundi', 'Mardi', 'Mercredi', 'Jeudi', 'Vendredi', 'Samedi'],
+    shortDays: ['Dim', 'Lun', 'Mar', 'Mer', 'Jeu', 'Ven', 'Sam'],
+    months: ['Janvier', 'Février', 'Mars', 'Avril', 'Mai', 'Juin', 
+             'Juillet', 'Août', 'Septembre', 'Octobre', 'Novembre', 'Décembre'],
+    shortMonths: ['Jan', 'Fév', 'Mar', 'Avr', 'Mai', 'Jun',
+                  'Jul', 'Aoû', 'Sep', 'Oct', 'Nov', 'Déc']
+});
+```
+
+#### Custom Language Configuration
+
+Create your own language configuration:
+
+```javascript
+$('#calendar').calendar({
+    todayname: 'Vandaag',        // Dutch: Today
+    monthText: 'Maand',          // Dutch: Month
+    weekText: 'Week',            // Dutch: Week  
+    dayText: 'Dag',              // Dutch: Day
+    days: ['Zondag', 'Maandag', 'Dinsdag', 'Woensdag', 'Donderdag', 'Vrijdag', 'Zaterdag'],
+    shortDays: ['Zo', 'Ma', 'Di', 'Wo', 'Do', 'Vr', 'Za'],
+    months: ['Januari', 'Februari', 'Maart', 'April', 'Mei', 'Juni',
+             'Juli', 'Augustus', 'September', 'Oktober', 'November', 'December'],
+    shortMonths: ['Jan', 'Feb', 'Mrt', 'Apr', 'Mei', 'Jun',
+                  'Jul', 'Aug', 'Sep', 'Okt', 'Nov', 'Dec']
 });
 ```
 

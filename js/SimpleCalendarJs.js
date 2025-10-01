@@ -76,19 +76,19 @@ var template = `{{
                   {{ if (showModeButtons) { }}
                   <!-- Desktop view switcher -->
                   <span class="cal-nav-group desktop-view-switcher">
-                    <button class="js-cal-option cal-nav-button button {{: mode==='month'? 'active cal-nav-primary':'' }}" data-mode="month">Month</button>
-                    <button class="js-cal-option cal-nav-button button {{: mode==='week'? 'active cal-nav-primary':'' }}" data-mode="week">Week</button>
-                    <button class="js-cal-option cal-nav-button button {{: mode==='day'? 'active cal-nav-primary':'' }}" data-mode="day">Day</button>
+                    <button class="js-cal-option cal-nav-button button {{: mode==='month'? 'active cal-nav-primary':'' }}" data-mode="month">{{: monthText }}</button>
+                    <button class="js-cal-option cal-nav-button button {{: mode==='week'? 'active cal-nav-primary':'' }}" data-mode="week">{{: weekText }}</button>
+                    <button class="js-cal-option cal-nav-button button {{: mode==='day'? 'active cal-nav-primary':'' }}" data-mode="day">{{: dayText }}</button>
                   </span>
                   
                   <!-- Mobile hamburger menu -->
                   <div class="mobile-view-switcher">
                     <div class="view-dropdown-container">
-                      <span class="js-cal-view-dropdown cal-nav-button cal-nav-primary">{{: mode === 'month' ? 'Month' : mode === 'week' ? 'Week' : 'Day' }} ≡</span>
+                      <span class="js-cal-view-dropdown cal-nav-button cal-nav-primary">{{: mode === 'month' ? monthText : mode === 'week' ? weekText : dayText }} ≡</span>
                       <div class="view-dropdown-menu">
-                        <div class="view-dropdown-item js-cal-option {{: mode==='month'? 'active':'' }}" data-mode="month">Month</div>
-                        <div class="view-dropdown-item js-cal-option {{: mode==='week'? 'active':'' }}" data-mode="week">Week</div>
-                        <div class="view-dropdown-item js-cal-option {{: mode==='day'? 'active':'' }}" data-mode="day">Day</div>
+                        <div class="view-dropdown-item js-cal-option {{: mode==='month'? 'active':'' }}" data-mode="month">{{: monthText }}</div>
+                        <div class="view-dropdown-item js-cal-option {{: mode==='week'? 'active':'' }}" data-mode="week">{{: weekText }}</div>
+                        <div class="view-dropdown-item js-cal-option {{: mode==='day'? 'active':'' }}" data-mode="day">{{: dayText }}</div>
                       </div>
                     </div>
                   </div>
@@ -327,7 +327,15 @@ $(document).ready(function () {
                             eventBorder: options.eventBorder,
                             showTodayButton: options.showTodayButton,
                             showMonthYear: options.showMonthYear,
-                            showModeButtons: options.showModeButtons
+                            showModeButtons: options.showModeButtons,
+                            todayname: options.todayname,
+                            monthText: options.monthText,
+                            weekText: options.weekText,
+                            dayText: options.dayText,
+                            days: options.days,
+                            shortDays: options.shortDays,
+                            months: options.months,
+                            shortMonths: options.shortMonths
                         });
                     }
                     
@@ -387,7 +395,14 @@ $(document).ready(function () {
                     $('.year-dropdown-menu').hide();
                     $('.view-dropdown-menu').hide();
                     options.keepYearDropdownOpen = false;
-                    $('.month-dropdown-menu').toggle();
+                    
+                    // Use show/hide instead of toggle to be more explicit
+                    var $monthMenu = $('.month-dropdown-menu');
+                    if ($monthMenu.is(':visible')) {
+                        $monthMenu.hide();
+                    } else {
+                        $monthMenu.show();
+                    }
                     return false;
                 }).on('click', '.month-dropdown-item', function (e) {
                     e.preventDefault();
@@ -415,7 +430,14 @@ $(document).ready(function () {
                     // Close other dropdowns when opening year dropdown
                     $('.month-dropdown-menu').hide();
                     $('.view-dropdown-menu').hide();
-                    $('.year-dropdown-menu').toggle();
+                    
+                    // Use show/hide instead of toggle to be more explicit
+                    var $yearMenu = $('.year-dropdown-menu');
+                    if ($yearMenu.is(':visible')) {
+                        $yearMenu.hide();
+                    } else {
+                        $yearMenu.show();
+                    }
                     return false;
                 }).on('click', '.year-nav-next', function (e) {
                     e.preventDefault();
@@ -464,8 +486,8 @@ $(document).ready(function () {
                     return false;
                 })
                 
-                // Close dropdown when clicking outside
-                $(document).on('click', function(e) {
+                // Close dropdown when clicking outside (with namespace for proper cleanup)
+                $(document).off('click.calendar-dropdowns').on('click.calendar-dropdowns', function(e) {
                     if (!$(e.target).closest('.month-dropdown-container').length) {
                         $('.month-dropdown-menu').hide();
                     }
@@ -681,7 +703,15 @@ $(document).ready(function () {
                             eventBorder: options.eventBorder,
                             showTodayButton: options.showTodayButton,
                             showMonthYear: options.showMonthYear,
-                            showModeButtons: options.showModeButtons
+                            showModeButtons: options.showModeButtons,
+                            todayname: options.todayname,
+                            monthText: options.monthText,
+                            weekText: options.weekText,
+                            dayText: options.dayText,
+                            days: options.days,
+                            shortDays: options.shortDays,
+                            months: options.months,
+                            shortMonths: options.shortMonths
                         });
                     }
                 }
@@ -782,6 +812,9 @@ $(document).ready(function () {
                 date: (new Date()),
                 daycss: ["c-sunday", "", "", "", "", "", "c-saturday"],
                 todayname: "Today",
+                monthText: "Month",
+                weekText: "Week", 
+                dayText: "Day",
                 thismonthcss: "current",
                 lastmonthcss: "outside",
                 nextmonthcss: "outside",

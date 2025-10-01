@@ -37,6 +37,7 @@ function initializeCalendar() {
         headerBackgroundColor: $('#headerBgColor').val(),
         bodyBackgroundColor: $('#bodyBgColor').val(),
         useShortDays: $('#useShortDays').is(':checked'),
+        ...getLanguageSettings(),
         events: requestData,
         eventClick: function (infoObj) {
             alert('Event clicked: ' + infoObj.event.title);
@@ -53,6 +54,10 @@ function initializeCalendar() {
 }
 
 function refreshCalendar() {
+    // Properly unbind all calendar event handlers to prevent duplicates
+    $('#calendar').off();
+    $(document).off('click.calendar-dropdowns');
+    
     // Destroy current calendar and reinitialize with new options
     $('#calendar').empty();
     initializeCalendar();
@@ -79,6 +84,11 @@ function setupPropertyControls() {
         refreshCalendar();
     });
 
+    // Language preset
+    $('#languagePreset').on('change', function() {
+        refreshCalendar();
+    });
+
     // Today button
     $('#todayButton').on('click', function() {
         var today = new Date();
@@ -86,6 +96,66 @@ function setupPropertyControls() {
         $('#calendarYear').val(today.getFullYear());
         refreshCalendar();
     });
+}
+
+function getLanguageSettings() {
+    var language = $('#languagePreset').val();
+    
+    var languages = {
+        en: {
+            days: ["Sunday", "Monday", "Tuesday", "Wednesday", "Thursday", "Friday", "Saturday"],
+            shortDays: ["Sun", "Mon", "Tue", "Wed", "Thu", "Fri", "Sat"],
+            months: ["January", "February", "March", "April", "May", "June", "July", "August", "September", "October", "November", "December"],
+            shortMonths: ["Jan", "Feb", "Mar", "Apr", "May", "Jun", "Jul", "Aug", "Sep", "Oct", "Nov", "Dec"],
+            todayname: "Today",
+            monthText: "Month",
+            weekText: "Week",
+            dayText: "Day"
+        },
+        de: {
+            days: ["Sonntag", "Montag", "Dienstag", "Mittwoch", "Donnerstag", "Freitag", "Samstag"],
+            shortDays: ["So", "Mo", "Di", "Mi", "Do", "Fr", "Sa"],
+            months: ["Januar", "Februar", "März", "April", "Mai", "Juni", "Juli", "August", "September", "Oktober", "November", "Dezember"],
+            shortMonths: ["Jan", "Feb", "Mär", "Apr", "Mai", "Jun", "Jul", "Aug", "Sep", "Okt", "Nov", "Dez"],
+            todayname: "Heute",
+            monthText: "Monat",
+            weekText: "Woche",
+            dayText: "Tag"
+        },
+        es: {
+            days: ["Domingo", "Lunes", "Martes", "Miércoles", "Jueves", "Viernes", "Sábado"],
+            shortDays: ["Dom", "Lun", "Mar", "Mié", "Jue", "Vie", "Sáb"],
+            months: ["Enero", "Febrero", "Marzo", "Abril", "Mayo", "Junio", "Julio", "Agosto", "Septiembre", "Octubre", "Noviembre", "Diciembre"],
+            shortMonths: ["Ene", "Feb", "Mar", "Abr", "May", "Jun", "Jul", "Ago", "Sep", "Oct", "Nov", "Dic"],
+            todayname: "Hoy",
+            monthText: "Mes",
+            weekText: "Semana",
+            dayText: "Día"
+        },
+        fr: {
+            days: ["Dimanche", "Lundi", "Mardi", "Mercredi", "Jeudi", "Vendredi", "Samedi"],
+            shortDays: ["Dim", "Lun", "Mar", "Mer", "Jeu", "Ven", "Sam"],
+            months: ["Janvier", "Février", "Mars", "Avril", "Mai", "Juin", "Juillet", "Août", "Septembre", "Octobre", "Novembre", "Décembre"],
+            shortMonths: ["Jan", "Fév", "Mar", "Avr", "Mai", "Jun", "Jul", "Aoû", "Sep", "Oct", "Nov", "Déc"],
+            todayname: "Aujourd'hui",
+            monthText: "Mois",
+            weekText: "Semaine",
+            dayText: "Jour"
+        }
+    };
+    
+    return languages[language] || languages.en;
+}
+
+function detectLanguageFromState(state) {
+    // Simple language detection based on first month name
+    if (state.months && state.months[0]) {
+        var firstMonth = state.months[0].toLowerCase();
+        if (firstMonth === 'januar') return 'de';
+        if (firstMonth === 'enero') return 'es';
+        if (firstMonth === 'janvier') return 'fr';
+    }
+    return 'en'; // default to English
 }
 
 function syncSandboxControls(state) {
@@ -107,6 +177,12 @@ function syncSandboxControls(state) {
     $('#showTodayButton').prop('checked', state.showTodayButton !== false); // default true
     $('#showMonthYear').prop('checked', state.showMonthYear !== false); // default true
     $('#showModeButtons').prop('checked', state.showModeButtons !== false); // default true
+    
+    // Detect and update language preset from state
+    if (state.months && state.days) {
+        var currentLang = detectLanguageFromState(state);
+        $('#languagePreset').val(currentLang);
+    }
 }
 
 function requestData(calendarRequestObject, callback) {
