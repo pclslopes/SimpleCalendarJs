@@ -341,7 +341,7 @@ See the [LICENSE](LICENSE) file for full terms.
 
 ## Support
 
-- 📧 Email: hello@simplecalendarjs.com
+- 📧 Email: simplecalendarjs@gmail.com
 - 🌐 Website: [https://www.simplecalendarjs.com](https://www.simplecalendarjs.com)
 - 📖 Documentation: Available on the website
 

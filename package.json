@@ -1,6 +1,6 @@
 {
   "name": "simple-calendar-js",
-  "version": "1.0.4",
+  "version": "1.0.5",
   "description": "A clean, modern, and feature-rich JavaScript calendar component with responsive design and intuitive navigation",
   "main": "js/SimpleCalendarJs.js",
   "style": "css/SimpleCalendarJs.css",
