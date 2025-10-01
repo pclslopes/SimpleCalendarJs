@@ -91,12 +91,60 @@
                             </div>
                         </div>
                         <div class="mb-3">
+                            <div class="form-check form-switch">
+                                <input class="form-check-input" type="checkbox" id="eventBorder">
+                                <label class="form-check-label" for="eventBorder">Event Borders</label>
+                            </div>
+                        </div>
+                        <div class="mb-3">
+                            <div class="form-check form-switch">
+                                <input class="form-check-input" type="checkbox" id="showTodayButton" checked>
+                                <label class="form-check-label" for="showTodayButton">Show Today Button</label>
+                            </div>
+                        </div>
+                        <div class="mb-3">
+                            <div class="form-check form-switch">
+                                <input class="form-check-input" type="checkbox" id="showMonthYear" checked>
+                                <label class="form-check-label" for="showMonthYear">Show Month/Year</label>
+                            </div>
+                        </div>
+                        <div class="mb-3">
+                            <div class="form-check form-switch">
+                                <input class="form-check-input" type="checkbox" id="showModeButtons" checked>
+                                <label class="form-check-label" for="showModeButtons">Show Mode Buttons</label>
+                            </div>
+                        </div>
+                        <div class="mb-3">
                             <label for="calendarMode" class="form-label">Default View Mode</label>
                             <select class="form-select" id="calendarMode">
                                 <option value="month" selected>Month</option>
                                 <option value="week">Week</option>
                                 <option value="day">Day</option>
                             </select>
+                        </div>
+                        <div class="mb-3">
+                            <label for="calendarMonth" class="form-label">Month</label>
+                            <select class="form-select" id="calendarMonth">
+                                <option value="0">January</option>
+                                <option value="1">February</option>
+                                <option value="2">March</option>
+                                <option value="3">April</option>
+                                <option value="4">May</option>
+                                <option value="5">June</option>
+                                <option value="6">July</option>
+                                <option value="7">August</option>
+                                <option value="8">September</option>
+                                <option value="9">October</option>
+                                <option value="10">November</option>
+                                <option value="11">December</option>
+                            </select>
+                        </div>
+                        <div class="mb-3">
+                            <label for="calendarYear" class="form-label">Year</label>
+                            <input type="number" class="form-control" id="calendarYear" min="2020" max="2030">
+                        </div>
+                        <div class="mb-3">
+                            <button type="button" class="btn btn-primary w-100" id="todayButton">Today</button>
                         </div>
                         <div class="mb-3">
                             <label for="headerBgColor" class="form-label">Header Background</label>

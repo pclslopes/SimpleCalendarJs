@@ -21,6 +21,32 @@
     outline: 0 !important;
 }
 
+/* Exception: Allow borders on events when eventBorder is enabled */
+#calendar .event.event-with-border {
+    border-top: 1px solid #666 !important;
+    border-bottom: 1px solid #666 !important;
+    box-sizing: border-box !important;
+}
+
+/* Border for single-day events and start of multi-day events */
+#calendar .event.event-with-border.begin {
+    border-left: 1px solid #666 !important;
+}
+
+/* Border for single-day events and end of multi-day events */
+#calendar .event.event-with-border.end {
+    border-right: 1px solid #666 !important;
+}
+
+/* Clear event placeholders need same border spacing to align properly when borders are enabled */
+#calendar .clear.event.placeholder-with-border {
+    border-top: 1px solid transparent !important;
+    border-bottom: 1px solid transparent !important;
+    border-left: 1px solid transparent !important;
+    border-right: 1px solid transparent !important;
+    box-sizing: border-box !important;
+}
+
 /* Override for month buttons - allow box-shadow */
 #calendar .calendar-month {
     box-shadow: 0 2px 4px rgba(0,0,0,0.1) !important;

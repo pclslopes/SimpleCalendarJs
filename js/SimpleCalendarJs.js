@@ -36,9 +36,12 @@ var template = `{{
                     <button class="js-cal-prev cal-nav-button">←</button>
                     <button class="js-cal-next cal-nav-button">→</button>
                   </span>
+                  {{ if (showTodayButton) { }}
                   <button class="js-cal-option cal-nav-button button btn-today {{: first.toDateInt() <= today.toDateInt() && today.toDateInt() <= last.toDateInt() ? 'cal-nav-primary':'' }}" data-date="{{: today.toISOString()}}" data-mode="month">{{: todayname }}</button>
+                  {{ } }}
                 </td>
-                <td>
+                <td {{ if (!showModeButtons) { }}style="text-align: right; padding-right: 0;"{{ } }}>
+                  {{ if (showMonthYear) { }}
                   <span class="cal-nav-group">
                     {{ if (mode !== 'day') { }}
                       {{ if (mode === 'month') { }}
@@ -67,8 +70,10 @@ var template = `{{
                       <span class="cal-nav-button cal-nav-primary">{{: date.toDateString() }}</span>
                     {{ } }}
                   </span>
+                  {{ } }}
                 </td>
                 <td style="text-align: right">
+                  {{ if (showModeButtons) { }}
                   <!-- Desktop view switcher -->
                   <span class="cal-nav-group desktop-view-switcher">
                     <button class="js-cal-option cal-nav-button button {{: mode==='month'? 'active cal-nav-primary':'' }}" data-mode="month">Month</button>
@@ -87,6 +92,7 @@ var template = `{{
                       </div>
                     </div>
                   </div>
+                  {{ } }}
                 </td>
               </tr>
             </table>
@@ -309,6 +315,22 @@ $(document).ready(function () {
                     if (o.date) { o.date = new Date(o.date); }
                     $.extend(options, o);
                     
+                    // Trigger stateChange callback when options change
+                    if (options.stateChange && typeof options.stateChange === 'function') {
+                        options.stateChange({
+                            mode: options.mode,
+                            date: options.date,
+                            showBackground: options.showBackground,
+                            showTimeInEvent: options.showTimeInEvent,
+                            useShortDays: options.useShortDays,
+                            showDayAsAllDayEvents: options.showDayAsAllDayEvents,
+                            eventBorder: options.eventBorder,
+                            showTodayButton: options.showTodayButton,
+                            showMonthYear: options.showMonthYear,
+                            showModeButtons: options.showModeButtons
+                        });
+                    }
+                    
                     // Ensure dateClick is always set for calendar days
                     if (o.date) {
                         dateParam.dateClick = o.date;
@@ -512,6 +534,11 @@ $(document).ready(function () {
                     //$event.toggleClass('begin', startint === dateint);
                     //$event.toggleClass('end', endint === dateint);
                     $event.css(getEventBaseCssStyle(event, startint === dateint, endint === dateint));
+                    
+                    // Apply border class if eventBorder is enabled
+                    if (options.eventBorder) {
+                        $event.addClass('event-with-border');
+                    }
 
                     console.log('Hour: ' + hour);
 
@@ -565,10 +592,20 @@ $(document).ready(function () {
                             existing = day.find('.event').length;
                             numbevents = Math.max(numbevents, existing);
                             for (i = 0; i < numbevents - existing; i++) {
-                                day.append(empty.clone());
+                                var emptyClone = empty.clone();
+                                // Apply placeholder border class to maintain alignment when eventBorder is enabled
+                                if (options.eventBorder) {
+                                    emptyClone.addClass('placeholder-with-border');
+                                }
+                                day.append(emptyClone);
                             }
                             // Set css style
                             $event.css(getEventBaseCssStyle(event, dateclass === new Date(event.start).toDateCssClass(), dateclass === new Date(event.end).toDateCssClass()));
+                            
+                            // Apply border class if eventBorder is enabled
+                            if (options.eventBorder) {
+                                $event.addClass('event-with-border');
+                            }
                             day.append($event);
                             day.append(
                                 $event.
@@ -631,6 +668,22 @@ $(document).ready(function () {
                             $.each(options.data, dayAddEvent);
                         }
                     }
+                    
+                    // Trigger stateChange callback after calendar is drawn
+                    if (options.stateChange && typeof options.stateChange === 'function') {
+                        options.stateChange({
+                            mode: options.mode,
+                            date: options.date,
+                            showBackground: options.showBackground,
+                            showTimeInEvent: options.showTimeInEvent,
+                            useShortDays: options.useShortDays,
+                            showDayAsAllDayEvents: options.showDayAsAllDayEvents,
+                            eventBorder: options.eventBorder,
+                            showTodayButton: options.showTodayButton,
+                            showMonthYear: options.showMonthYear,
+                            showModeButtons: options.showModeButtons
+                        });
+                    }
                 }
 
                 draw();
@@ -658,21 +711,32 @@ $(document).ready(function () {
                         //console.log('color: ' + baseColor + ' [ ' + JSON.stringify(colorRgb) + ' back: ' + rgbToHex(colorRgb) + ' ] | newColor: ' + JSON.stringify(newColor) + ' | borderColor: ' + JSON.stringify(borderColor));
 
                         var finalCss = {
-                            'border-top': '1px solid ' + rgbToHex(borderColor),
-                            'border-bottom': '1px solid ' + rgbToHex(borderColor),
                             'background-image': 'linear-gradient(to bottom, ' + rgbToHex(newColor) + ' 0px, ' + event.backgroundColor + ' 100%)',
                             'background-repeat': 'repeat-x',
-                            'color': rgbToHex(borderColor),
-                            'border-width': '1px',
-                            // Begin Event Css
-                            'border-left': isBegin ? '1px solid ' + rgbToHex(borderColor) : '',
-                            'border-top-left-radius': isBegin ? '4px' : '',
-                            'border-bottom-left-radius': isBegin ? '4px' : '',
-                            // End Event Css
-                            'border-right': isEnd ? '1px solid ' + rgbToHex(borderColor) : '',
-                            'border-top-right-radius': isEnd ? '4px' : '',
-                            'border-bottom-right-radius': isEnd ? '4px' : ''
+                            'color': rgbToHex(borderColor)
                         };
+                        
+                        // Handle rounded corners for all events (with or without borders)
+                        if (isBegin && isEnd) {
+                            // Single day event - full rounded corners
+                            finalCss['border-radius'] = '4px';
+                        } else if (isBegin) {
+                            // First day of multi-day event - left rounded corners only
+                            finalCss['border-top-left-radius'] = '4px';
+                            finalCss['border-bottom-left-radius'] = '4px';
+                            finalCss['border-top-right-radius'] = '0';
+                            finalCss['border-bottom-right-radius'] = '0';
+                        } else if (isEnd) {
+                            // Last day of multi-day event - right rounded corners only
+                            finalCss['border-top-left-radius'] = '0';
+                            finalCss['border-bottom-left-radius'] = '0';
+                            finalCss['border-top-right-radius'] = '4px';
+                            finalCss['border-bottom-right-radius'] = '4px';
+                        } else {
+                            // Middle days of multi-day event - no rounded corners
+                            finalCss['border-radius'] = '0';
+                        }
+                        
                         
                         return finalCss;
                     }
@@ -723,6 +787,13 @@ $(document).ready(function () {
                 nextmonthcss: "outside",
                 mode: "month",
                 useShortDays: false,
+                showTimeInEvent: true,
+                showBackground: false,
+                showDayAsAllDayEvents: false,
+                eventBorder: false,
+                showTodayButton: true,
+                showMonthYear: true,
+                showModeButtons: true,
                 data: []
             }, jQuery, window, document);
 

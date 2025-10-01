@@ -5,6 +5,11 @@ $(document).ready(function () {
     // Set current year in footer
     $('#current-year').text(new Date().getFullYear());
 
+    // Initialize month/year controls to current date
+    var today = new Date();
+    $('#calendarMonth').val(today.getMonth());
+    $('#calendarYear').val(today.getFullYear());
+
     // Initialize calendar with default options
     initializeCalendar();
 
@@ -13,12 +18,21 @@ $(document).ready(function () {
 });
 
 function initializeCalendar() {
+    // Get current date from controls or default to current date
+    var currentYear = parseInt($('#calendarYear').val()) || new Date().getFullYear();
+    var currentMonth = parseInt($('#calendarMonth').val()) || new Date().getMonth();
+    var calendarDate = new Date(currentYear, currentMonth, 1);
+    
     calendarInstance = $('#calendar').calendar({
-        date: new Date(),
+        date: calendarDate,
         mode: $('#calendarMode').val() || 'month',
         showTimeInEvent: $('#showTimeInEvent').is(':checked'),
         showYears: true,
         showDayAsAllDayEvents: $('#showDayAsAllDayEvents').is(':checked'),
+        eventBorder: $('#eventBorder').is(':checked'),
+        showTodayButton: $('#showTodayButton').is(':checked'),
+        showMonthYear: $('#showMonthYear').is(':checked'),
+        showModeButtons: $('#showModeButtons').is(':checked'),
         showBackground: $('#showBackground').is(':checked'),
         headerBackgroundColor: $('#headerBgColor').val(),
         bodyBackgroundColor: $('#bodyBgColor').val(),
@@ -29,6 +43,10 @@ function initializeCalendar() {
         },
         dayClick: function (dateObj) {
             alert('Day clicked: ' + dateObj.dateClick.toDateString());
+        },
+        stateChange: function(state) {
+            // Sync sandbox controls with calendar state
+            syncSandboxControls(state);
         },
         data: []
     });
@@ -42,7 +60,7 @@ function refreshCalendar() {
 
 function setupPropertyControls() {
     // Toggle switches
-    $('#showBackground, #showTimeInEvent, #useShortDays, #showDayAsAllDayEvents').on('change', function() {
+    $('#showBackground, #showTimeInEvent, #useShortDays, #showDayAsAllDayEvents, #eventBorder, #showTodayButton, #showMonthYear, #showModeButtons').on('change', function() {
         refreshCalendar();
     });
 
@@ -51,10 +69,44 @@ function setupPropertyControls() {
         refreshCalendar();
     });
 
+    // Month and year selectors
+    $('#calendarMonth, #calendarYear').on('change', function() {
+        refreshCalendar();
+    });
+
     // Color pickers
     $('#headerBgColor, #bodyBgColor').on('change', function() {
         refreshCalendar();
     });
+
+    // Today button
+    $('#todayButton').on('click', function() {
+        var today = new Date();
+        $('#calendarMonth').val(today.getMonth());
+        $('#calendarYear').val(today.getFullYear());
+        refreshCalendar();
+    });
+}
+
+function syncSandboxControls(state) {
+    // Update mode selector to match calendar state
+    $('#calendarMode').val(state.mode);
+    
+    // Update month and year to match calendar state
+    if (state.date) {
+        $('#calendarMonth').val(state.date.getMonth());
+        $('#calendarYear').val(state.date.getFullYear());
+    }
+    
+    // Update toggle switches to match calendar state
+    $('#showBackground').prop('checked', state.showBackground || false);
+    $('#showTimeInEvent').prop('checked', state.showTimeInEvent !== false); // default true
+    $('#useShortDays').prop('checked', state.useShortDays || false);
+    $('#showDayAsAllDayEvents').prop('checked', state.showDayAsAllDayEvents || false);
+    $('#eventBorder').prop('checked', state.eventBorder || false);
+    $('#showTodayButton').prop('checked', state.showTodayButton !== false); // default true
+    $('#showMonthYear').prop('checked', state.showMonthYear !== false); // default true
+    $('#showModeButtons').prop('checked', state.showModeButtons !== false); // default true
 }
 
 function requestData(calendarRequestObject, callback) {

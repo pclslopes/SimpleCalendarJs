@@ -57,8 +57,16 @@ Then include in your project:
 $('#calendar').calendar({
     mode: 'month',
     date: new Date(),
+    data: [
+        {
+            start: '2024-11-15',
+            end: '2024-11-17',
+            title: 'Conference',
+            backgroundColor: '#007bff'
+        }
+    ],
     events: function(params, callback) {
-        // Fetch your events here
+        // Fetch your events dynamically
         callback([
             {
                 start: new Date(),
@@ -72,6 +80,10 @@ $('#calendar').calendar({
     },
     eventClick: function(params) {
         console.log('Event clicked:', params.event);
+    },
+    stateChange: function(state) {
+        console.log('Calendar state changed:', state);
+        // Sync external controls with calendar state
     }
 });
 ```
@@ -82,11 +94,26 @@ $('#calendar').calendar({
 |--------|------|---------|-------------|
 | `mode` | string | `'month'` | Initial view mode ('month', 'week', 'day') |
 | `date` | Date | `new Date()` | Initial date to display |
-| `events` | function | `null` | Function to fetch events |
+| `data` | array | `[]` | Array of event objects to display |
+| `events` | function | `null` | Function to fetch events dynamically |
 | `dayClick` | function | `null` | Callback for day clicks |
 | `eventClick` | function | `null` | Callback for event clicks |
+| `stateChange` | function | `null` | Callback when calendar state changes |
 | `showBackground` | boolean | `false` | Show background colors |
+| `headerBackgroundColor` | string | `null` | Custom header background color |
+| `bodyBackgroundColor` | string | `null` | Custom body background color |
 | `showTimeInEvent` | boolean | `true` | Display time in events |
+| `useShortDays` | boolean | `false` | Use short day names (Mon, Tue) |
+| `showDayAsAllDayEvents` | boolean | `false` | Show day events as all-day |
+| `eventBorder` | boolean | `false` | Add 1px border to calendar events |
+| `showTodayButton` | boolean | `true` | Show/hide Today button |
+| `showMonthYear` | boolean | `true` | Show/hide month/year navigation |
+| `showModeButtons` | boolean | `true` | Show/hide Month/Week/Day buttons |
+| `todayname` | string | `'Today'` | Text for the Today button |
+| `days` | array | `['Sunday', 'Monday', ...]` | Full day names |
+| `shortDays` | array | `['Sun', 'Mon', ...]` | Short day names |
+| `months` | array | `['January', 'February', ...]` | Full month names |
+| `shortMonths` | array | `['Jan', 'Feb', ...]` | Short month names |
 
 ## Event Object Format
 
@@ -99,6 +126,119 @@ $('#calendar').calendar({
     allDay: false
 }
 ```
+
+## UI Customization
+
+### Visibility Controls
+
+SimpleCalendarJs allows you to customize which UI elements are visible:
+
+```javascript
+$('#calendar').calendar({
+    showTodayButton: false,    // Hide the "Today" button
+    showMonthYear: false,      // Hide month/year dropdowns
+    showModeButtons: false,    // Hide Month/Week/Day buttons
+    eventBorder: true          // Add borders to events
+});
+```
+
+**Visibility Options:**
+- **showTodayButton**: Controls the "Today" button in the header
+- **showMonthYear**: Controls month dropdown, year dropdown, and date display
+- **showModeButtons**: Controls Month/Week/Day view switcher (both desktop and mobile)
+
+**Smart Layout:**
+- When mode buttons are hidden, month/year navigation automatically aligns to the right
+- When mode buttons are visible, month/year stays centered for balanced layout
+
+### Event Styling
+
+Control event appearance with borders and backgrounds:
+
+```javascript
+$('#calendar').calendar({
+    eventBorder: true,         // Add 1px borders to events
+    showBackground: true,      // Enable background colors
+    headerBackgroundColor: '#e3f2fd',
+    bodyBackgroundColor: '#fafafa'
+});
+```
+
+**Border Features:**
+- **Single events**: Full border with rounded corners
+- **Multi-day events**: Seamless flow with borders only on outer edges
+- **Automatic alignment**: Clear event placeholders maintain proper spacing
+
+### Localization & Customization
+
+Customize text and language settings:
+
+```javascript
+$('#calendar').calendar({
+    todayname: 'Heute',    // Custom Today button text
+    days: ['Sonntag', 'Montag', 'Dienstag', 'Mittwoch', 'Donnerstag', 'Freitag', 'Samstag'],
+    shortDays: ['So', 'Mo', 'Di', 'Mi', 'Do', 'Fr', 'Sa'],
+    months: ['Januar', 'Februar', 'März', 'April', 'Mai', 'Juni', 
+             'Juli', 'August', 'September', 'Oktober', 'November', 'Dezember'],
+    shortMonths: ['Jan', 'Feb', 'Mär', 'Apr', 'Mai', 'Jun',
+                  'Jul', 'Aug', 'Sep', 'Okt', 'Nov', 'Dez']
+});
+```
+
+### Data Sources
+
+Use either static data or dynamic event loading:
+
+```javascript
+// Static events
+$('#calendar').calendar({
+    data: [
+        { start: '2024-11-15', title: 'Meeting', backgroundColor: '#007bff' },
+        { start: '2024-11-20', end: '2024-11-22', title: 'Conference' }
+    ]
+});
+
+// Dynamic events
+$('#calendar').calendar({
+    events: function(params, callback) {
+        // params contains: defaultDate, start, end
+        $.ajax({
+            url: '/api/events',
+            data: { start: params.start, end: params.end },
+            success: callback
+        });
+    }
+});
+```
+
+## State Management
+
+### stateChange Callback
+
+The `stateChange` callback is triggered whenever the calendar's internal state changes, such as when users click view buttons (Month/Week/Day) or when options are programmatically updated. This enables two-way data binding between the calendar and external controls.
+
+```javascript
+$('#calendar').calendar({
+    stateChange: function(state) {
+        // Update your UI controls to match calendar state
+        $('#modeSelector').val(state.mode);
+        $('#backgroundToggle').prop('checked', state.showBackground);
+        $('#timeToggle').prop('checked', state.showTimeInEvent);
+    }
+});
+```
+
+The state object contains:
+- `mode`: Current view mode ('month', 'week', 'day')
+- `date`: Current date being displayed
+- `showBackground`: Background display setting
+- `showTimeInEvent`: Time display in events setting
+- `useShortDays`: Short day names setting
+- `showDayAsAllDayEvents`: All-day events display setting
+- `eventBorder`: Border display on events setting
+- `showTodayButton`: Today button visibility setting
+- `showMonthYear`: Month/year navigation visibility setting
+- `showModeButtons`: Mode buttons visibility setting
 
 ## Responsive Behavior
 
