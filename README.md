@@ -13,9 +13,26 @@ A clean, modern, and feature-rich JavaScript calendar component with responsive 
 - **Customizable**: Flexible styling and configuration options
 - **Touch-Friendly**: Optimized for mobile devices
 
-## Quick Start
+## Installation
 
-### 1. Include the Files
+### NPM Installation (Recommended)
+
+```bash
+npm install simple-calendar-js
+```
+
+Then include in your project:
+
+```html
+<!-- Include jQuery (peer dependency) -->
+<script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+
+<!-- Include SimpleCalendarJs from node_modules -->
+<link rel="stylesheet" href="node_modules/simple-calendar-js/css/SimpleCalendarJs.css">
+<script src="node_modules/simple-calendar-js/js/SimpleCalendarJs.js"></script>
+```
+
+### CDN Installation (Alternative)
 
 ```html
 <!-- Include jQuery -->
@@ -26,13 +43,15 @@ A clean, modern, and feature-rich JavaScript calendar component with responsive 
 <script src="js/SimpleCalendarJs.js"></script>
 ```
 
-### 2. Create Calendar Container
+## Quick Start
+
+### 1. Create Calendar Container
 
 ```html
 <div id="calendar"></div>
 ```
 
-### 3. Initialize Calendar
+### 2. Initialize Calendar
 
 ```javascript
 $('#calendar').calendar({
