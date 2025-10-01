@@ -1,39 +1,61 @@
 var currentDate = new Date();
+var calendarInstance;
 
 $(document).ready(function () {
+    // Set current year in footer
+    $('#current-year').text(new Date().getFullYear());
 
-    $('#calendar').calendar({
-        date: new Date(), // todays date
-        showTimeInEvent: true,
+    // Initialize calendar with default options
+    initializeCalendar();
+
+    // Add event listeners for property changes
+    setupPropertyControls();
+});
+
+function initializeCalendar() {
+    calendarInstance = $('#calendar').calendar({
+        date: new Date(),
+        mode: $('#calendarMode').val() || 'month',
+        showTimeInEvent: $('#showTimeInEvent').is(':checked'),
         showYears: true,
-        showDayAsAllDayEvents: false,
-        showBackground: true, // Enable backgrounds for this example
-        headerBackgroundColor: '#e3f2fd', // Custom header background
-        bodyBackgroundColor: '#fafafa', // Custom body background
-        useShortDays: true, // Set to true to always use short day names (Sun, Mon, etc.), false uses responsive CSS
+        showDayAsAllDayEvents: $('#showDayAsAllDayEvents').is(':checked'),
+        showBackground: $('#showBackground').is(':checked'),
+        headerBackgroundColor: $('#headerBgColor').val(),
+        bodyBackgroundColor: $('#bodyBgColor').val(),
+        useShortDays: $('#useShortDays').is(':checked'),
         events: requestData,
         eventClick: function (infoObj) {
-            alert('An even was clicked! Event data: ' + JSON.stringify(infoObj));
-            //displaySpinner();
-            //var url = '@Html.Raw(Url.Action("Upsert", "CalendarItem", new { id = "_id", date = "_date", monthDate = "_monthDate" }))';
-            //var id = infoObj.event.Id;
-            //var urlWithParams = url.replace('_id', id).replace('_date', moment(infoObj.date).format('YYYY-MM-DD')).replace('_monthDate', moment(infoObj.monthDate).format('YYYY-MM-DD'));
-            //window.location.href = urlWithParams;
+            alert('Event clicked: ' + infoObj.event.title);
         },
-
         dayClick: function (dateObj) {
-            alert('A day was clicked! Date Obj: ' + JSON.stringify(dateObj));
-            /*if (dateObj.monthDate) {
-                //displaySpinner();
-                var url = '@Html.Raw(Url.Action("Upsert", "CalendarItem", new { date = "_valueToReplace", monthDate = "_monthDateToReplace" }))';
-                var urlWithValue = url.replace('_valueToReplace', moment(dateObj.dateClick).format('YYYY-MM-DD'));
-                urlWithValue = urlWithValue.replace('_monthDateToReplace', moment(dateObj.monthDate).format('YYYY-MM-DD'));
-                window.location.href = urlWithValue;
-            }*/
+            alert('Day clicked: ' + dateObj.dateClick.toDateString());
         },
         data: []
     });
-});
+}
+
+function refreshCalendar() {
+    // Destroy current calendar and reinitialize with new options
+    $('#calendar').empty();
+    initializeCalendar();
+}
+
+function setupPropertyControls() {
+    // Toggle switches
+    $('#showBackground, #showTimeInEvent, #useShortDays, #showDayAsAllDayEvents').on('change', function() {
+        refreshCalendar();
+    });
+
+    // Mode selector
+    $('#calendarMode').on('change', function() {
+        refreshCalendar();
+    });
+
+    // Color pickers
+    $('#headerBgColor, #bodyBgColor').on('change', function() {
+        refreshCalendar();
+    });
+}
 
 function requestData(calendarRequestObject, callback) {
     const currentMonth = new Date().getMonth() + 1;

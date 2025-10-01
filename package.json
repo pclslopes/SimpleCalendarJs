@@ -1,0 +1,59 @@
+{
+  "name": "simple-calendar-js",
+  "version": "1.0.0",
+  "description": "A clean, modern, and feature-rich JavaScript calendar component with responsive design and intuitive navigation",
+  "main": "js/SimpleCalendarJs.js",
+  "style": "css/SimpleCalendarJs.css",
+  "files": [
+    "js/SimpleCalendarJs.js",
+    "css/SimpleCalendarJs.css",
+    "LICENSE",
+    "README.md"
+  ],
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1",
+    "prepublishOnly": "echo \"Publishing SimpleCalendarJs v$npm_package_version\""
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/yourusername/SimpleCalendarJs.git"
+  },
+  "keywords": [
+    "calendar",
+    "javascript",
+    "jquery",
+    "responsive",
+    "events",
+    "scheduler",
+    "datepicker",
+    "month-view",
+    "week-view",
+    "day-view",
+    "dark-mode",
+    "ui-component"
+  ],
+  "author": "Pedro Lopes <simplecalendarjs@gmail.com> (https://www.simplecalendarjs.com)",
+  "license": "SEE LICENSE IN LICENSE",
+  "bugs": {
+    "url": "https://github.com/yourusername/SimpleCalendarJs/issues"
+  },
+  "homepage": "https://www.simplecalendarjs.com",
+  "peerDependencies": {
+    "jquery": ">=3.6.0"
+  },
+  "devDependencies": {},
+  "engines": {
+    "node": ">=12.0.0",
+    "npm": ">=6.0.0"
+  },
+  "browserslist": [
+    "> 1%",
+    "last 2 versions",
+    "not dead",
+    "not ie 11"
+  ],
+  "funding": {
+    "type": "individual",
+    "url": "https://www.simplecalendarjs.com"
+  }
+}

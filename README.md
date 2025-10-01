@@ -22,8 +22,8 @@ A clean, modern, and feature-rich JavaScript calendar component with responsive 
 <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
 
 <!-- Include SimpleCalendarJs -->
-<link rel="stylesheet" href="css/calendar.css">
-<script src="js/calendar.js"></script>
+<link rel="stylesheet" href="css/SimpleCalendarJs.css">
+<script src="js/SimpleCalendarJs.js"></script>
 ```
 
 ### 2. Create Calendar Container
