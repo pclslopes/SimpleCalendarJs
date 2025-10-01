@@ -19,28 +19,40 @@ jobs:
           node-version: '18'
           registry-url: 'https://registry.npmjs.org'
           
-      - name: Verify package.json
+      - name: Verify package files
         run: |
           echo "Package name: $(node -p "require('./package.json').name")"
           echo "Package version: $(node -p "require('./package.json').version")"
-          echo "Package files:"
-          ls -la js/ css/ LICENSE README.md
+          echo "Verifying required files exist:"
+          ls -la js/SimpleCalendarJs.js
+          ls -la css/SimpleCalendarJs.css
+          ls -la LICENSE
+          ls -la README.md
         
+      - name: Publish to NPM (dry run first)
+        run: npm publish --dry-run
+        env:
+          NODE_AUTH_TOKEN: ${{ secrets.NPM_TOKEN }}
+          
       - name: Publish to NPM
-        run: npm publish
+        run: npm publish --access public
         env:
           NODE_AUTH_TOKEN: ${{ secrets.NPM_TOKEN }}
           
       - name: Create GitHub Release
-        uses: actions/create-release@v1
-        env:
-          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        uses: softprops/action-gh-release@v1
         with:
-          tag_name: ${{ github.ref }}
-          release_name: Release ${{ github.ref }}
+          tag_name: ${{ github.ref_name }}
+          name: Release ${{ github.ref_name }}
           body: |
-            SimpleCalendarJs Release ${{ github.ref }}
+            SimpleCalendarJs Release ${{ github.ref_name }}
             
-            See [CHANGELOG.md](CHANGELOG.md) for details.
+            ## What's Changed
+            - Updated to version ${{ github.ref_name }}
+            
+            ## Installation
+            ```bash
+            npm install simple-calendar-js
+            ```
           draft: false
           prerelease: false
