@@ -70,10 +70,9 @@ npm version major   # 1.0.0 → 2.0.0
 ### What happens during deployment:
 1. **Checkout**: Downloads your repository code
 2. **Setup Node.js**: Installs Node.js 18
-3. **Install Dependencies**: Runs `npm ci`
-4. **Run Tests**: Executes `npm test` (continues even if no tests)
-5. **Publish**: Uploads package to NPM
-6. **Create Release**: Makes a GitHub release (tag method only)
+3. **Verify Files**: Checks that required files exist
+4. **Publish**: Uploads package to NPM
+5. **Create Release**: Makes a GitHub release (tag method only)
 
 ### Files included in NPM package:
 - `js/SimpleCalendarJs.js`

@@ -10,6 +10,7 @@ on:
       - 'js/**'
       - 'css/**'
       - 'package.json'
+  workflow_dispatch:  # Add this to enable manual triggers
 
 jobs:
   publish:
@@ -46,6 +47,6 @@ jobs:
         
       - name: Publish to NPM
         if: steps.version-check.outputs.version_changed == 'true'
-        run: npm publish
+        run: npm publish --access public
         env:
           NODE_AUTH_TOKEN: ${{ secrets.NPM_TOKEN }}

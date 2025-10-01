@@ -4,6 +4,7 @@ on:
   push:
     tags:
       - 'v*'  # Triggers on version tags like v1.0.0, v1.2.3, etc.
+  workflow_dispatch:  # Add this to enable manual triggers
 
 jobs:
   publish:
@@ -29,11 +30,6 @@ jobs:
           ls -la LICENSE
           ls -la README.md
         
-      - name: Publish to NPM (dry run first)
-        run: npm publish --dry-run
-        env:
-          NODE_AUTH_TOKEN: ${{ secrets.NPM_TOKEN }}
-          
       - name: Publish to NPM
         run: npm publish --access public
         env:
