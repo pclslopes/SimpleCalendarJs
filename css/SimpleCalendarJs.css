@@ -246,6 +246,27 @@
     border-color: #777777;
 }
 
+/* Dark mode transparent buttons when showBackground is false */
+[data-bs-theme="dark"] #calendar:not(.calendar-with-background) .cal-nav-button {
+    background-color: transparent !important;
+    border-color: transparent !important;
+}
+
+[data-bs-theme="dark"] #calendar:not(.calendar-with-background) .cal-nav-button:hover {
+    background-color: rgba(255,255,255,0.1) !important;
+    border-color: transparent !important;
+}
+
+[data-bs-theme="dark"] #calendar:not(.calendar-with-background) .cal-nav-button.cal-nav-primary {
+    background-color: transparent !important;
+    border-color: transparent !important;
+}
+
+[data-bs-theme="dark"] #calendar:not(.calendar-with-background) .cal-nav-button.cal-nav-primary:hover {
+    background-color: rgba(255,255,255,0.15) !important;
+    border-color: transparent !important;
+}
+
 [data-bs-theme="dark"] .event {
     background-color: #1e3a8a;
     color: #bfdbfe;
@@ -352,6 +373,27 @@
     transition: all 0.2s ease;
     display: inline-block;
     text-decoration: none;
+}
+
+/* Transparent buttons when showBackground is false */
+#calendar:not(.calendar-with-background) .cal-nav-button {
+    background-color: transparent !important;
+    border-color: transparent !important;
+}
+
+#calendar:not(.calendar-with-background) .cal-nav-button:hover {
+    background-color: rgba(0,0,0,0.05) !important;
+    border-color: transparent !important;
+}
+
+#calendar:not(.calendar-with-background) .cal-nav-button.cal-nav-primary {
+    background-color: transparent !important;
+    border-color: transparent !important;
+}
+
+#calendar:not(.calendar-with-background) .cal-nav-button.cal-nav-primary:hover {
+    background-color: rgba(0,0,0,0.1) !important;
+    border-color: transparent !important;
 }
 
 .cal-nav-button:hover {
