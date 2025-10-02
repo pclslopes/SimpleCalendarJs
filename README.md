@@ -120,6 +120,8 @@ const calendar = new SimpleCalendar(calendarElement, {
 | `showTodayButton` | boolean | `true` | Show/hide Today button |
 | `showMonthYear` | boolean | `true` | Show/hide month/year navigation |
 | `showModeButtons` | boolean | `true` | Show/hide Month/Week/Day buttons |
+| `showNavigation` | boolean | `true` | Show/hide left/right arrow navigation |
+| `theme` | string | `'auto'` | Theme mode: 'auto', 'light', or 'dark' |
 | `todayname` | string | `'Today'` | Text for the Today button |
 | `monthText` | string | `'Month'` | Text for the Month button |
 | `weekText` | string | `'Week'` | Text for the Week button |
@@ -152,6 +154,8 @@ const calendar = new SimpleCalendar('#calendar', {
     showTodayButton: false,    // Hide the "Today" button
     showMonthYear: false,      // Hide month/year dropdowns
     showModeButtons: false,    // Hide Month/Week/Day buttons
+    showNavigation: false,     // Hide left/right arrow navigation
+    theme: 'dark',             // Force dark theme
     eventBorder: true          // Add borders to events
 });
 ```
@@ -160,6 +164,13 @@ const calendar = new SimpleCalendar('#calendar', {
 - **showTodayButton**: Controls the "Today" button in the header
 - **showMonthYear**: Controls month dropdown, year dropdown, and date display
 - **showModeButtons**: Controls Month/Week/Day view switcher (both desktop and mobile)
+- **showNavigation**: Controls left/right arrow navigation buttons
+
+**Theme Options:**
+- **theme**: Set to 'auto' (default), 'light', or 'dark'
+  - `'auto'`: Detects theme from document, Tailwind classes, or system preference
+  - `'light'`: Forces light theme
+  - `'dark'`: Forces dark theme
 
 **Smart Layout:**
 - When mode buttons are hidden, month/year navigation automatically aligns to the right
@@ -380,6 +391,36 @@ function CalendarComponent({ options }) {
             calendarInstance.current.updateOptions(options);
         }
     }, [options]);
+
+    return <div ref={calendarRef} />;
+}
+```
+
+### Next.js with Tailwind CSS
+
+```jsx
+import { useTheme } from 'next-themes';
+import { useEffect, useRef } from 'react';
+
+function Calendar() {
+    const { theme } = useTheme();
+    const calendarRef = useRef();
+    const calendarInstance = useRef();
+
+    useEffect(() => {
+        if (calendarRef.current) {
+            calendarInstance.current = new SimpleCalendar(calendarRef.current, {
+                theme: theme, // 'light', 'dark', or 'system'
+                // other options...
+            });
+        }
+        
+        return () => {
+            if (calendarInstance.current) {
+                calendarInstance.current.destroy();
+            }
+        };
+    }, [theme]);
 
     return <div ref={calendarRef} />;
 }

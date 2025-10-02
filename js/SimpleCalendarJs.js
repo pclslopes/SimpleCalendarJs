@@ -41,10 +41,12 @@ const template = `{{
             <table style="white-space: nowrap; width: 100%">
               <tr>
                 <td style="text-align: left;">
+                  {{ if (showNavigation) { }}
                   <span class="cal-nav-group">
                     <button class="js-cal-prev cal-nav-button">←</button>
                     <button class="js-cal-next cal-nav-button">→</button>
                   </span>
+                  {{ } }}
                   {{ if (showTodayButton) { }}
                   <button class="js-cal-option cal-nav-button button btn-today {{: first.toDateInt() <= today.toDateInt() && today.toDateInt() <= last.toDateInt() ? 'cal-nav-primary':'' }}" data-date="{{: today.toISOString()}}" data-mode="month">{{: todayname }}</button>
                   {{ } }}
@@ -353,6 +355,8 @@ class SimpleCalendar {
             showTodayButton: true,
             showMonthYear: true,
             showModeButtons: true,
+            showNavigation: true,
+            theme: 'auto', // 'auto', 'light', 'dark'
             data: [],
             events: null,
             dayClick: null,
@@ -366,6 +370,19 @@ class SimpleCalendar {
         this.documentHandlers = [];
         
         this.init();
+    }
+    
+    applyTheme() {
+        if (!this.element) return;
+        
+        // If theme is set to 'light' or 'dark', force that theme
+        if (this.options.theme === 'light') {
+            this.element.removeAttribute('data-bs-theme');
+        } else if (this.options.theme === 'dark') {
+            this.element.setAttribute('data-bs-theme', 'dark');
+        }
+        // If theme is 'auto', don't interfere with existing theme detection
+        // The original CSS will work with the document's theme automatically
     }
     
     init() {
@@ -741,6 +758,9 @@ class SimpleCalendar {
         } else {
             this.draw();
         }
+        
+        // Apply theme after initialization
+        this.applyTheme();
     }
     
     eventCallback(newData) {
@@ -770,6 +790,8 @@ class SimpleCalendar {
                 showTodayButton: this.options.showTodayButton,
                 showMonthYear: this.options.showMonthYear,
                 showModeButtons: this.options.showModeButtons,
+                showNavigation: this.options.showNavigation,
+                theme: this.options.theme,
                 todayname: this.options.todayname,
                 monthText: this.options.monthText,
                 weekText: this.options.weekText,
@@ -839,6 +861,9 @@ class SimpleCalendar {
                 this.options.data.forEach((event, index) => this.dayAddEvent(index, event));
             }
         }
+        
+        // Apply theme after drawing
+        this.applyTheme();
         
         this.triggerStateChange();
     }
@@ -1062,6 +1087,7 @@ class SimpleCalendar {
                 document.removeEventListener(event, handler);
             });
         }
+        
         
         // Clear the element
         if (this.element) {

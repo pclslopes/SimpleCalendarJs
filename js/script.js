@@ -50,6 +50,8 @@ function initializeCalendar() {
         showTodayButton: document.querySelector('#showTodayButton')?.checked !== false,
         showMonthYear: document.querySelector('#showMonthYear')?.checked !== false,
         showModeButtons: document.querySelector('#showModeButtons')?.checked !== false,
+        showNavigation: document.querySelector('#showNavigation')?.checked !== false,
+        theme: document.querySelector('#themeMode')?.value || 'auto',
         showBackground: document.querySelector('#showBackground')?.checked || false,
         headerBackgroundColor: document.querySelector('#headerBgColor')?.value,
         bodyBackgroundColor: document.querySelector('#bodyBgColor')?.value,
@@ -92,7 +94,7 @@ function setupPropertyControls() {
     };
 
     // Toggle switches
-    addEventListeners('#showBackground, #showTimeInEvent, #useShortDays, #showDayAsAllDayEvents, #eventBorder, #showTodayButton, #showMonthYear, #showModeButtons', 'change', function() {
+    addEventListeners('#showBackground, #showTimeInEvent, #useShortDays, #showDayAsAllDayEvents, #eventBorder, #showTodayButton, #showMonthYear, #showModeButtons, #showNavigation', 'change', function() {
         refreshCalendar();
     });
 
@@ -100,6 +102,14 @@ function setupPropertyControls() {
     const modeSelector = document.querySelector('#calendarMode');
     if (modeSelector) {
         modeSelector.addEventListener('change', function() {
+            refreshCalendar();
+        });
+    }
+
+    // Theme selector
+    const themeSelector = document.querySelector('#themeMode');
+    if (themeSelector) {
+        themeSelector.addEventListener('change', function() {
             refreshCalendar();
         });
     }
@@ -203,6 +213,10 @@ function syncSandboxControls(state) {
     const modeControl = document.querySelector('#calendarMode');
     if (modeControl) modeControl.value = state.mode;
     
+    // Update theme selector to match calendar state
+    const themeControl = document.querySelector('#themeMode');
+    if (themeControl) themeControl.value = state.theme;
+    
     // Update month and year to match calendar state
     if (state.date) {
         const monthControl = document.querySelector('#calendarMonth');
@@ -226,6 +240,7 @@ function syncSandboxControls(state) {
     updateCheckbox('#showTodayButton', state.showTodayButton !== false); // default true
     updateCheckbox('#showMonthYear', state.showMonthYear !== false); // default true
     updateCheckbox('#showModeButtons', state.showModeButtons !== false); // default true
+    updateCheckbox('#showNavigation', state.showNavigation !== false); // default true
     
     // Detect and update language preset from state
     if (state.months && state.days) {
