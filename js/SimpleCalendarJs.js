@@ -1,6 +1,15 @@
-﻿
+/**
+ * SimpleCalendarJs - Pure JavaScript Calendar Component
+ * No jQuery dependency - uses native DOM APIs
+ * 
+ * @author Pedro Lopes
+ * @license Free for Personal and Non-Commercial Use
+ *          Commercial license required for commercial use
+ *          See https://www.simplecalendarjs.com for licensing details
+ */
 
-var template = `{{ 
+// Template for calendar rendering
+const template = `{{ 
     var date = date || new Date(),
         month = date.getMonth(),
         year = date.getFullYear(),
@@ -147,7 +156,7 @@ var template = `{{
             <table class="calendar-events-table"  >
               <thead>
                 <tr>
-                  <th> </th>
+                  <th> </th>
                   <th style="text-align: center; width: 100%">{{: days[date.getDay()] }}</th>
                 </tr>
               </thead>
@@ -190,645 +199,918 @@ var template = `{{
       {{ } }}
     </table>`;
 
-$(document).ready(function () {
-
-    jQuery.fn.outerHTML = function () {
-        return jQuery('<div />').append(this.eq(0).clone()).html();
-    };
-
-        var $currentPopover = null;
-        $(document).on('shown.bs.popover', function (ev) {
-            var $target = $(ev.target);
-            if ($currentPopover && ($currentPopover.get(0) != $target.get(0))) {
-                $currentPopover.popover('toggle');
-            }
-            $currentPopover = $target;
-        }).on('hidden.bs.popover', function (ev) {
-            var $target = $(ev.target);
-            if ($currentPopover && ($currentPopover.get(0) == $target.get(0))) {
-                $currentPopover = null;
-            }
-        });
-
-
-
-        //quicktmpl is a simple template language I threw together a while ago; it is not remotely secure to xss and probably has plenty of bugs that I haven't considered, but it basically works
-        //the design is a function I read in a blog post by John Resig (http://ejohn.org/blog/javascript-micro-templating/) and it is intended to be loosely translateable to a more comprehensive template language like mustache easily
-        $.extend({
-            quicktmpl: function (template) { return new Function("obj", "var p=[],print=function(){p.push.apply(p,arguments);};with(obj){p.push('" + template.replace(/[\r\t\n]/g, " ").split("{{").join("\t").replace(/((^|\}\})[^\t]*)'/g, "$1\r").replace(/\t:(.*?)\}\}/g, "',$1,'").split("\t").join("');").split("}}").join("p.push('").split("\r").join("\\'") + "');}return p.join('');") }
-        });
-
-        $.extend(Date.prototype, {
-            //provides a string that is _year_month_day, intended to be widely usable as a css class
-            toDateCssClass: function () {
-                return '_' + this.getFullYear() + '_' + (this.getMonth() + 1) + '_' + this.getDate();
-            },
-            //this generates a number useful for comparing two dates;
-            toDateInt: function () {
-                return ((this.getFullYear() * 12) + this.getMonth()) * 32 + this.getDate();
-            },
-            toTimeString: function () {
-                var hours = this.getHours(),
-                    minutes = this.getMinutes(),
-                    hour = (hours > 12) ? (hours - 12) : hours,
-                    ampm = (hours >= 12) ? ' pm' : ' am';
-                if (hours === 0 && minutes === 0) { return ''; }
-                if (minutes > 0) {
-                    return hour + ':' + minutes + ampm;
-                }
-                return hour + ampm;
-            }
-        });
-
-
-        (function ($) {
-
-            //t here is a function which gets passed an options object and returns a string of html. I am using quicktmpl to create it based on the template located over in the html block
-            //var t = $.quicktmpl($('#tmpl').get(0).innerHTML);
-            var t = $.quicktmpl(template);
-
-            function calendar($el, options) {
-
-                console.log('Options: ' + JSON.stringify(options));
-                var dateCopy = new Date('' + options.date);
-                var defaultDate = new Date(options.date);
-                var startDate = defaultDate.setMonth(defaultDate.getMonth() - 1);
-                var endDate = defaultDate.setMonth(defaultDate.getMonth() + 3);
-                console.log('Current Date: ' + new Date(options.date));
-                console.log('Date Range Init: ' + new Date(startDate) + ' > ' + new Date(endDate));
-                options.events({ defaultDate: new Date(dateCopy), start: new Date(startDate), end: new Date(endDate) }, eventCallback);
-
-                console.log('data: ' + JSON.stringify(options.data));
-                //actions aren't currently in the template, but could be added easily...
-                $el.on('click', '.js-cal-prev', function () {
-                    // Close year dropdown when clicking main navigation buttons
-                    $('.year-dropdown-menu').hide();
-                    options.keepYearDropdownOpen = false;
-                    
-                    switch (options.mode) {
-                        case 'year': options.date.setFullYear(options.date.getFullYear() - 1); break;
-                        case 'month': options.date.setMonth(options.date.getMonth() - 1); break;
-                        case 'week': options.date.setDate(options.date.getDate() - 7); break;
-                        case 'day': options.date.setDate(options.date.getDate() - 1); break;
-                    }
-                    var dateCopy = new Date('' + options.date);
-                    var defaultDate = new Date(options.date);
-                    var startDate = defaultDate.setMonth(defaultDate.getMonth() - 1.5);
-                    var endDate = defaultDate.setMonth(defaultDate.getMonth() + 3);
-                    console.log('Current Date: ' + new Date(options.date));
-                    console.log('Date Range: ' + new Date(startDate) + ' > ' + new Date(endDate));
-                    options.events({ defaultDate: new Date(dateCopy), start: new Date(startDate), end: new Date(endDate) }, eventCallback);
-                    //options.events({ start: options.date, end: new Date(endDate) }, eventCallback);
-                    //draw();
-                }).on('click', '.js-cal-next', function () {
-                    // Close year dropdown when clicking main navigation buttons
-                    $('.year-dropdown-menu').hide();
-                    options.keepYearDropdownOpen = false;
-                    
-                    switch (options.mode) {
-                        case 'year': options.date.setFullYear(options.date.getFullYear() + 1); break;
-                        case 'month': options.date.setMonth(options.date.getMonth() + 1); break;
-                        case 'week': options.date.setDate(options.date.getDate() + 7); break;
-                        case 'day': options.date.setDate(options.date.getDate() + 1); break;
-                    }
-                    var dateCopy = new Date('' + options.date);
-                    var defaultDate = new Date(options.date);
-                    var startDate = defaultDate.setMonth(defaultDate.getMonth() - 1.5);
-                    var endDate = defaultDate.setMonth(defaultDate.getMonth() + 3);
-                    console.log('Current Date: ' + new Date(options.date));
-                    console.log('Date Range: ' + new Date(startDate) + ' > ' + new Date(endDate));
-                    // trigger callback event
-                    options.events({ defaultDate: new Date(dateCopy), start: new Date(startDate), end: new Date(endDate) }, eventCallback);
-                }).on('click', '.js-cal-option', function () {
-                    // Skip view dropdown items - they have their own handler
-                    if ($(this).hasClass('view-dropdown-item')) {
-                        return;
-                    }
-                    
-                    // Close year dropdown when clicking other calendar buttons
-                    $('.year-dropdown-menu').hide();
-                    $('.view-dropdown-menu').hide();
-                    options.keepYearDropdownOpen = false;
-                    
-                    var dateParam = { monthDate: options.date };
-                    var $t = $(this), o = $t.data();
-                    if (o.date) { o.date = new Date(o.date); }
-                    $.extend(options, o);
-                    
-                    // Trigger stateChange callback when options change
-                    if (options.stateChange && typeof options.stateChange === 'function') {
-                        options.stateChange({
-                            mode: options.mode,
-                            date: options.date,
-                            showBackground: options.showBackground,
-                            showTimeInEvent: options.showTimeInEvent,
-                            useShortDays: options.useShortDays,
-                            showDayAsAllDayEvents: options.showDayAsAllDayEvents,
-                            eventBorder: options.eventBorder,
-                            showTodayButton: options.showTodayButton,
-                            showMonthYear: options.showMonthYear,
-                            showModeButtons: options.showModeButtons,
-                            todayname: options.todayname,
-                            monthText: options.monthText,
-                            weekText: options.weekText,
-                            dayText: options.dayText,
-                            days: options.days,
-                            shortDays: options.shortDays,
-                            months: options.months,
-                            shortMonths: options.shortMonths
-                        });
-                    }
-                    
-                    // Ensure dateClick is always set for calendar days
-                    if (o.date) {
-                        dateParam.dateClick = o.date;
-                    } else if ($(this).hasClass('calendar-day') || $(this).closest('.calendar-day').length) {
-                        // If clicking on a calendar day without date data, find it from the closest calendar-day
-                        var $calendarDay = $(this).hasClass('calendar-day') ? $(this) : $(this).closest('.calendar-day');
-                        var dayData = $calendarDay.data();
-                        if (dayData.date) {
-                            dateParam.dateClick = new Date(dayData.date);
-                        }
-                    }
-                    
-                    // Day click outside of events
-                    if (!$(this).hasClass('button')) {
-                        options.dayClick(dateParam);
-                    } else {
-                        // in case of month select on year view / Today button
-                        if ($(this).hasClass('calendar-month') || $(this).hasClass('btn-today')) {
-                            var dateCopy = new Date('' + options.date);
-                            var defaultDate = new Date(options.date);
-                            var startDate = defaultDate.setMonth(defaultDate.getMonth() - 1.5);
-                            var endDate = defaultDate.setMonth(defaultDate.getMonth() + 3);
-                            console.log('Current Date: ' + new Date(options.date));
-                            console.log('Date Range: ' + new Date(startDate) + ' > ' + new Date(endDate));
-                            // trigger callback event
-                            options.events({ defaultDate: new Date(dateCopy), start: new Date(startDate), end: new Date(endDate) }, eventCallback);
-                        } else {
-                            draw();
-                        }
-                    }
-                }).on('click', '.view-dropdown-item', function (e) {
-                    e.preventDefault();
-                    e.stopPropagation();
-                    
-                    // Get the mode from data attribute
-                    var $t = $(this), o = $t.data();
-                    if (o.mode) {
-                        $.extend(options, o);
-                        draw();
-                    }
-                    
-                    $('.view-dropdown-menu').hide();
-                    return false;
-                }).on('click', '.event', function () {
-                    if (!$(this).hasClass('js-cal-option')) {
-                        var eventObj = { event: $(this).data('json'), monthDate: options.date };
-                        options.eventClick(eventObj);       
-                    }
-                    return false;
-                }).on('click', '.js-cal-month-dropdown', function (e) {
-                    e.preventDefault();
-                    e.stopPropagation();
-                    // Close other dropdowns when opening month dropdown
-                    $('.year-dropdown-menu').hide();
-                    $('.view-dropdown-menu').hide();
-                    options.keepYearDropdownOpen = false;
-                    
-                    // Use show/hide instead of toggle to be more explicit
-                    var $monthMenu = $('.month-dropdown-menu');
-                    if ($monthMenu.is(':visible')) {
-                        $monthMenu.hide();
-                    } else {
-                        $monthMenu.show();
-                    }
-                    return false;
-                }).on('click', '.month-dropdown-item', function (e) {
-                    e.preventDefault();
-                    e.stopPropagation();
-                    
-                    // Get the selected date from data attribute
-                    var $t = $(this), o = $t.data();
-                    if (o.date) { 
-                        options.date = new Date(o.date);
-                        var dateCopy = new Date('' + options.date);
-                        var defaultDate = new Date(options.date);
-                        var startDate = defaultDate.setMonth(defaultDate.getMonth() - 1.5);
-                        var endDate = defaultDate.setMonth(defaultDate.getMonth() + 3);
-                        console.log('Month Selected - Current Date: ' + new Date(options.date));
-                        console.log('Date Range: ' + new Date(startDate) + ' > ' + new Date(endDate));
-                        // trigger callback event to load new month data
-                        options.events({ defaultDate: new Date(dateCopy), start: new Date(startDate), end: new Date(endDate) }, eventCallback);
-                    }
-                    
-                    $('.month-dropdown-menu').hide();
-                    return false;
-                }).on('click', '.js-cal-year-dropdown', function (e) {
-                    e.preventDefault();
-                    e.stopPropagation();
-                    // Close other dropdowns when opening year dropdown
-                    $('.month-dropdown-menu').hide();
-                    $('.view-dropdown-menu').hide();
-                    
-                    // Use show/hide instead of toggle to be more explicit
-                    var $yearMenu = $('.year-dropdown-menu');
-                    if ($yearMenu.is(':visible')) {
-                        $yearMenu.hide();
-                    } else {
-                        $yearMenu.show();
-                    }
-                    return false;
-                }).on('click', '.year-nav-next', function (e) {
-                    e.preventDefault();
-                    e.stopPropagation();
-                    
-                    // Move to next year
-                    options.date.setFullYear(options.date.getFullYear() + 1);
-                    var dateCopy = new Date('' + options.date);
-                    var defaultDate = new Date(options.date);
-                    var startDate = defaultDate.setMonth(defaultDate.getMonth() - 1.5);
-                    var endDate = defaultDate.setMonth(defaultDate.getMonth() + 3);
-                    console.log('Year Next - Current Date: ' + new Date(options.date));
-                    console.log('Date Range: ' + new Date(startDate) + ' > ' + new Date(endDate));
-                    
-                    // Set flag to keep dropdown open after redraw
-                    options.keepYearDropdownOpen = true;
-                    options.events({ defaultDate: new Date(dateCopy), start: new Date(startDate), end: new Date(endDate) }, eventCallback);
-                    
-                    return false;
-                }).on('click', '.year-nav-prev', function (e) {
-                    e.preventDefault();
-                    e.stopPropagation();
-                    
-                    // Move to previous year
-                    options.date.setFullYear(options.date.getFullYear() - 1);
-                    var dateCopy = new Date('' + options.date);
-                    var defaultDate = new Date(options.date);
-                    var startDate = defaultDate.setMonth(defaultDate.getMonth() - 1.5);
-                    var endDate = defaultDate.setMonth(defaultDate.getMonth() + 3);
-                    console.log('Year Previous - Current Date: ' + new Date(options.date));
-                    console.log('Date Range: ' + new Date(startDate) + ' > ' + new Date(endDate));
-                    
-                    // Set flag to keep dropdown open after redraw
-                    options.keepYearDropdownOpen = true;
-                    options.events({ defaultDate: new Date(dateCopy), start: new Date(startDate), end: new Date(endDate) }, eventCallback);
-                    
-                    return false;
-                }).on('click', '.js-cal-view-dropdown', function (e) {
-                    e.preventDefault();
-                    e.stopPropagation();
-                    // Close other dropdowns when opening view dropdown
-                    $('.month-dropdown-menu').hide();
-                    $('.year-dropdown-menu').hide();
-                    options.keepYearDropdownOpen = false;
-                    $('.view-dropdown-menu').toggle();
-                    return false;
-                })
-                
-                // Close dropdown when clicking outside (with namespace for proper cleanup)
-                $(document).off('click.calendar-dropdowns').on('click.calendar-dropdowns', function(e) {
-                    if (!$(e.target).closest('.month-dropdown-container').length) {
-                        $('.month-dropdown-menu').hide();
-                    }
-                    if (!$(e.target).closest('.year-dropdown-container').length) {
-                        $('.year-dropdown-menu').hide();
-                        // Clear the flag when dropdown is manually closed
-                        options.keepYearDropdownOpen = false;
-                    }
-                    if (!$(e.target).closest('.view-dropdown-container').length) {
-                        $('.view-dropdown-menu').hide();
-                    }
+// Utility functions for DOM manipulation
+const Dom = {
+    // Select single element
+    select: (selector, context = document) => {
+        if (!context) {
+            console.error('Dom.select: context is null or undefined', { selector, context });
+            return null;
+        }
+        return context.querySelector(selector);
+    },
+    
+    // Select multiple elements
+    selectAll: (selector, context = document) => {
+        if (!context) {
+            console.error('Dom.selectAll: context is null or undefined', { selector, context });
+            return [];
+        }
+        return Array.from(context.querySelectorAll(selector));
+    },
+    
+    // Create element
+    create: (tag, attributes = {}, content = '') => {
+        const element = document.createElement(tag);
+        Object.keys(attributes).forEach(key => {
+            if (key === 'class') {
+                element.className = attributes[key];
+            } else if (key === 'data') {
+                Object.keys(attributes[key]).forEach(dataKey => {
+                    element.dataset[dataKey] = attributes[key][dataKey];
                 });
-                        ; /*.on('click', '.js-cal-years', function () {
-                                        alert('here');
-                                        var $t = $(this),
-                                            haspop = $t.data('popover'),
-                                            s = '',
-                                            y = options.date.getFullYear() - 2,
-                                            l = y + 5;
-                                        if (haspop) { return true; }
-                                        for (; y < l; y++) {
-                                            s += '<button type="button" class="cal-nav-button js-cal-option" style="display: block; width: 100%; margin: 2px 0; padding: 8px;" data-date="' + (new Date(y, 1, 1)).toISOString() + '" data-mode="year">' + y + '</button>';
-                                        }
-                                        $t.popover({ content: s, html: true, placement: 'auto top' }).popover('toggle');
-                                        return false;
-                                    });*/ /*.on('click', '.event', function () {
-                                        var $t = $(this),
-                                            index = +($t.attr('data-index')),
-                                            haspop = $t.data('popover'),
-                                            data, time;
-
-                                        if (haspop || isNaN(index)) { return true; }
-                                        data = options.data[index];
-                                        time = data.start.toTimeString();
-                                        if (time && data.end) { time = time + ' - ' + data.end.toTimeString(); }
-                                        $t.data('popover', true);
-                                        $t.popover({ content: '<p><strong>' + time + '</strong></p>' + data.text, html: true, placement: 'auto left' }).popover('toggle');
-                                        return false;
-                                    });*/
-                function dayAddEvent(index, event) {
-                    if (!!event.allDay) {
-                        monthAddEvent(index, event);
-                        return;
-                    }
-
-                    //console.log('Day Event: ' + index + ' --- ' + JSON.stringify(event));
-
-                    var titleArray = event.title.split('&nbsp;');
-                    var cleanTitle = titleArray && titleArray.length > 1 ? titleArray[1] : event.title;
-                    var $event = $('<div/>', { 'class': 'event', text: event.title, title: cleanTitle, 'data-index': index, 'data-json': JSON.stringify(event) });
-                    $event.html(event.title);
-                    var start = new Date(event.start),
-                        end = new Date(event.end) || start,
-                        time = new Date(event.start).toTimeString(),
-                        hour = start.getHours(),
-                        timeclass = '.time-22-0',
-                        startint = start.toDateInt(),
-                        dateint = options.date.toDateInt(),
-                        endint = end.toDateInt();
-
-                    if (startint > dateint || endint < dateint) { return; }
-
-                    if (!!time && options.showTimeInEvent) {
-                        $event.html('<strong>' + time + '</strong> ' + $event.html());
-                    }
-                    //$event.toggleClass('begin', startint === dateint);
-                    //$event.toggleClass('end', endint === dateint);
-                    $event.css(getEventBaseCssStyle(event, startint === dateint, endint === dateint));
-                    
-                    // Apply border class if eventBorder is enabled
-                    if (options.eventBorder) {
-                        $event.addClass('event-with-border');
-                    }
-
-                    console.log('Hour: ' + hour);
-
-                    if (options.showDayAsAllDayEvents) {
-                        timeclass = '.time-all-day';
-                    } else {
-                        if (hour < 6) {
-                            timeclass = '.time-0-0';
-                        }
-                        if (hour < 22) {
-                            timeclass = '.time-' + hour + '-' + (start.getMinutes() < 30 ? '0' : '30');
-                        }
-                    }
-                    console.log('TimeClass: ' + timeclass);
-                    $(timeclass).append($event);
-                }
-
-                function monthAddEvent(index, event) {
-                    var titleArray = event.title.split('&nbsp;');
-                    var cleanTitle = titleArray && titleArray.length > 1 ? titleArray[1] : event.title;
-                    var $event = $('<div/>', { 'class': 'event', text: event.title, title: cleanTitle, 'data-index': index, 'data-json': JSON.stringify(event) });
-                    $event.html(event.title);
-                    var e = new Date(event.start),
-                        dateclass = e.toDateCssClass(),
-                        day = $('.' + e.toDateCssClass()),
-                        empty = $('<div/>', { 'class': 'clear event js-cal-option', html: ' ' }),
-                        numbevents = 0,
-                        time = new Date(event.start).toTimeString(),
-                        endday = event.end && $('.' + new Date(event.end).toDateCssClass()).length > 0,
-                        checkanyway = new Date(e.getFullYear(), e.getMonth(), e.getDate() + 40),
-                        existing,
-                        i;
-
-                    
-                    //$event.toggleClass('all-day', !!event.allDay);
-                    //console.log('Event index: ' + index + ' obj1: ' + $event.outerHTML() + ' event: ' + JSON.stringify(event));
-                    if (!!time && options.showTimeInEvent) {
-                        $event.html('<strong>' + time + '</strong> ' + $event.html());
-                    }
-                    if (!event.end) {
-                        //$event.addClass('begin end');
-                        $('.' + new Date(event.start).toDateCssClass()).append($event);
-                        return;
-                    }
-
-                    while (e <= new Date(event.end) && (day.length || endday || options.date < checkanyway)) {
-                        if (day.length) {
-                            if (e && e.getDay() == 0) { // reset on Sundays or else the cleat items would pile up on subsequent weeks if there is enough multi-day items
-                                numbevents = 0;
-                            }
-                            existing = day.find('.event').length;
-                            numbevents = Math.max(numbevents, existing);
-                            for (i = 0; i < numbevents - existing; i++) {
-                                var emptyClone = empty.clone();
-                                // Apply placeholder border class to maintain alignment when eventBorder is enabled
-                                if (options.eventBorder) {
-                                    emptyClone.addClass('placeholder-with-border');
-                                }
-                                day.append(emptyClone);
-                            }
-                            // Set css style
-                            $event.css(getEventBaseCssStyle(event, dateclass === new Date(event.start).toDateCssClass(), dateclass === new Date(event.end).toDateCssClass()));
-                            
-                            // Apply border class if eventBorder is enabled
-                            if (options.eventBorder) {
-                                $event.addClass('event-with-border');
-                            }
-                            day.append($event);
-                            day.append(
-                                $event.
-                                    toggleClass('begin', dateclass === new Date(event.start).toDateCssClass()).
-                                    toggleClass('end', dateclass === new Date(event.end).toDateCssClass())
-                            );
-                            $event = $event.clone();
-                            $event.html(' ');
-                        }
-                        e.setDate(e.getDate() + 1);
-                        dateclass = e.toDateCssClass();
-                        //console.log('Date Class: ' + dateclass);
-                        day = $('.' + dateclass);
-                    }
-                }
-                function yearAddEvents(events, year) {
-                    var counts = [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0];
-                    $.each(events, function (i, v) {
-                        if (new Date(v.start).getFullYear() === year) {
-                            //counts[new Date(v.start).getMonth()]++;
-                        }
-                    });
-                    $.each(counts, function (i, v) {
-                        if (v !== 0) {
-                            $('.month-' + i).append('<span class="badge">' + v + '</span>');
-                        }
-                    });
-                }
-
-                function draw() {
-                    $el.html(t(options));
-                    
-                    // Add background class if showBackground option is true
-                    if (options.showBackground) {
-                        $el.addClass('calendar-with-background');
-                        
-                        // Apply custom background colors if provided
-                        if (options.headerBackgroundColor) {
-                            $el.find('.calendar-table thead td, .calendar-table thead .c-name').css('background-color', options.headerBackgroundColor);
-                        }
-                        
-                        if (options.bodyBackgroundColor) {
-                            $el.find('.calendar-day').css('background-color', options.bodyBackgroundColor);
-                            $el.find('.calendar-table').css('background-color', options.bodyBackgroundColor);
-                        }
-                    } else {
-                        $el.removeClass('calendar-with-background');
-                        // Remove any custom background colors
-                        $el.find('.calendar-table thead td, .calendar-table thead .c-name, .calendar-day, .calendar-table').css('background-color', '');
-                    }
-                    
-                    //potential optimization (untested), this object could be keyed into a dictionary on the dateclass string; the object would need to be reset and the first entry would have to be made here
-                    $('.' + (new Date()).toDateCssClass()).addClass('today');
-                    if (options.data && options.data.length) {
-                        if (options.mode === 'year') {
-                            yearAddEvents(options.data, options.date.getFullYear());
-                        } else if (options.mode === 'month' || options.mode === 'week') {
-                            $.each(options.data, monthAddEvent);
-                        } else {
-                            $.each(options.data, dayAddEvent);
-                        }
-                    }
-                    
-                    // Trigger stateChange callback after calendar is drawn
-                    if (options.stateChange && typeof options.stateChange === 'function') {
-                        options.stateChange({
-                            mode: options.mode,
-                            date: options.date,
-                            showBackground: options.showBackground,
-                            showTimeInEvent: options.showTimeInEvent,
-                            useShortDays: options.useShortDays,
-                            showDayAsAllDayEvents: options.showDayAsAllDayEvents,
-                            eventBorder: options.eventBorder,
-                            showTodayButton: options.showTodayButton,
-                            showMonthYear: options.showMonthYear,
-                            showModeButtons: options.showModeButtons,
-                            todayname: options.todayname,
-                            monthText: options.monthText,
-                            weekText: options.weekText,
-                            dayText: options.dayText,
-                            days: options.days,
-                            shortDays: options.shortDays,
-                            months: options.months,
-                            shortMonths: options.shortMonths
-                        });
-                    }
-                }
-
-                draw();
-
-                function eventCallback(newData) {
-                    //console.log('newData: ' + JSON.stringify(newData));
-                    options.data = newData;
-                    draw();
-                    
-                    // Reopen year dropdown if flag is set
-                    if (options.keepYearDropdownOpen) {
-                        $('.year-dropdown-menu').show();
-                        options.keepYearDropdownOpen = false; // Reset the flag
-                    }
-                }
-
-                function getEventBaseCssStyle(event, isBegin, isEnd) {
-                    var baseColor = (' ' + event.backgroundColor).slice(1);
-                    var colorRgb = hexToRgb(baseColor);
-                    
-                    if (colorRgb) {
-                        var newColor = { r: Math.abs(colorRgb.r - 32), g: Math.abs(colorRgb.g - 15), b: Math.abs(colorRgb.b - 7) };
-                        var borderColor = { r: Math.abs(newColor.r - 100), g: Math.abs(newColor.g - 100), b: Math.abs(newColor.b - 100) };
-
-                        //console.log('color: ' + baseColor + ' [ ' + JSON.stringify(colorRgb) + ' back: ' + rgbToHex(colorRgb) + ' ] | newColor: ' + JSON.stringify(newColor) + ' | borderColor: ' + JSON.stringify(borderColor));
-
-                        var finalCss = {
-                            'background-image': 'linear-gradient(to bottom, ' + rgbToHex(newColor) + ' 0px, ' + event.backgroundColor + ' 100%)',
-                            'background-repeat': 'repeat-x',
-                            'color': rgbToHex(borderColor)
-                        };
-                        
-                        // Handle rounded corners for all events (with or without borders)
-                        if (isBegin && isEnd) {
-                            // Single day event - full rounded corners
-                            finalCss['border-radius'] = '4px';
-                        } else if (isBegin) {
-                            // First day of multi-day event - left rounded corners only
-                            finalCss['border-top-left-radius'] = '4px';
-                            finalCss['border-bottom-left-radius'] = '4px';
-                            finalCss['border-top-right-radius'] = '0';
-                            finalCss['border-bottom-right-radius'] = '0';
-                        } else if (isEnd) {
-                            // Last day of multi-day event - right rounded corners only
-                            finalCss['border-top-left-radius'] = '0';
-                            finalCss['border-bottom-left-radius'] = '0';
-                            finalCss['border-top-right-radius'] = '4px';
-                            finalCss['border-bottom-right-radius'] = '4px';
-                        } else {
-                            // Middle days of multi-day event - no rounded corners
-                            finalCss['border-radius'] = '0';
-                        }
-                        
-                        
-                        return finalCss;
-                    }
-                    return {};
-                }
-
-                function hexToRgb(hex) {
-                    var result = /^#?([a-f\d]{2})([a-f\d]{2})([a-f\d]{2})$/i.exec(hex);
-                    return result ? {
-                        r: parseInt(result[1], 16),
-                        g: parseInt(result[2], 16),
-                        b: parseInt(result[3], 16)
-                    } : null;
-                }
-
-                function rgbToHex(color) {
-                    return '#' + (1 << 24 | color.r << 16 | color.g << 8 | color.b).toString(16).slice(1);
-                }
-
+            } else {
+                element.setAttribute(key, attributes[key]);
             }
+        });
+        if (content) {
+            element.innerHTML = content;
+        }
+        return element;
+    },
+    
+    // Add event listener with delegation support
+    on: (element, event, selector, handler) => {
+        if (typeof selector === 'function') {
+            // Direct event binding
+            handler = selector;
+            element.addEventListener(event, handler);
+        } else {
+            // Event delegation
+            element.addEventListener(event, (e) => {
+                if (e.target.matches(selector) || e.target.closest(selector)) {
+                    const target = e.target.matches(selector) ? e.target : e.target.closest(selector);
+                    handler.call(target, e);
+                }
+            });
+        }
+    },
+    
+    // Remove event listeners
+    off: (element, event, handler) => {
+        element.removeEventListener(event, handler);
+    },
+    
+    // Show/hide elements
+    show: (element) => {
+        element.style.display = 'block';
+    },
+    
+    hide: (element) => {
+        element.style.display = 'none';
+    },
+    
+    // Check if element is visible
+    isVisible: (element) => {
+        return element.style.display !== 'none' && 
+               window.getComputedStyle(element).display !== 'none';
+    },
+    
+    // Extend objects (like jQuery.extend)
+    extend: (...objects) => {
+        return Object.assign({}, ...objects);
+    }
+};
 
+// Template engine (simplified version of quicktmpl)
+const Template = {
+    compile: (template) => {
+        return new Function("obj", 
+            "var p=[],print=function(){p.push.apply(p,arguments);};with(obj){p.push('" + 
+            template
+                .replace(/[\r\t\n]/g, " ")
+                .split("{{").join("\t")
+                .replace(/((^|\}\})[^\t]*)'/g, "$1\r")
+                .replace(/\t:(.*?)\}\}/g, "',$1,'")
+                .split("\t").join("');")
+                .split("}}").join("p.push('")
+                .split("\r").join("\\'") + 
+            "');}return p.join('');"
+        );
+    }
+};
+
+// Date prototype extensions
+Date.prototype.toDateCssClass = function() {
+    return '_' + this.getFullYear() + '_' + (this.getMonth() + 1) + '_' + this.getDate();
+};
+
+Date.prototype.toDateInt = function() {
+    return ((this.getFullYear() * 12) + this.getMonth()) * 32 + this.getDate();
+};
+
+Date.prototype.toTimeString = function() {
+    const hours = this.getHours();
+    const minutes = this.getMinutes();
+    const hour = (hours > 12) ? (hours - 12) : hours;
+    const ampm = (hours >= 12) ? ' pm' : ' am';
+    if (hours === 0 && minutes === 0) { return ''; }
+    if (minutes > 0) {
+        return hour + ':' + minutes + ampm;
+    }
+    return hour + ampm;
+};
+
+// Main SimpleCalendar class
+class SimpleCalendar {
+    constructor(selector, options = {}) {
+        this.element = typeof selector === 'string' ? Dom.select(selector) : selector;
+        if (!this.element) {
+            throw new Error('Calendar element not found');
+        }
+        
+        // Default options
+        this.defaults = {
+            days: ["Sunday", "Monday", "Tuesday", "Wednesday", "Thursday", "Friday", "Saturday"],
+            shortDays: ["Sun", "Mon", "Tue", "Wed", "Thu", "Fri", "Sat"],
+            months: ["January", "February", "March", "April", "May", "June", "July", "August", "September", "October", "November", "December"],
+            shortMonths: ["Jan", "Feb", "Mar", "Apr", "May", "Jun", "Jul", "Aug", "Sep", "Oct", "Nov", "Dec"],
+            date: new Date(),
+            daycss: ["c-sunday", "", "", "", "", "", "c-saturday"],
+            todayname: "Today",
+            monthText: "Month",
+            weekText: "Week", 
+            dayText: "Day",
+            thismonthcss: "current",
+            lastmonthcss: "outside",
+            nextmonthcss: "outside",
+            mode: "month",
+            useShortDays: false,
+            showTimeInEvent: true,
+            showBackground: false,
+            showDayAsAllDayEvents: false,
+            eventBorder: false,
+            showTodayButton: true,
+            showMonthYear: true,
+            showModeButtons: true,
+            data: [],
+            events: null,
+            dayClick: null,
+            eventClick: null,
+            stateChange: null
+        };
+        
+        this.options = Dom.extend(this.defaults, options);
+        this.template = Template.compile(template);
+        this.eventHandlers = [];
+        this.documentHandlers = [];
+        
+        this.init();
+    }
+    
+    init() {
+        console.log('Options: ' + JSON.stringify(this.options));
+        const dateCopy = new Date('' + this.options.date);
+        const defaultDate = new Date(this.options.date);
+        const startDate = defaultDate.setMonth(defaultDate.getMonth() - 1);
+        const endDate = defaultDate.setMonth(defaultDate.getMonth() + 3);
+        console.log('Current Date: ' + new Date(this.options.date));
+        console.log('Date Range Init: ' + new Date(startDate) + ' > ' + new Date(endDate));
+        
+        if (this.options.events) {
+            this.options.events({ defaultDate: new Date(dateCopy), start: new Date(startDate), end: new Date(endDate) }, this.eventCallback.bind(this));
+        }
+        
+        this.setupEventHandlers();
+        this.draw();
+    }
+    
+    setupEventHandlers() {
+        // Previous button
+        Dom.on(this.element, 'click', '.js-cal-prev', (e) => {
+            if (this.destroyed || !this.options) return;
             
-
-            ; (function (defaults, $, window, document) {
-                $.extend({
-                    calendar: function (options) {
-                        return $.extend(defaults, options);
+            this.closeDropdowns();
+            this.options.keepYearDropdownOpen = false;
+            
+            switch (this.options.mode) {
+                case 'year': this.options.date.setFullYear(this.options.date.getFullYear() - 1); break;
+                case 'month': this.options.date.setMonth(this.options.date.getMonth() - 1); break;
+                case 'week': this.options.date.setDate(this.options.date.getDate() - 7); break;
+                case 'day': this.options.date.setDate(this.options.date.getDate() - 1); break;
+            }
+            this.fetchEvents();
+        });
+        
+        // Next button
+        Dom.on(this.element, 'click', '.js-cal-next', (e) => {
+            if (this.destroyed || !this.options) return;
+            
+            this.closeDropdowns();
+            this.options.keepYearDropdownOpen = false;
+            
+            switch (this.options.mode) {
+                case 'year': this.options.date.setFullYear(this.options.date.getFullYear() + 1); break;
+                case 'month': this.options.date.setMonth(this.options.date.getMonth() + 1); break;
+                case 'week': this.options.date.setDate(this.options.date.getDate() + 7); break;
+                case 'day': this.options.date.setDate(this.options.date.getDate() + 1); break;
+            }
+            this.fetchEvents();
+        });
+        
+        // Calendar option clicks (mode buttons, today button, day clicks)
+        Dom.on(this.element, 'click', '.js-cal-option', (e) => {
+            // Check if this instance has been destroyed
+            if (this.destroyed || !this.options) {
+                return;
+            }
+            
+            // Skip view dropdown items - they have their own handler
+            if (e.target.closest('.view-dropdown-item')) {
+                return;
+            }
+            
+            // Skip month/year dropdown buttons - they have their own handlers
+            if (e.target.matches('.js-cal-month-dropdown') || e.target.matches('.js-cal-year-dropdown')) {
+                return;
+            }
+            
+            console.log('js-cal-option clicked:', e.target, 'dataset:', e.target.dataset);
+            
+            this.closeDropdowns();
+            
+            this.options.keepYearDropdownOpen = false;
+            
+            const dateParam = { monthDate: this.options.date };
+            const target = e.target.closest('.js-cal-option');
+            const data = target.dataset;
+            
+            console.log('target:', target, 'target.dataset:', data);
+            
+            // Handle date separately to ensure it's a proper Date object
+            if (data.date) { 
+                this.options.date = new Date(data.date); 
+            }
+            
+            // Handle mode separately  
+            if (data.mode) {
+                this.options.mode = data.mode;
+            }
+            
+            console.log('Updated options:', this.options.mode, 'date:', this.options.date);
+            
+            this.triggerStateChange();
+            
+            // Ensure dateClick is always set for calendar days
+            if (data.date) {
+                dateParam.dateClick = data.date;
+            } else if (target.matches('.calendar-day') || target.closest('.calendar-day')) {
+                const calendarDay = target.matches('.calendar-day') ? target : target.closest('.calendar-day');
+                const dayData = calendarDay.dataset;
+                if (dayData.date) {
+                    dateParam.dateClick = new Date(dayData.date);
+                }
+            }
+            
+            // Handle different types of clicks
+            console.log('Processing click - conditions:', {
+                isCalendarDay: target.matches('.calendar-day'),
+                isAddDay: target.matches('.add-day'),
+                isCalendarMonth: target.matches('.calendar-month'),
+                isTodayBtn: target.matches('.btn-today'),
+                hasMode: !!data.mode,
+                isButton: target.matches('.button'),
+                mode: data.mode
+            });
+            
+            if (target.matches('.calendar-day') || target.matches('.add-day')) {
+                // Day clicks are now handled by the dedicated .calendar-day handler
+                console.log('Skipping - calendar day click');
+            } else if (target.matches('.calendar-month')) {
+                // Month select on year view only
+                console.log('Calling fetchEvents for month select');
+                this.fetchEvents();
+            } else if (data.mode || target.matches('.button') || target.matches('.btn-today')) {
+                // Mode buttons (month/week/day) or other navigation buttons
+                console.log('Calling draw for mode/button click');
+                this.draw();
+            } else {
+                console.log('No action taken for this click');
+            }
+        });
+        
+        // View dropdown items
+        Dom.on(this.element, 'click', '.view-dropdown-item', (e) => {
+            e.preventDefault();
+            e.stopPropagation();
+            
+            const target = e.target;
+            const data = target.dataset;
+            if (data.mode) {
+                Dom.extend(this.options, data);
+                this.draw();
+            }
+            
+            this.hideElement('.view-dropdown-menu');
+            return false;
+        });
+        
+        // Event clicks
+        Dom.on(this.element, 'click', '.event', (e) => {
+            e.preventDefault();
+            e.stopPropagation();
+            const eventData = JSON.parse(e.target.dataset.json || '{}');
+            const eventObj = { event: eventData, monthDate: this.options.date };
+            if (this.options.eventClick) {
+                this.options.eventClick(eventObj);
+            }
+            return false;
+        });
+        
+        // Direct day clicks - separate handler for calendar days
+        Dom.on(this.element, 'click', '.calendar-day', (e) => {
+            // Only trigger if we didn't click on an event
+            if (!e.target.matches('.event') && !e.target.closest('.event')) {
+                const calendarDay = e.target.matches('.calendar-day') ? e.target : e.target.closest('.calendar-day');
+                const dayData = calendarDay.dataset;
+                if (dayData.date && this.options.dayClick) {
+                    const dateParam = { 
+                        monthDate: this.options.date,
+                        dateClick: new Date(dayData.date)
+                    };
+                    this.options.dayClick(dateParam);
+                }
+            }
+        });
+        
+        // Day view time slot clicks - handle specific time slots in day view
+        Dom.on(this.element, 'click', '.add-day', (e) => {
+            if (this.destroyed || !this.options) return;
+            
+            // Only trigger if we didn't click on an event and we're in day view
+            if (!e.target.matches('.event') && !e.target.closest('.event') && this.options.mode === 'day') {
+                const target = e.target;
+                const targetData = target.dataset;
+                
+                if (targetData.date && this.options.dayClick) {
+                    // Extract time from CSS classes (e.g., "time-9-30" means 9:30)
+                    const timeMatch = target.className.match(/time-(\d+)-(\d+)|time-all-day/);
+                    let clickedDate = new Date(targetData.date);
+                    
+                    if (timeMatch) {
+                        if (timeMatch[0] === 'time-all-day') {
+                            // All-day slot - set to start of day
+                            clickedDate.setHours(0, 0, 0, 0);
+                        } else {
+                            // Specific time slot
+                            const hours = parseInt(timeMatch[1]);
+                            const minutes = parseInt(timeMatch[2]);
+                            clickedDate.setHours(hours, minutes, 0, 0);
+                        }
                     }
-                }).fn.extend({
-                    calendar: function (options) {
-                        options = $.extend({}, defaults, options);
-                        return $(this).each(function () {
-                            var $this = $(this);
-                            calendar($this, options);
-                        });
-                    }
+                    
+                    const dateParam = { 
+                        monthDate: this.options.date,
+                        dateClick: clickedDate
+                    };
+                    this.options.dayClick(dateParam);
+                }
+            }
+        });
+        
+        // Month dropdown
+        Dom.on(this.element, 'click', '.js-cal-month-dropdown', (e) => {
+            if (this.destroyed || !this.options) return;
+            
+            console.log('Month dropdown clicked');
+            e.preventDefault();
+            e.stopPropagation();
+            
+            this.hideElement('.year-dropdown-menu');
+            this.hideElement('.view-dropdown-menu');
+            this.options.keepYearDropdownOpen = false;
+            
+            const monthMenu = Dom.select('.month-dropdown-menu', this.element);
+            console.log('Month menu element:', monthMenu);
+            if (monthMenu) {
+                const isVisible = Dom.isVisible(monthMenu);
+                console.log('Month menu visible:', isVisible);
+                if (isVisible) {
+                    console.log('Hiding month menu');
+                    Dom.hide(monthMenu);
+                } else {
+                    console.log('Showing month menu');
+                    Dom.show(monthMenu);
+                }
+            } else {
+                console.log('Month menu not found!');
+            }
+            return false;
+        });
+        
+        // Month dropdown items
+        Dom.on(this.element, 'click', '.month-dropdown-item', (e) => {
+            if (this.destroyed || !this.options) return;
+            
+            e.preventDefault();
+            e.stopPropagation();
+            
+            const target = e.target;
+            const data = target.dataset;
+            if (data.date) {
+                this.options.date = new Date(data.date);
+                this.fetchEvents();
+            }
+            
+            this.hideElement('.month-dropdown-menu');
+            return false;
+        });
+        
+        // Year dropdown
+        Dom.on(this.element, 'click', '.js-cal-year-dropdown', (e) => {
+            e.preventDefault();
+            e.stopPropagation();
+            
+            this.hideElement('.month-dropdown-menu');
+            this.hideElement('.view-dropdown-menu');
+            
+            const yearMenu = Dom.select('.year-dropdown-menu', this.element);
+            if (yearMenu) {
+                if (Dom.isVisible(yearMenu)) {
+                    Dom.hide(yearMenu);
+                } else {
+                    Dom.show(yearMenu);
+                }
+            }
+            return false;
+        });
+        
+        // Year navigation
+        Dom.on(this.element, 'click', '.year-nav-next', (e) => {
+            if (this.destroyed || !this.options) return;
+            
+            e.preventDefault();
+            e.stopPropagation();
+            
+            this.options.date.setFullYear(this.options.date.getFullYear() + 1);
+            this.options.keepYearDropdownOpen = true;
+            this.fetchEvents();
+            return false;
+        });
+        
+        Dom.on(this.element, 'click', '.year-nav-prev', (e) => {
+            if (this.destroyed || !this.options) return;
+            
+            e.preventDefault();
+            e.stopPropagation();
+            
+            this.options.date.setFullYear(this.options.date.getFullYear() - 1);
+            this.options.keepYearDropdownOpen = true;
+            this.fetchEvents();
+            return false;
+        });
+        
+        // View dropdown toggle
+        Dom.on(this.element, 'click', '.js-cal-view-dropdown', (e) => {
+            if (this.destroyed || !this.options) return;
+            
+            e.preventDefault();
+            e.stopPropagation();
+            
+            this.hideElement('.month-dropdown-menu');
+            this.hideElement('.year-dropdown-menu');
+            this.options.keepYearDropdownOpen = false;
+            
+            const viewMenu = Dom.select('.view-dropdown-menu', this.element);
+            if (viewMenu) {
+                if (Dom.isVisible(viewMenu)) {
+                    Dom.hide(viewMenu);
+                } else {
+                    Dom.show(viewMenu);
+                }
+            }
+            return false;
+        });
+        
+        // Document click handler for closing dropdowns
+        const documentClickHandler = (e) => {
+            const target = e.target;
+            
+            if (!target.closest('.month-dropdown-container')) {
+                this.hideElement('.month-dropdown-menu');
+            }
+            if (!target.closest('.year-dropdown-container')) {
+                this.hideElement('.year-dropdown-menu');
+                this.options.keepYearDropdownOpen = false;
+            }
+            if (!target.closest('.view-dropdown-container')) {
+                this.hideElement('.view-dropdown-menu');
+            }
+        };
+        
+        document.addEventListener('click', documentClickHandler);
+        this.documentHandlers.push({ event: 'click', handler: documentClickHandler });
+    }
+    
+    closeDropdowns() {
+        this.hideElement('.month-dropdown-menu');
+        this.hideElement('.year-dropdown-menu');
+        this.hideElement('.view-dropdown-menu');
+    }
+    
+    hideElement(selector) {
+        if (this.destroyed || !this.element) {
+            return;
+        }
+        const element = Dom.select(selector, this.element);
+        if (element) {
+            Dom.hide(element);
+        }
+    }
+    
+    fetchEvents() {
+        const dateCopy = new Date('' + this.options.date);
+        const defaultDate = new Date(this.options.date);
+        const startDate = defaultDate.setMonth(defaultDate.getMonth() - 1.5);
+        const endDate = defaultDate.setMonth(defaultDate.getMonth() + 3);
+        console.log('Current Date: ' + new Date(this.options.date));
+        console.log('Date Range: ' + new Date(startDate) + ' > ' + new Date(endDate));
+        
+        if (this.options.events) {
+            this.options.events({ defaultDate: new Date(dateCopy), start: new Date(startDate), end: new Date(endDate) }, this.eventCallback.bind(this));
+        } else {
+            this.draw();
+        }
+    }
+    
+    eventCallback(newData) {
+        this.options.data = newData;
+        this.draw();
+        
+        // Reopen year dropdown if flag is set
+        if (this.options.keepYearDropdownOpen) {
+            const yearMenu = Dom.select('.year-dropdown-menu', this.element);
+            if (yearMenu) {
+                Dom.show(yearMenu);
+            }
+            this.options.keepYearDropdownOpen = false;
+        }
+    }
+    
+    triggerStateChange() {
+        if (this.options.stateChange && typeof this.options.stateChange === 'function') {
+            this.options.stateChange({
+                mode: this.options.mode,
+                date: this.options.date,
+                showBackground: this.options.showBackground,
+                showTimeInEvent: this.options.showTimeInEvent,
+                useShortDays: this.options.useShortDays,
+                showDayAsAllDayEvents: this.options.showDayAsAllDayEvents,
+                eventBorder: this.options.eventBorder,
+                showTodayButton: this.options.showTodayButton,
+                showMonthYear: this.options.showMonthYear,
+                showModeButtons: this.options.showModeButtons,
+                todayname: this.options.todayname,
+                monthText: this.options.monthText,
+                weekText: this.options.weekText,
+                dayText: this.options.dayText,
+                days: this.options.days,
+                shortDays: this.options.shortDays,
+                months: this.options.months,
+                shortMonths: this.options.shortMonths
+            });
+        }
+    }
+    
+    draw() {
+        if (this.destroyed || !this.element) {
+            console.warn('SimpleCalendar: Cannot draw, instance is destroyed or element is null');
+            return;
+        }
+        this.element.innerHTML = this.template(this.options);
+        
+        // Add background class if showBackground option is true
+        if (this.options.showBackground) {
+            this.element.classList.add('calendar-with-background');
+            
+            // Apply custom background colors if provided
+            if (this.options.headerBackgroundColor) {
+                const headerElements = Dom.selectAll('.calendar-table thead td, .calendar-table thead .c-name', this.element);
+                headerElements.forEach(el => el.style.backgroundColor = this.options.headerBackgroundColor);
+            }
+            
+            if (this.options.bodyBackgroundColor) {
+                const bodyElements = Dom.selectAll('.calendar-day, .calendar-table', this.element);
+                bodyElements.forEach(el => el.style.backgroundColor = this.options.bodyBackgroundColor);
+            }
+        } else {
+            this.element.classList.remove('calendar-with-background');
+            // Remove any custom background colors
+            const allElements = Dom.selectAll('.calendar-table thead td, .calendar-table thead .c-name, .calendar-day, .calendar-table', this.element);
+            allElements.forEach(el => el.style.backgroundColor = '');
+        }
+        
+        // Mark today
+        const todayClass = (new Date()).toDateCssClass();
+        const todayElement = Dom.select('.' + todayClass, this.element);
+        if (todayElement) {
+            todayElement.classList.add('today');
+        }
+        
+        if (this.options.data && this.options.data.length) {
+            if (this.options.mode === 'year') {
+                this.yearAddEvents(this.options.data, this.options.date.getFullYear());
+            } else if (this.options.mode === 'month' || this.options.mode === 'week') {
+                // Sort events so multi-day events are rendered first (at the top)
+                const sortedEvents = [...this.options.data].sort((a, b) => {
+                    const aIsMultiDay = a.end && new Date(a.start).toDateString() !== new Date(a.end).toDateString();
+                    const bIsMultiDay = b.end && new Date(b.start).toDateString() !== new Date(b.end).toDateString();
+                    
+                    // Multi-day events first, then by start date
+                    if (aIsMultiDay && !bIsMultiDay) return -1;
+                    if (!aIsMultiDay && bIsMultiDay) return 1;
+                    
+                    // If both are same type, sort by start date
+                    return new Date(a.start) - new Date(b.start);
                 });
-            })({
-                days: ["Sunday", "Monday", "Tuesday", "Wednesday", "Thursday", "Friday", "Saturday"],
-                shortDays: ["Sun", "Mon", "Tue", "Wed", "Thu", "Fri", "Sat"],
-                months: ["January", "February", "March", "April", "May", "June", "July", "August", "September", "October", "November", "December"],
-                shortMonths: ["Jan", "Feb", "Mar", "Apr", "May", "Jun", "Jul", "Aug", "Sep", "Oct", "Nov", "Dec"],
-                date: (new Date()),
-                daycss: ["c-sunday", "", "", "", "", "", "c-saturday"],
-                todayname: "Today",
-                monthText: "Month",
-                weekText: "Week", 
-                dayText: "Day",
-                thismonthcss: "current",
-                lastmonthcss: "outside",
-                nextmonthcss: "outside",
-                mode: "month",
-                useShortDays: false,
-                showTimeInEvent: true,
-                showBackground: false,
-                showDayAsAllDayEvents: false,
-                eventBorder: false,
-                showTodayButton: true,
-                showMonthYear: true,
-                showModeButtons: true,
-                data: []
-            }, jQuery, window, document);
+                
+                sortedEvents.forEach((event, index) => this.monthAddEvent(index, event));
+            } else {
+                this.options.data.forEach((event, index) => this.dayAddEvent(index, event));
+            }
+        }
+        
+        this.triggerStateChange();
+    }
+    
+    dayAddEvent(index, event) {
+        if (!!event.allDay) {
+            this.monthAddEvent(index, event);
+            return;
+        }
 
-        })(jQuery);
+        const titleArray = event.title.split('&nbsp;');
+        const cleanTitle = titleArray && titleArray.length > 1 ? titleArray[1] : event.title;
+        const eventEl = Dom.create('div', {
+            class: 'event',
+            title: cleanTitle,
+            'data-index': index,
+            'data-json': JSON.stringify(event)
+        }, event.title);
+
+        const start = new Date(event.start);
+        const end = new Date(event.end) || start;
+        const time = new Date(event.start).toTimeString();
+        const hour = start.getHours();
+        let timeclass = '.time-22-0';
+        const startint = start.toDateInt();
+        const dateint = this.options.date.toDateInt();
+        const endint = end.toDateInt();
+
+        if (startint > dateint || endint < dateint) { return; }
+
+        if (!!time && this.options.showTimeInEvent) {
+            eventEl.innerHTML = '<strong>' + time + '</strong> ' + eventEl.innerHTML;
+        }
+
+        const cssStyle = this.getEventBaseCssStyle(event, startint === dateint, endint === dateint);
+        Object.keys(cssStyle).forEach(key => {
+            eventEl.style[key] = cssStyle[key];
+        });
+        
+        // Apply border class if eventBorder is enabled
+        if (this.options.eventBorder) {
+            eventEl.classList.add('event-with-border');
+        }
+
+        console.log('Hour: ' + hour);
+
+        if (this.options.showDayAsAllDayEvents) {
+            timeclass = '.time-all-day';
+        } else {
+            if (hour < 6) {
+                timeclass = '.time-0-0';
+            }
+            if (hour < 22) {
+                timeclass = '.time-' + hour + '-' + (start.getMinutes() < 30 ? '0' : '30');
+            }
+        }
+        console.log('TimeClass: ' + timeclass);
+        const timeSlot = Dom.select(timeclass, this.element);
+        if (timeSlot) {
+            timeSlot.appendChild(eventEl);
+        }
+    }
+
+    monthAddEvent(index, event) {
+        const titleArray = event.title.split('&nbsp;');
+        const cleanTitle = titleArray && titleArray.length > 1 ? titleArray[1] : event.title;
+        let eventEl = Dom.create('div', {
+            class: 'event',
+            title: cleanTitle,
+            'data-index': index,
+            'data-json': JSON.stringify(event)
+        }, event.title);
+
+        const e = new Date(event.start);
+        const dateclass = e.toDateCssClass();
+        let day = Dom.select('.' + e.toDateCssClass(), this.element);
+        const empty = Dom.create('div', { class: 'clear event js-cal-option' }, '&nbsp;');
+        let numbevents = 0;
+        const time = new Date(event.start).toTimeString();
+        const endday = event.end && Dom.select('.' + new Date(event.end).toDateCssClass(), this.element);
+        const checkanyway = new Date(e.getFullYear(), e.getMonth(), e.getDate() + 40);
+
+        if (!!time && this.options.showTimeInEvent) {
+            eventEl.innerHTML = '<strong>' + time + '</strong> ' + eventEl.innerHTML;
+        }
+        
+        if (!event.end) {
+            const dayElement = Dom.select('.' + new Date(event.start).toDateCssClass(), this.element);
+            if (dayElement) {
+                dayElement.appendChild(eventEl);
+            }
+            return;
+        }
+
+        while (e <= new Date(event.end) && (day || endday || this.options.date < checkanyway)) {
+            if (day) {
+                if (e && e.getDay() == 0) { // reset on Sundays
+                    numbevents = 0;
+                }
+                const existing = Dom.selectAll('.event', day).length;
+                numbevents = Math.max(numbevents, existing);
+                for (let i = 0; i < numbevents - existing; i++) {
+                    const emptyClone = empty.cloneNode(true);
+                    // Apply placeholder border class to maintain alignment when eventBorder is enabled
+                    if (this.options.eventBorder) {
+                        emptyClone.classList.add('placeholder-with-border');
+                    }
+                    day.appendChild(emptyClone);
+                }
+                
+                // Set css style
+                const cssStyle = this.getEventBaseCssStyle(event, dateclass === new Date(event.start).toDateCssClass(), dateclass === new Date(event.end).toDateCssClass());
+                Object.keys(cssStyle).forEach(key => {
+                    eventEl.style[key] = cssStyle[key];
+                });
+                
+                // Apply border class if eventBorder is enabled
+                if (this.options.eventBorder) {
+                    eventEl.classList.add('event-with-border');
+                }
+                
+                // Determine if this is the first, last, or middle day of the event
+                const eventStartDate = new Date(event.start);
+                const eventEndDate = new Date(event.end);
+                const currentDate = new Date(e);
+                
+                // Normalize dates to compare just the day (ignore time)
+                const startDay = new Date(eventStartDate.getFullYear(), eventStartDate.getMonth(), eventStartDate.getDate());
+                const endDay = new Date(eventEndDate.getFullYear(), eventEndDate.getMonth(), eventEndDate.getDate());
+                const currentDay = new Date(currentDate.getFullYear(), currentDate.getMonth(), currentDate.getDate());
+                
+                const isBegin = currentDay.getTime() === startDay.getTime();
+                const isEnd = currentDay.getTime() === endDay.getTime();
+                
+                // Remove any existing classes
+                eventEl.classList.remove('begin', 'end');
+                
+                // Add appropriate classes
+                if (isBegin) eventEl.classList.add('begin');
+                if (isEnd) eventEl.classList.add('end');
+                
+                day.appendChild(eventEl);
+                
+                // Clone for next iteration and reset classes
+                eventEl = eventEl.cloneNode(true);
+                eventEl.innerHTML = '&nbsp;';
+                eventEl.classList.remove('begin', 'end'); // Remove classes from clone
+            }
+            e.setDate(e.getDate() + 1);
+            const newDateclass = e.toDateCssClass();
+            day = Dom.select('.' + newDateclass, this.element);
+        }
+    }
+
+    yearAddEvents(events, year) {
+        const counts = [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0];
+        events.forEach((v) => {
+            if (new Date(v.start).getFullYear() === year) {
+                // counts[new Date(v.start).getMonth()]++;
+            }
+        });
+        counts.forEach((v, i) => {
+            if (v !== 0) {
+                const monthEl = Dom.select('.month-' + i, this.element);
+                if (monthEl) {
+                    const badge = Dom.create('span', { class: 'badge' }, v.toString());
+                    monthEl.appendChild(badge);
+                }
+            }
+        });
+    }
+
+    getEventBaseCssStyle(event, isBegin, isEnd) {
+        const baseColor = (' ' + event.backgroundColor).slice(1);
+        const colorRgb = this.hexToRgb(baseColor);
+        
+        if (colorRgb) {
+            const newColor = { r: Math.abs(colorRgb.r - 32), g: Math.abs(colorRgb.g - 15), b: Math.abs(colorRgb.b - 7) };
+            const borderColor = { r: Math.abs(newColor.r - 100), g: Math.abs(newColor.g - 100), b: Math.abs(newColor.b - 100) };
+
+            const finalCss = {
+                'background-image': 'linear-gradient(to bottom, ' + this.rgbToHex(newColor) + ' 0px, ' + event.backgroundColor + ' 100%)',
+                'background-repeat': 'repeat-x',
+                'color': this.rgbToHex(borderColor)
+            };
+            
+            // Don't override border-radius here - let CSS handle it based on .begin/.end classes
+            
+            return finalCss;
+        }
+        return {};
+    }
+
+    hexToRgb(hex) {
+        const result = /^#?([a-f\d]{2})([a-f\d]{2})([a-f\d]{2})$/i.exec(hex);
+        return result ? {
+            r: parseInt(result[1], 16),
+            g: parseInt(result[2], 16),
+            b: parseInt(result[3], 16)
+        } : null;
+    }
+
+    rgbToHex(color) {
+        return '#' + (1 << 24 | color.r << 16 | color.g << 8 | color.b).toString(16).slice(1);
+    }
+    
+    // Public API methods
+    updateOptions(newOptions) {
+        Dom.extend(this.options, newOptions);
+        this.draw();
+    }
+    
+    getOptions() {
+        return { ...this.options };
+    }
+    
+    destroy() {
+        // Remove all event handlers
+        if (this.documentHandlers) {
+            this.documentHandlers.forEach(({ event, handler }) => {
+                document.removeEventListener(event, handler);
+            });
+        }
+        
+        // Clear the element
+        if (this.element) {
+            this.element.innerHTML = '';
+        }
+        
+        // Remove references
+        this.element = null;
+        this.options = null;
+        this.template = null;
+        this.eventHandlers = [];
+        this.documentHandlers = [];
+        this.destroyed = true;
+    }
+}
+
+// Global function for backward compatibility and easy usage
+window.SimpleCalendar = SimpleCalendar;
+
+// Initialize calendar function for element
+if (typeof Element !== 'undefined') {
+    Element.prototype.calendar = function(options = {}) {
+        return new SimpleCalendar(this, options);
+    };
+}
+
+// Document ready equivalent
+if (document.readyState === 'loading') {
+    document.addEventListener('DOMContentLoaded', () => {
+        // Auto-initialize calendars with data-calendar attribute
+        Dom.selectAll('[data-calendar]').forEach(element => {
+            try {
+                const options = JSON.parse(element.dataset.calendar || '{}');
+                new SimpleCalendar(element, options);
+            } catch (e) {
+                console.warn('Failed to parse calendar options:', e);
+                new SimpleCalendar(element);
+            }
+        });
     });
+} else {
+    // DOM is already ready
+    Dom.selectAll('[data-calendar]').forEach(element => {
+        try {
+            const options = JSON.parse(element.dataset.calendar || '{}');
+            new SimpleCalendar(element, options);
+        } catch (e) {
+            console.warn('Failed to parse calendar options:', e);
+            new SimpleCalendar(element);
+        }
+    });
+}

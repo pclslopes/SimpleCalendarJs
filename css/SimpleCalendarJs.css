@@ -1,4 +1,12 @@
-/* Pure CSS Calendar - Bootstrap Independent */
+/**
+ * SimpleCalendarJs - Pure CSS Calendar Component
+ * Bootstrap Independent - No external dependencies
+ * 
+ * @author Pedro Lopes
+ * @license Free for Personal and Non-Commercial Use
+ *          Commercial license required for commercial use
+ *          See https://www.simplecalendarjs.com for licensing details
+ */
 #calendar {
     width: 100%;
     margin-bottom: 20px;
@@ -266,10 +274,11 @@
     font-size: 0.75em;
     padding: 2px 6px;
     line-height: 1.4;
+    min-height: 1.4em; /* Ensure consistent height for all events */
     white-space: nowrap;
     overflow: hidden;
     text-overflow: ellipsis;
-    margin: 2px 3px 1px 3px; /* Default margins for single-day events */
+    margin: 2px 1px 1px 1px; /* Reduced left/right margins for single-day events */
     cursor: pointer;
     background-color: #e3f2fd;
     color: #1565c0;
@@ -277,46 +286,36 @@
     position: relative;
     border-radius: 3px;
     box-sizing: border-box;
+    display: block; /* Ensure proper block-level behavior */
 }
 
-/* Multi-day event spanning - seamless connection */
-.event.begin {
-    border-top-left-radius: 3px;
-    border-bottom-left-radius: 3px;
-    border-top-right-radius: 0;
-    border-bottom-right-radius: 0;
-    border-right: none;
-    margin: 2px 0 1px 3px;
-    padding-right: 0;
+/* Multi-day event seamless styling */
+.event.begin:not(.end) {
+    border-top-right-radius: 0 !important;
+    border-bottom-right-radius: 0 !important;
+    border-right: none !important;
+    margin-right: 0 !important;
 }
 
-.event.end {
-    border-top-left-radius: 0;
-    border-bottom-left-radius: 0;
-    border-top-right-radius: 3px;
-    border-bottom-right-radius: 3px;
-    border-left: none;
-    margin: 2px 0 1px 0;
-    padding-left: 0;
-    padding-right: 2px;
+.event.end:not(.begin) {
+    border-top-left-radius: 0 !important;
+    border-bottom-left-radius: 0 !important;
+    border-left: none !important;
+    margin-left: 0 !important;
 }
 
-/* Events that are both begin and end (single day) keep normal styling */
-.event.begin.end {
-    border-radius: 3px;
-    border: 1px solid #90caf9;
-    margin: 2px 0 1px 3px;
-    padding: 2px 2px 2px 6px;
-}
-
-/* Middle events (neither begin nor end) */
 .event:not(.begin):not(.end) {
-    border-radius: 0;
-    border-left: none;
-    border-right: none;
-    margin: 2px 0 1px 0;
-    padding-left: 0;
-    padding-right: 0;
+    border-radius: 0 !important;
+    border-left: none !important;
+    border-right: none !important;
+    margin-left: 0 !important;
+    margin-right: 0 !important;
+}
+
+.event.begin.end {
+    /* Single day events keep normal styling */
+    border-radius: 3px !important;
+    border: 1px solid #90caf9 !important;
 }
 
 /* All-day events */
@@ -331,6 +330,13 @@
 .event.clear {
     background: none;
     border: 1px solid transparent;
+    min-height: 1.4em; /* Match line-height of regular events */
+    height: auto;
+    /* Ensure same padding and margins as regular events for consistent spacing */
+    padding: 2px 6px;
+    line-height: 1.4;
+    font-size: 0.75em;
+    box-sizing: border-box;
 }
 
 /* Navigation buttons - Pure CSS */

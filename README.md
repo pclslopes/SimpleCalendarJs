@@ -9,9 +9,10 @@ A clean, modern, and feature-rich JavaScript calendar component with responsive 
 - **Event Management**: Add, edit, and display events
 - **Modern Navigation**: Clean arrow buttons and dropdown navigation
 - **Dark Mode Support**: Light and dark theme options
-- **No Dependencies**: Pure JavaScript with jQuery
+- **Zero Dependencies**: Pure JavaScript with no external dependencies
 - **Customizable**: Flexible styling and configuration options
 - **Touch-Friendly**: Optimized for mobile devices
+- **Framework Agnostic**: Works with vanilla JS, React, Vue, Angular, and more
 
 ## Installation
 
@@ -24,9 +25,6 @@ npm install simple-calendar-js
 Then include in your project:
 
 ```html
-<!-- Include jQuery (peer dependency) -->
-<script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
-
 <!-- Include SimpleCalendarJs from node_modules -->
 <link rel="stylesheet" href="node_modules/simple-calendar-js/css/SimpleCalendarJs.css">
 <script src="node_modules/simple-calendar-js/js/SimpleCalendarJs.js"></script>
@@ -35,9 +33,6 @@ Then include in your project:
 ### CDN Installation (Alternative)
 
 ```html
-<!-- Include jQuery -->
-<script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
-
 <!-- Include SimpleCalendarJs -->
 <link rel="stylesheet" href="css/SimpleCalendarJs.css">
 <script src="js/SimpleCalendarJs.js"></script>
@@ -54,7 +49,8 @@ Then include in your project:
 ### 2. Initialize Calendar
 
 ```javascript
-$('#calendar').calendar({
+// Method 1: Using ES6 class (recommended)
+const calendar = new SimpleCalendar('#calendar', {
     mode: 'month',
     date: new Date(),
     data: [
@@ -86,6 +82,21 @@ $('#calendar').calendar({
         // Sync external controls with calendar state
     }
 });
+
+// Method 2: Directly instantiating with element
+const calendarElement = document.querySelector('#calendar');
+const calendar = new SimpleCalendar(calendarElement, {
+    mode: 'month',
+    date: new Date(),
+    // ... same options as above
+});
+```
+
+### 3. Auto-initialization with data attributes
+
+```html
+<!-- HTML -->
+<div id="calendar" data-calendar='{"mode":"month"}'></div>
 ```
 
 ## Configuration Options
@@ -137,7 +148,7 @@ $('#calendar').calendar({
 SimpleCalendarJs allows you to customize which UI elements are visible:
 
 ```javascript
-$('#calendar').calendar({
+const calendar = new SimpleCalendar('#calendar', {
     showTodayButton: false,    // Hide the "Today" button
     showMonthYear: false,      // Hide month/year dropdowns
     showModeButtons: false,    // Hide Month/Week/Day buttons
@@ -159,7 +170,7 @@ $('#calendar').calendar({
 Control event appearance with borders and backgrounds:
 
 ```javascript
-$('#calendar').calendar({
+const calendar = new SimpleCalendar('#calendar', {
     eventBorder: true,         // Add 1px borders to events
     showBackground: true,      // Enable background colors
     headerBackgroundColor: '#e3f2fd',
@@ -182,7 +193,7 @@ Choose from pre-configured languages:
 
 ```javascript
 // English (default)
-$('#calendar').calendar({
+const calendar = new SimpleCalendar('#calendar', {
     todayname: 'Today',
     monthText: 'Month',
     weekText: 'Week', 
@@ -196,7 +207,7 @@ $('#calendar').calendar({
 });
 
 // German
-$('#calendar').calendar({
+const calendar = new SimpleCalendar('#calendar', {
     todayname: 'Heute',
     monthText: 'Monat',
     weekText: 'Woche',
@@ -210,7 +221,7 @@ $('#calendar').calendar({
 });
 
 // Spanish
-$('#calendar').calendar({
+const calendar = new SimpleCalendar('#calendar', {
     todayname: 'Hoy',
     monthText: 'Mes',
     weekText: 'Semana',
@@ -224,7 +235,7 @@ $('#calendar').calendar({
 });
 
 // French
-$('#calendar').calendar({
+const calendar = new SimpleCalendar('#calendar', {
     todayname: 'Aujourd\'hui',
     monthText: 'Mois',
     weekText: 'Semaine',
@@ -243,7 +254,7 @@ $('#calendar').calendar({
 Create your own language configuration:
 
 ```javascript
-$('#calendar').calendar({
+const calendar = new SimpleCalendar('#calendar', {
     todayname: 'Vandaag',        // Dutch: Today
     monthText: 'Maand',          // Dutch: Month
     weekText: 'Week',            // Dutch: Week  
@@ -263,7 +274,7 @@ Use either static data or dynamic event loading:
 
 ```javascript
 // Static events
-$('#calendar').calendar({
+const calendar = new SimpleCalendar('#calendar', {
     data: [
         { start: '2024-11-15', title: 'Meeting', backgroundColor: '#007bff' },
         { start: '2024-11-20', end: '2024-11-22', title: 'Conference' }
@@ -271,17 +282,46 @@ $('#calendar').calendar({
 });
 
 // Dynamic events
-$('#calendar').calendar({
+const calendar = new SimpleCalendar('#calendar', {
     events: function(params, callback) {
         // params contains: defaultDate, start, end
-        $.ajax({
-            url: '/api/events',
-            data: { start: params.start, end: params.end },
-            success: callback
-        });
+        fetch('/api/events?' + new URLSearchParams({
+            start: params.start.toISOString(),
+            end: params.end.toISOString()
+        }))
+        .then(response => response.json())
+        .then(callback);
     }
 });
 ```
+
+## API Methods
+
+The SimpleCalendar class provides several methods for programmatic control:
+
+```javascript
+const calendar = new SimpleCalendar('#calendar', options);
+
+// Update calendar options
+calendar.updateOptions({
+    mode: 'week',
+    eventBorder: true
+});
+
+// Get current options
+const currentOptions = calendar.getOptions();
+
+// Destroy calendar instance
+calendar.destroy();
+```
+
+### Available Methods
+
+| Method | Description |
+|--------|-------------|
+| `updateOptions(options)` | Updates calendar options and redraws |
+| `getOptions()` | Returns current calendar options |
+| `destroy()` | Removes event listeners and cleans up |
 
 ## State Management
 
@@ -290,12 +330,12 @@ $('#calendar').calendar({
 The `stateChange` callback is triggered whenever the calendar's internal state changes, such as when users click view buttons (Month/Week/Day) or when options are programmatically updated. This enables two-way data binding between the calendar and external controls.
 
 ```javascript
-$('#calendar').calendar({
+const calendar = new SimpleCalendar('#calendar', {
     stateChange: function(state) {
         // Update your UI controls to match calendar state
-        $('#modeSelector').val(state.mode);
-        $('#backgroundToggle').prop('checked', state.showBackground);
-        $('#timeToggle').prop('checked', state.showTimeInEvent);
+        document.querySelector('#modeSelector').value = state.mode;
+        document.querySelector('#backgroundToggle').checked = state.showBackground;
+        document.querySelector('#timeToggle').checked = state.showTimeInEvent;
     }
 });
 ```
@@ -311,6 +351,101 @@ The state object contains:
 - `showTodayButton`: Today button visibility setting
 - `showMonthYear`: Month/year navigation visibility setting
 - `showModeButtons`: Mode buttons visibility setting
+
+## Framework Integration
+
+### React
+
+```jsx
+import { useEffect, useRef } from 'react';
+
+function CalendarComponent({ options }) {
+    const calendarRef = useRef();
+    const calendarInstance = useRef();
+
+    useEffect(() => {
+        if (calendarRef.current) {
+            calendarInstance.current = new SimpleCalendar(calendarRef.current, options);
+        }
+        
+        return () => {
+            if (calendarInstance.current) {
+                calendarInstance.current.destroy();
+            }
+        };
+    }, []);
+
+    useEffect(() => {
+        if (calendarInstance.current) {
+            calendarInstance.current.updateOptions(options);
+        }
+    }, [options]);
+
+    return <div ref={calendarRef} />;
+}
+```
+
+### Vue 3
+
+```vue
+<template>
+    <div ref="calendar"></div>
+</template>
+
+<script setup>
+import { ref, onMounted, onUnmounted, watch } from 'vue';
+
+const props = defineProps(['options']);
+const calendar = ref();
+let calendarInstance;
+
+onMounted(() => {
+    calendarInstance = new SimpleCalendar(calendar.value, props.options);
+});
+
+onUnmounted(() => {
+    if (calendarInstance) {
+        calendarInstance.destroy();
+    }
+});
+
+watch(() => props.options, (newOptions) => {
+    if (calendarInstance) {
+        calendarInstance.updateOptions(newOptions);
+    }
+}, { deep: true });
+</script>
+```
+
+### Angular
+
+```typescript
+import { Component, ElementRef, Input, OnDestroy, OnInit, ViewChild } from '@angular/core';
+
+@Component({
+    selector: 'simple-calendar',
+    template: '<div #calendar></div>'
+})
+export class SimpleCalendarComponent implements OnInit, OnDestroy {
+    @ViewChild('calendar', { static: true }) calendarRef!: ElementRef;
+    @Input() options: any = {};
+    
+    private calendarInstance: any;
+
+    ngOnInit() {
+        this.calendarInstance = new (window as any).SimpleCalendar(
+            this.calendarRef.nativeElement, 
+            this.options
+        );
+    }
+
+    ngOnDestroy() {
+        if (this.calendarInstance) {
+            this.calendarInstance.destroy();
+        }
+    }
+}
+```
 
 ## Responsive Behavior
 

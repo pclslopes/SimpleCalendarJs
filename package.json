@@ -1,7 +1,7 @@
 {
   "name": "simple-calendar-js",
-  "version": "1.0.5",
-  "description": "A clean, modern, and feature-rich JavaScript calendar component with responsive design and intuitive navigation",
+  "version": "1.0.6",
+  "description": "A clean, modern, and feature-rich JavaScript calendar component with zero dependencies. Responsive design and intuitive navigation.",
   "main": "js/SimpleCalendarJs.js",
   "style": "css/SimpleCalendarJs.css",
   "files": [
@@ -21,7 +21,9 @@
   "keywords": [
     "calendar",
     "javascript",
-    "jquery",
+    "vanilla-js",
+    "zero-dependencies",
+    "no-jquery",
     "responsive",
     "events",
     "scheduler",
@@ -30,7 +32,8 @@
     "week-view",
     "day-view",
     "dark-mode",
-    "ui-component"
+    "ui-component",
+    "framework-agnostic"
   ],
   "author": "Pedro Lopes <simplecalendarjs@gmail.com> (https://www.simplecalendarjs.com)",
   "license": "SEE LICENSE IN LICENSE",
@@ -38,9 +41,6 @@
     "url": "https://github.com/yourusername/SimpleCalendarJs/issues"
   },
   "homepage": "https://www.simplecalendarjs.com",
-  "peerDependencies": {
-    "jquery": ">=3.6.0"
-  },
   "devDependencies": {},
   "engines": {
     "node": ">=12.0.0",

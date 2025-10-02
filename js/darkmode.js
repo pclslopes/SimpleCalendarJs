@@ -1,49 +1,71 @@
-$(document).ready(function () {
-    if($('html').attr('data-bs-theme') === 'auto'){
+document.addEventListener('DOMContentLoaded', function () {
+    const htmlElement = document.documentElement;
+    
+    if(htmlElement.getAttribute('data-bs-theme') === 'auto'){
         function updateTheme(){
-            $('html').attr('data-bs-theme', window.matchMedia('(prefers-color-scheme: dark)').matches ? 'dark' : 'light');
-            $('nav').toggleClass("bg-light bg-dark");
-            $('footer').toggleClass("bg-light bg-dark");
+            const isDark = window.matchMedia('(prefers-color-scheme: dark)').matches;
+            htmlElement.setAttribute('data-bs-theme', isDark ? 'dark' : 'light');
+            
+            const nav = document.querySelector('nav');
+            const footer = document.querySelector('footer');
+            if (nav) nav.classList.toggle('bg-light', !isDark);
+            if (nav) nav.classList.toggle('bg-dark', isDark);
+            if (footer) footer.classList.toggle('bg-light', !isDark);
+            if (footer) footer.classList.toggle('bg-dark', isDark);
         }
 
         function toggleTheme(){
-            if ($('html').attr('data-bs-theme') === 'dark') {
-                $('html').attr('data-bs-theme','light')
+            const currentTheme = htmlElement.getAttribute('data-bs-theme');
+            const newTheme = currentTheme === 'dark' ? 'light' : 'dark';
+            htmlElement.setAttribute('data-bs-theme', newTheme);
+            
+            const nav = document.querySelector('nav');
+            const footer = document.querySelector('footer');
+            if (nav) {
+                nav.classList.toggle('bg-light');
+                nav.classList.toggle('bg-dark');
             }
-            else {
-                $('html').attr('data-bs-theme','dark')
+            if (footer) {
+                footer.classList.toggle('bg-light');
+                footer.classList.toggle('bg-dark');
             }
-            $('nav').toggleClass("bg-light bg-dark");
-            $('footer').toggleClass("bg-light bg-dark");
         }
 
         window.matchMedia('(prefers-color-scheme: dark)').addEventListener('change', updateTheme);
         updateTheme(); 
     }
 
-    $('#mode-toggle').on('click',()=>{
-        toggleTheme();
-    });
+    const modeToggle = document.querySelector('#mode-toggle');
+    if (modeToggle) {
+        modeToggle.addEventListener('click', () => {
+            toggleTheme();
+        });
+    }
 
     // Calendar theme testing button
-    $('#calendar-theme-test').on('click', function() {
-        toggleTheme();
-        
-        // Update button text based on current theme
-        const currentTheme = $('html').attr('data-bs-theme');
-        const buttonText = currentTheme === 'dark' ? 
-            '<i class="fas fa-sun"></i> Switch to Light Theme' : 
-            '<i class="fas fa-moon"></i> Switch to Dark Theme';
-        $(this).html(buttonText);
-    });
+    const themeTestButton = document.querySelector('#calendar-theme-test');
+    if (themeTestButton) {
+        themeTestButton.addEventListener('click', function() {
+            toggleTheme();
+            
+            // Update button text based on current theme
+            const currentTheme = htmlElement.getAttribute('data-bs-theme');
+            const buttonText = currentTheme === 'dark' ? 
+                '<i class="fas fa-sun"></i> Switch to Light Theme' : 
+                '<i class="fas fa-moon"></i> Switch to Dark Theme';
+            this.innerHTML = buttonText;
+        });
+    }
 
     // Initialize button text on page load
-    $(window).on('load', function() {
-        const currentTheme = $('html').attr('data-bs-theme');
+    window.addEventListener('load', function() {
+        const currentTheme = htmlElement.getAttribute('data-bs-theme');
         const buttonText = currentTheme === 'dark' ? 
             '<i class="fas fa-sun"></i> Switch to Light Theme' : 
             '<i class="fas fa-moon"></i> Switch to Dark Theme';
-        $('#calendar-theme-test').html(buttonText);
+        if (themeTestButton) {
+            themeTestButton.innerHTML = buttonText;
+        }
     });
 });
 

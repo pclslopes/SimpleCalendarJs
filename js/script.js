@@ -1,14 +1,21 @@
 var currentDate = new Date();
 var calendarInstance;
 
-$(document).ready(function () {
+document.addEventListener('DOMContentLoaded', function () {
     // Set current year in footer
-    $('#current-year').text(new Date().getFullYear());
+    const yearElement = document.querySelector('#current-year');
+    if (yearElement) {
+        yearElement.textContent = new Date().getFullYear();
+    }
 
     // Initialize month/year controls to current date
     var today = new Date();
-    $('#calendarMonth').val(today.getMonth());
-    $('#calendarYear').val(today.getFullYear());
+    const monthSelect = document.querySelector('#calendarMonth');
+    const yearSelect = document.querySelector('#calendarYear');
+    
+    // Force to October 2025 for testing
+    if (monthSelect) monthSelect.value = 9; // October (0-based)
+    if (yearSelect) yearSelect.value = 2025;
 
     // Initialize calendar with default options
     initializeCalendar();
@@ -19,31 +26,41 @@ $(document).ready(function () {
 
 function initializeCalendar() {
     // Get current date from controls or default to current date
-    var currentYear = parseInt($('#calendarYear').val()) || new Date().getFullYear();
-    var currentMonth = parseInt($('#calendarMonth').val()) || new Date().getMonth();
+    const yearControl = document.querySelector('#calendarYear');
+    const monthControl = document.querySelector('#calendarMonth');
+    const modeControl = document.querySelector('#calendarMode');
+    
+    var currentYear = parseInt(yearControl?.value) || new Date().getFullYear();
+    var currentMonth = parseInt(monthControl?.value) || new Date().getMonth();
     var calendarDate = new Date(currentYear, currentMonth, 1);
     
-    calendarInstance = $('#calendar').calendar({
+    const calendarElement = document.querySelector('#calendar');
+    if (!calendarElement) {
+        console.error('Calendar element not found');
+        return;
+    }
+    
+    calendarInstance = new SimpleCalendar(calendarElement, {
         date: calendarDate,
-        mode: $('#calendarMode').val() || 'month',
-        showTimeInEvent: $('#showTimeInEvent').is(':checked'),
+        mode: modeControl?.value || 'month',
+        showTimeInEvent: document.querySelector('#showTimeInEvent')?.checked || false,
         showYears: true,
-        showDayAsAllDayEvents: $('#showDayAsAllDayEvents').is(':checked'),
-        eventBorder: $('#eventBorder').is(':checked'),
-        showTodayButton: $('#showTodayButton').is(':checked'),
-        showMonthYear: $('#showMonthYear').is(':checked'),
-        showModeButtons: $('#showModeButtons').is(':checked'),
-        showBackground: $('#showBackground').is(':checked'),
-        headerBackgroundColor: $('#headerBgColor').val(),
-        bodyBackgroundColor: $('#bodyBgColor').val(),
-        useShortDays: $('#useShortDays').is(':checked'),
+        showDayAsAllDayEvents: document.querySelector('#showDayAsAllDayEvents')?.checked || false,
+        eventBorder: document.querySelector('#eventBorder')?.checked || false,
+        showTodayButton: document.querySelector('#showTodayButton')?.checked !== false,
+        showMonthYear: document.querySelector('#showMonthYear')?.checked !== false,
+        showModeButtons: document.querySelector('#showModeButtons')?.checked !== false,
+        showBackground: document.querySelector('#showBackground')?.checked || false,
+        headerBackgroundColor: document.querySelector('#headerBgColor')?.value,
+        bodyBackgroundColor: document.querySelector('#bodyBgColor')?.value,
+        useShortDays: document.querySelector('#useShortDays')?.checked || false,
         ...getLanguageSettings(),
         events: requestData,
         eventClick: function (infoObj) {
-            alert('Event clicked: ' + infoObj.event.title);
+            alert('Event clicked: ' + JSON.stringify(infoObj));
         },
         dayClick: function (dateObj) {
-            alert('Day clicked: ' + dateObj.dateClick.toDateString());
+            alert('Day clicked: ' + JSON.stringify(dateObj));
         },
         stateChange: function(state) {
             // Sync sandbox controls with calendar state
@@ -54,52 +71,75 @@ function initializeCalendar() {
 }
 
 function refreshCalendar() {
-    // Properly unbind all calendar event handlers to prevent duplicates
-    $('#calendar').off();
-    $(document).off('click.calendar-dropdowns');
+    // Destroy current calendar instance if it exists
+    if (calendarInstance && calendarInstance.destroy) {
+        calendarInstance.destroy();
+    }
     
-    // Destroy current calendar and reinitialize with new options
-    $('#calendar').empty();
+    // Reinitialize with new options
     initializeCalendar();
 }
 
 function setupPropertyControls() {
+    // Helper function to add event listeners
+    const addEventListeners = (selectors, eventType, handler) => {
+        selectors.split(',').forEach(selector => {
+            const element = document.querySelector(selector.trim());
+            if (element) {
+                element.addEventListener(eventType, handler);
+            }
+        });
+    };
+
     // Toggle switches
-    $('#showBackground, #showTimeInEvent, #useShortDays, #showDayAsAllDayEvents, #eventBorder, #showTodayButton, #showMonthYear, #showModeButtons').on('change', function() {
+    addEventListeners('#showBackground, #showTimeInEvent, #useShortDays, #showDayAsAllDayEvents, #eventBorder, #showTodayButton, #showMonthYear, #showModeButtons', 'change', function() {
         refreshCalendar();
     });
 
     // Mode selector
-    $('#calendarMode').on('change', function() {
-        refreshCalendar();
-    });
+    const modeSelector = document.querySelector('#calendarMode');
+    if (modeSelector) {
+        modeSelector.addEventListener('change', function() {
+            refreshCalendar();
+        });
+    }
 
     // Month and year selectors
-    $('#calendarMonth, #calendarYear').on('change', function() {
+    addEventListeners('#calendarMonth, #calendarYear', 'change', function() {
         refreshCalendar();
     });
 
     // Color pickers
-    $('#headerBgColor, #bodyBgColor').on('change', function() {
+    addEventListeners('#headerBgColor, #bodyBgColor', 'change', function() {
         refreshCalendar();
     });
 
     // Language preset
-    $('#languagePreset').on('change', function() {
-        refreshCalendar();
-    });
+    const languagePreset = document.querySelector('#languagePreset');
+    if (languagePreset) {
+        languagePreset.addEventListener('change', function() {
+            refreshCalendar();
+        });
+    }
 
     // Today button
-    $('#todayButton').on('click', function() {
-        var today = new Date();
-        $('#calendarMonth').val(today.getMonth());
-        $('#calendarYear').val(today.getFullYear());
-        refreshCalendar();
-    });
+    const todayButton = document.querySelector('#todayButton');
+    if (todayButton) {
+        todayButton.addEventListener('click', function() {
+            var today = new Date();
+            const monthControl = document.querySelector('#calendarMonth');
+            const yearControl = document.querySelector('#calendarYear');
+            
+            if (monthControl) monthControl.value = today.getMonth();
+            if (yearControl) yearControl.value = today.getFullYear();
+            refreshCalendar();
+        });
+    }
 }
 
 function getLanguageSettings() {
-    var language = $('#languagePreset').val();
+    const languageControl = document.querySelector('#languagePreset');
+    var language = languageControl?.value || 'en';
     
     var languages = {
         en: {
@@ -160,28 +200,38 @@ function detectLanguageFromState(state) {
 
 function syncSandboxControls(state) {
     // Update mode selector to match calendar state
-    $('#calendarMode').val(state.mode);
+    const modeControl = document.querySelector('#calendarMode');
+    if (modeControl) modeControl.value = state.mode;
     
     // Update month and year to match calendar state
     if (state.date) {
-        $('#calendarMonth').val(state.date.getMonth());
-        $('#calendarYear').val(state.date.getFullYear());
+        const monthControl = document.querySelector('#calendarMonth');
+        const yearControl = document.querySelector('#calendarYear');
+        
+        if (monthControl) monthControl.value = state.date.getMonth();
+        if (yearControl) yearControl.value = state.date.getFullYear();
     }
     
     // Update toggle switches to match calendar state
-    $('#showBackground').prop('checked', state.showBackground || false);
-    $('#showTimeInEvent').prop('checked', state.showTimeInEvent !== false); // default true
-    $('#useShortDays').prop('checked', state.useShortDays || false);
-    $('#showDayAsAllDayEvents').prop('checked', state.showDayAsAllDayEvents || false);
-    $('#eventBorder').prop('checked', state.eventBorder || false);
-    $('#showTodayButton').prop('checked', state.showTodayButton !== false); // default true
-    $('#showMonthYear').prop('checked', state.showMonthYear !== false); // default true
-    $('#showModeButtons').prop('checked', state.showModeButtons !== false); // default true
+    const updateCheckbox = (selector, value) => {
+        const element = document.querySelector(selector);
+        if (element) element.checked = value;
+    };
+    
+    updateCheckbox('#showBackground', state.showBackground || false);
+    updateCheckbox('#showTimeInEvent', state.showTimeInEvent !== false); // default true
+    updateCheckbox('#useShortDays', state.useShortDays || false);
+    updateCheckbox('#showDayAsAllDayEvents', state.showDayAsAllDayEvents || false);
+    updateCheckbox('#eventBorder', state.eventBorder || false);
+    updateCheckbox('#showTodayButton', state.showTodayButton !== false); // default true
+    updateCheckbox('#showMonthYear', state.showMonthYear !== false); // default true
+    updateCheckbox('#showModeButtons', state.showModeButtons !== false); // default true
     
     // Detect and update language preset from state
     if (state.months && state.days) {
         var currentLang = detectLanguageFromState(state);
-        $('#languagePreset').val(currentLang);
+        const languageControl = document.querySelector('#languagePreset');
+        if (languageControl) languageControl.value = currentLang;
     }
 }
 
@@ -189,170 +239,156 @@ function requestData(calendarRequestObject, callback) {
     const currentMonth = new Date().getMonth() + 1;
     const currentYear = new Date().getFullYear();
     callback([
+        // Single day events
         {
           "Id": 1,
           "CalendarItemTypeId": 101,
           "CalendarItemTypeName": "Meeting",
-          "title": "📅 Team Standup",
-          "text": "Daily standup meeting to discuss progress.",
-          "Description": "Daily standup meeting to discuss progress.",
-          "start": currentYear + "-" + currentMonth + "-01",
-          "end": currentYear + "-" + currentMonth + "-06",
-          "backgroundColor": "#dff0d8"
+          "title": "📅 Single Day Meeting",
+          "text": "Regular single day meeting.",
+          "Description": "Regular single day meeting.",
+          "start": "2025-10-01",
+          "end": "2025-10-01",
+          "backgroundColor": "#e3f2fd"
         },
         {
           "Id": 2,
           "CalendarItemTypeId": 102,
-          "CalendarItemTypeName": "Deadline",
-          "title": "⏰ Project Milestone Due",
-          "text": "Submit the project milestone documentation.",
-          "Description": "Submit the project milestone documentation.",
-          "start": currentYear + "-" + currentMonth + "-03",
-          "end": currentYear + "-" + currentMonth + "-07",
-          "backgroundColor": "#dec1ff"
+          "CalendarItemTypeName": "Task",
+          "title": "📋 Another Single Day",
+          "text": "Another single day event.",
+          "Description": "Another single day event.",
+          "start": "2025-10-03",
+          "end": "2025-10-03",
+          "backgroundColor": "#f3e5f5"
         },
+        
+        // 2-day events
         {
           "Id": 3,
           "CalendarItemTypeId": 103,
-          "CalendarItemTypeName": "Event",
-          "title": "🎉 Team Building Activity",
-          "text": "Outdoor activities with the team.",
-          "Description": "Outdoor activities with the team.",
-          "start": currentYear + "-" + currentMonth + "-05",
-          "end": currentYear + "-" + currentMonth + "-07",
-          "backgroundColor": "#dff0d8"
+          "CalendarItemTypeName": "Workshop",
+          "title": "🎯 2-Day Workshop",
+          "text": "Two day workshop event.",
+          "Description": "Two day workshop event.",
+          "start": "2025-10-06",
+          "end": "2025-10-07",
+          "backgroundColor": "#fff3e0"
         },
+        
+        // 3-day events
         {
           "Id": 4,
           "CalendarItemTypeId": 104,
-          "CalendarItemTypeName": "Task",
-          "title": "📋 Complete Bug Fixes",
-          "text": "Resolve reported issues in the app.",
-          "Description": "Resolve reported issues in the app.",
-          "start": currentYear + "-" + currentMonth + "-08",
-          "end": currentYear + "-" + currentMonth + "-08",
-          "backgroundColor": "#f0cea0"
+          "CalendarItemTypeName": "Conference",
+          "title": "🏢 3-Day Conference",
+          "text": "Three day conference.",
+          "Description": "Three day conference.",
+          "start": "2025-10-09",
+          "end": "2025-10-11",
+          "backgroundColor": "#e8f5e8"
         },
+        
+        // 5-day event (weekdays)
         {
           "Id": 5,
           "CalendarItemTypeId": 105,
-          "CalendarItemTypeName": "Meeting",
-          "title": "📅 Client Presentation",
-          "text": "Present the Q3 project results to the client.",
-          "Description": "Present the Q3 project results to the client.",
-          "start": currentYear + "-" + currentMonth + "-08",
-          "end": currentYear + "-" + currentMonth + "-10",
-          "backgroundColor": "#e74c3c"
+          "CalendarItemTypeName": "Training",
+          "title": "📚 5-Day Training Program",
+          "text": "Full week training program.",
+          "Description": "Full week training program.",
+          "start": "2025-10-13",
+          "end": "2025-10-17",
+          "backgroundColor": "#fce4ec"
         },
+        
+        // Week-long event (7 days)
         {
           "Id": 6,
           "CalendarItemTypeId": 106,
-          "CalendarItemTypeName": "Reminder",
-          "title": "🔔 Send Progress Update",
-          "text": "Email weekly updates to the stakeholders.",
-          "Description": "Email weekly updates to the stakeholders.",
-          "start": currentYear + "-" + currentMonth + "-10",
-          "end": currentYear + "-" + currentMonth + "-12",
-          "backgroundColor": "#f0cea0"
+          "CalendarItemTypeName": "Project",
+          "title": "🚀 Week-Long Sprint",
+          "text": "Development sprint for one week.",
+          "Description": "Development sprint for one week.",
+          "start": "2025-10-20",
+          "end": "2025-10-26",
+          "backgroundColor": "#e1f5fe"
         },
+        
+        // Overlapping events on same days
         {
           "Id": 7,
           "CalendarItemTypeId": 107,
-          "CalendarItemTypeName": "Task",
-          "title": "📋 Review Design Proposals",
-          "text": "Evaluate new designs for the project.",
-          "Description": "Evaluate new designs for the project.",
-          "start": currentYear + "-" + currentMonth + "-13",
-          "end": currentYear + "-" + currentMonth + "-13",
-          "backgroundColor": "#DAF7A6"
+          "CalendarItemTypeName": "Event",
+          "title": "🎉 Overlapping Event A",
+          "text": "First overlapping event.",
+          "Description": "First overlapping event.",
+          "start": "2025-10-14",
+          "end": "2025-10-16",
+          "backgroundColor": "#ffebee"
         },
         {
           "Id": 8,
           "CalendarItemTypeId": 108,
           "CalendarItemTypeName": "Event",
-          "title": "🎉 Product Launch",
-          "text": "Launch the new feature update.",
-          "Description": "Launch the new feature update.",
-          "start": currentYear + "-" + currentMonth + "-15T11:00:00",
-          "end": currentYear + "-" + currentMonth + "-23T11:00:00",
-          "backgroundColor": "#d9edf7"
+          "title": "🎪 Overlapping Event B",
+          "text": "Second overlapping event.",
+          "Description": "Second overlapping event.",
+          "start": "2025-10-15",
+          "end": "2025-10-17",
+          "backgroundColor": "#f3e5f5"
         },
+        
+        // Cross-week event (spans into next week)
         {
           "Id": 9,
           "CalendarItemTypeId": 109,
-          "CalendarItemTypeName": "Deadline",
-          "title": "⏰ Submit Reports",
-          "text": "Prepare and submit monthly reports.",
-          "Description": "Prepare and submit monthly reports.",
-          "start": currentYear + "-" + currentMonth + "-17",
-          "end": currentYear + "-" + currentMonth + "-17",
-          "backgroundColor": "#d9edf7"
+          "CalendarItemTypeName": "Project",
+          "title": "🌉 Cross-Week Project",
+          "text": "Event that spans across weeks.",
+          "Description": "Event that spans across weeks.",
+          "start": "2025-10-28",
+          "end": "2025-11-03",
+          "backgroundColor": "#e8eaf6"
         },
+        
+        // Month boundary event
         {
           "Id": 10,
           "CalendarItemTypeId": 110,
-          "CalendarItemTypeName": "Meeting",
-          "title": "📅 Budget Planning",
-          "text": "Discuss budget allocations for next year.",
-          "Description": "Discuss budget allocations for next year.",
-          "start": currentYear + "-" + currentMonth + "-17",
-          "end": currentYear + "-" + currentMonth + "-17",
-          "backgroundColor": "#d9edf7"
+          "CalendarItemTypeName": "Milestone",
+          "title": "📅 Month Boundary Event",
+          "text": "Event crossing month boundary.",
+          "Description": "Event crossing month boundary.",
+          "start": "2025-10-30",
+          "end": "2025-11-02",
+          "backgroundColor": "#fff8e1"
         },
+        
+        // Events with time (should still work)
         {
           "Id": 11,
           "CalendarItemTypeId": 111,
-          "CalendarItemTypeName": "Reminder",
-          "title": "🔔 Invoice Payment Due",
-          "text": "Pay vendor invoices by EOD.",
-          "Description": "Pay vendor invoices by EOD.",
-          "start": currentYear + "-" + currentMonth + "-18",
-          "end": currentYear + "-" + currentMonth + "-23",
-          "backgroundColor": "#FFC300"
+          "CalendarItemTypeName": "Meeting",
+          "title": "⏰ Timed Multi-Day",
+          "text": "Multi-day event with specific times.",
+          "Description": "Multi-day event with specific times.",
+          "start": "2025-10-22T09:00:00",
+          "end": "2025-10-24T17:00:00",
+          "backgroundColor": "#e0f2f1"
         },
+        
+        // Very long event (2 weeks)
         {
           "Id": 12,
           "CalendarItemTypeId": 112,
-          "CalendarItemTypeName": "Task",
-          "title": "📋 Backup Server Data",
-          "text": "Create a backup of all servers.",
-          "Description": "Create a backup of all servers.",
-          "start": currentYear + "-" + currentMonth + "-20",
-          "end": currentYear + "-" + currentMonth + "-23",
-          "backgroundColor": "#dff0d8"
-        },
-        {
-          "Id": 13,
-          "CalendarItemTypeId": 113,
-          "CalendarItemTypeName": "Event",
-          "title": "🎉 Thanksgiving Celebration",
-          "text": "Office gathering for Thanksgiving.",
-          "Description": "Office gathering for Thanksgiving.",
-          "start": currentYear + "-" + currentMonth + "-24",
-          "end": currentYear + "-" + currentMonth + "-24",
-          "backgroundColor": "#DAF7A6"
-        },
-        {
-          "Id": 14,
-          "CalendarItemTypeId": 114,
-          "CalendarItemTypeName": "Meeting",
-          "title": "📅 Annual Review",
-          "text": "Discuss yearly achievements and future goals.",
-          "Description": "Discuss yearly achievements and future goals.",
-          "start": currentYear + "-" + currentMonth + "-26",
-          "end": currentYear + "-" + currentMonth + "-26",
-          "backgroundColor": "#dec1ff"
-        },
-        {
-          "Id": 15,
-          "CalendarItemTypeId": 115,
-          "CalendarItemTypeName": "Reminder",
-          "title": "🔔 Renew Licenses",
-          "text": "Renew all software licenses.",
-          "Description": "Renew all software licenses.",
-          "start": currentYear + "-" + currentMonth + "-28",
-          "end": currentYear + "-" + currentMonth + "-28",
-          "backgroundColor": "#e74c3c"
+          "CalendarItemTypeName": "Vacation",
+          "title": "🏖️ Two Week Vacation",
+          "text": "Extended vacation period.",
+          "Description": "Extended vacation period.",
+          "start": "2025-10-04",
+          "end": "2025-10-18",
+          "backgroundColor": "#fff9c4"
         }
       ]);
     /*displaySpinner();
