@@ -48,7 +48,7 @@ const template = `{{
                   </span>
                   {{ } }}
                   {{ if (showTodayButton) { }}
-                  <button class="js-cal-option cal-nav-button button btn-today {{: first.toDateInt() <= today.toDateInt() && today.toDateInt() <= last.toDateInt() ? 'cal-nav-primary':'' }}" data-date="{{: today.toISOString()}}" data-mode="month">{{: todayname }}</button>
+                  <button class="js-cal-option cal-nav-button button btn-today {{: first.toDateInt() <= today.toDateInt() && today.toDateInt() <= last.toDateInt() ? 'cal-nav-primary':'' }}" data-date="{{: LiteralDate.toDateString(today)}}" data-mode="month">{{: todayname }}</button>
                   {{ } }}
                 </td>
                 <td {{ if (!showModeButtons) { }}style="text-align: right; padding-right: 0;"{{ } }}>
@@ -60,7 +60,7 @@ const template = `{{
                           <span class="js-cal-month-dropdown cal-nav-button button cal-nav-primary">{{: months[month] }} ▼</span>
                           <div class="month-dropdown-menu">
                             {{ for (var i = 0; i < 12; i++) { }}
-                              <div class="month-dropdown-item {{: i === month ? 'active' : '' }}" data-date="{{: new Date(year, i, 1).toISOString() }}" data-mode="month">{{: months[i] }}</div>
+                              <div class="month-dropdown-item {{: i === month ? 'active' : '' }}" data-date="{{: LiteralDate.toDateString(new Date(year, i, 1)) }}" data-mode="month">{{: months[i] }}</div>
                             {{ } }}
                           </div>
                         </div>
@@ -141,7 +141,7 @@ const template = `{{
           {{ for (i = 0; i < 7; i++) { }}
           {{ console.log(date.toDateCssClass());}}
           {{ if (thedate > last) { dayclass = nextmonthcss; } else if (thedate >= first) { dayclass = thismonthcss; } }}
-          <td class="calendar-day {{: dayclass }} {{: thedate.toDateCssClass() }} {{: today.toDateCssClass() === thedate.toDateCssClass() ? 'currentdate today-date':'' }} {{: daycss[i] }} js-cal-option add-day" data-date="{{: thedate.toISOString() }}">
+          <td class="calendar-day {{: dayclass }} {{: thedate.toDateCssClass() }} {{: today.toDateCssClass() === thedate.toDateCssClass() ? 'currentdate today-date':'' }} {{: daycss[i] }} js-cal-option add-day" data-date="{{: LiteralDate.toDateString(thedate) }}">
             <div class="date">{{: thedate.getDate() }}</div>
             {{ thedate.setDate(thedate.getDate() + 1);}}
 
@@ -166,31 +166,31 @@ const template = `{{
                 {{ if(showDayAsAllDayEvents) {}}
                     <tr>
                       <th class="timetitle" >Events</th>
-                      <td class="js-cal-option time-all-day add-day {{: date.toDateCssClass() }}" data-date="{{: date.toISOString() }}"> </td>
+                      <td class="js-cal-option time-all-day add-day {{: LiteralDate.toCssClass(date) }}" data-date="{{: LiteralDate.toDateString(date) }}"> </td>
                     </tr>
                 {{ } }}
                 {{ if(!showDayAsAllDayEvents) {}}
                     <tr>
                         <th class="timetitle" >All Day</th>
-                        <td class="js-cal-option add-day {{: date.toDateCssClass() }}" data-date="{{: date.toISOString() }}"> </td>
+                        <td class="js-cal-option add-day {{: LiteralDate.toCssClass(date) }}" data-date="{{: LiteralDate.toDateString(date) }}"> </td>
                     </tr>
                     <tr>
                       <th class="timetitle" >Before 6 AM</th>
-                      <td class="js-cal-option time-0-0" data-date="{{: date.toISOString() }}"> </td>
+                      <td class="js-cal-option time-0-0" data-date="{{: LiteralDate.toDateString(date) }}"> </td>
                     </tr>
                     {{for (i = 6; i < 22; i++) { }}
                         <tr>
                           <th class="timetitle" >{{: i <= 12 ? i : i - 12 }} {{: i < 12 ? "AM" : "PM"}}</th>
-                          <td class="js-cal-option add-day time-{{: i}}-0" data-date="{{: date.toISOString() }}"> </td>
+                          <td class="js-cal-option add-day time-{{: i}}-0" data-date="{{: LiteralDate.toDateString(date) }}"> </td>
                         </tr>
                         <tr>
                           <th class="timetitle" >{{: i <= 12 ? i : i - 12 }}:30 {{: i < 12 ? "AM" : "PM"}}</th>
-                          <td class="js-cal-option add-day time-{{: i}}-30" data-date="{{: date.toISOString() }}"> </td>
+                          <td class="js-cal-option add-day time-{{: i}}-30" data-date="{{: LiteralDate.toDateString(date) }}"> </td>
                         </tr>
                     {{ } }}
                     <tr>
                       <th class="timetitle" >After 10 PM</th>
-                      <td class="js-cal-option add-day time-22-0" data-date="{{: date.toISOString() }}"> </td>
+                      <td class="js-cal-option add-day time-22-0" data-date="{{: LiteralDate.toDateString(date) }}"> </td>
                     </tr>
                 {{ } }}
               </tbody>
@@ -323,6 +323,99 @@ Date.prototype.toTimeString = function() {
     return hour + ampm;
 };
 
+// Literal Date Helpers - Handle dates without timezone conversion
+const LiteralDate = {
+    /**
+     * Create a CSS class from a date that matches the literal date string
+     * @param {Date} date - Date object
+     * @returns {string} - CSS class in format _YYYY_MM_DD
+     */
+    toCssClass(date) {
+        if (!date || !(date instanceof Date)) return '';
+        
+        // Use literal date parts to avoid timezone issues
+        const year = date.getFullYear();
+        const month = date.getMonth() + 1;
+        const day = date.getDate();
+        return `_${year}_${month}_${day}`;
+    },
+    /**
+     * Parse a date string or Date object as literal date (no timezone conversion)
+     * @param {string|Date} dateInput - Date string in format YYYY-MM-DD or Date object
+     * @returns {Date} - Date object at local midnight
+     */
+    parse(dateInput) {
+        if (!dateInput) return null;
+        
+        // If already a Date object, extract just the date parts
+        if (dateInput instanceof Date) {
+            return new Date(dateInput.getFullYear(), dateInput.getMonth(), dateInput.getDate());
+        }
+        
+        // Handle string dates - be very aggressive about literal parsing
+        const dateStr = String(dateInput).trim();
+        
+        // For YYYY-MM-DD format (with or without time), parse literally
+        const dateMatch = dateStr.match(/^(\d{4})-(\d{1,2})-(\d{1,2})/);
+        if (dateMatch) {
+            const year = parseInt(dateMatch[1], 10);
+            const month = parseInt(dateMatch[2], 10) - 1; // 0-based
+            const day = parseInt(dateMatch[3], 10);
+            return new Date(year, month, day);
+        }
+        
+        // Fallback - should rarely be used
+        console.warn('LiteralDate.parse fallback used for:', dateStr);
+        const parsed = new Date(dateStr);
+        return new Date(parsed.getFullYear(), parsed.getMonth(), parsed.getDate());
+    },
+    
+    /**
+     * Create a literal date string for data attributes (YYYY-MM-DD format)
+     * @param {Date} date - Date object
+     * @returns {string} - Date string in YYYY-MM-DD format
+     */
+    toDateString(date) {
+        if (!date || !(date instanceof Date)) return '';
+        
+        const year = date.getFullYear();
+        const month = String(date.getMonth() + 1).padStart(2, '0');
+        const day = String(date.getDate()).padStart(2, '0');
+        return `${year}-${month}-${day}`;
+    },
+    
+    /**
+     * Create a Date object for day clicks with optional time
+     * @param {string} dateStr - Date string from data attribute
+     * @param {number} hours - Hours to set (optional)
+     * @param {number} minutes - Minutes to set (optional)
+     * @returns {Date} - Date object with specified time or midnight
+     */
+    createWithTime(dateStr, hours = 0, minutes = 0) {
+        const baseDate = this.parse(dateStr);
+        if (!baseDate) return null;
+        
+        baseDate.setHours(hours, minutes, 0, 0);
+        return baseDate;
+    },
+    
+    /**
+     * Compare two dates for equality (ignoring time)
+     * @param {Date|string} date1 
+     * @param {Date|string} date2 
+     * @returns {boolean}
+     */
+    isEqual(date1, date2) {
+        const d1 = this.parse(date1);
+        const d2 = this.parse(date2);
+        if (!d1 || !d2) return false;
+        
+        return d1.getFullYear() === d2.getFullYear() &&
+               d1.getMonth() === d2.getMonth() &&
+               d1.getDate() === d2.getDate();
+    }
+};
+
 // Main SimpleCalendar class
 class SimpleCalendar {
     constructor(selector, options = {}) {
@@ -416,6 +509,8 @@ class SimpleCalendar {
                 case 'week': this.options.date.setDate(this.options.date.getDate() - 7); break;
                 case 'day': this.options.date.setDate(this.options.date.getDate() - 1); break;
             }
+            // Normalize to literal date to prevent timezone drift
+            this.options.date = LiteralDate.parse(this.options.date);
             this.fetchEvents();
         });
         
@@ -432,6 +527,8 @@ class SimpleCalendar {
                 case 'week': this.options.date.setDate(this.options.date.getDate() + 7); break;
                 case 'day': this.options.date.setDate(this.options.date.getDate() + 1); break;
             }
+            // Normalize to literal date to prevent timezone drift
+            this.options.date = LiteralDate.parse(this.options.date);
             this.fetchEvents();
         });
         
@@ -458,36 +555,13 @@ class SimpleCalendar {
             
             this.options.keepYearDropdownOpen = false;
             
-            const dateParam = { monthDate: this.options.date };
+            // Capture the original calendar viewing date BEFORE any modifications
+            const originalCalendarDate = LiteralDate.parse(this.options.date);
+            
             const target = e.target.closest('.js-cal-option');
             const data = target.dataset;
             
             console.log('target:', target, 'target.dataset:', data);
-            
-            // Handle date separately to ensure it's a proper Date object
-            if (data.date) { 
-                this.options.date = new Date(data.date); 
-            }
-            
-            // Handle mode separately  
-            if (data.mode) {
-                this.options.mode = data.mode;
-            }
-            
-            console.log('Updated options:', this.options.mode, 'date:', this.options.date);
-            
-            this.triggerStateChange();
-            
-            // Ensure dateClick is always set for calendar days
-            if (data.date) {
-                dateParam.dateClick = data.date;
-            } else if (target.matches('.calendar-day') || target.closest('.calendar-day')) {
-                const calendarDay = target.matches('.calendar-day') ? target : target.closest('.calendar-day');
-                const dayData = calendarDay.dataset;
-                if (dayData.date) {
-                    dateParam.dateClick = new Date(dayData.date);
-                }
-            }
             
             // Handle different types of clicks
             console.log('Processing click - conditions:', {
@@ -501,18 +575,41 @@ class SimpleCalendar {
             });
             
             if (target.matches('.calendar-day') || target.matches('.add-day')) {
-                // Day clicks are now handled by the dedicated .calendar-day handler
-                console.log('Skipping - calendar day click');
-            } else if (target.matches('.calendar-month')) {
-                // Month select on year view only
-                console.log('Calling fetchEvents for month select');
-                this.fetchEvents();
-            } else if (data.mode || target.matches('.button') || target.matches('.btn-today')) {
-                // Mode buttons (month/week/day) or other navigation buttons
-                console.log('Calling draw for mode/button click');
-                this.draw();
+                // Handle day clicks - DON'T change the calendar's viewing date for simple day clicks
+                // In day view, let the .add-day handler handle the click to include time
+                if (data.date && this.options.dayClick && this.options.mode !== 'day') {
+                    const clickedDate = LiteralDate.parse(data.date);
+                    this.options.dayClick(clickedDate);
+                }
             } else {
-                console.log('No action taken for this click');
+                // Handle navigation clicks (mode changes, month/year changes, etc.)
+                // Only these should change the calendar's internal date
+                
+                // Handle date separately to ensure it's a proper Date object
+                if (data.date) { 
+                    this.options.date = LiteralDate.parse(data.date); 
+                }
+                
+                // Handle mode separately  
+                if (data.mode) {
+                    this.options.mode = data.mode;
+                }
+                
+                console.log('Updated options:', this.options.mode, 'date:', this.options.date);
+                
+                this.triggerStateChange();
+                
+                if (target.matches('.calendar-month')) {
+                    // Month select on year view only
+                    console.log('Calling fetchEvents for month select');
+                    this.fetchEvents();
+                } else if (data.mode || target.matches('.button') || target.matches('.btn-today')) {
+                    // Mode buttons (month/week/day) or other navigation buttons
+                    console.log('Calling draw for mode/button click');
+                    this.draw();
+                } else {
+                    console.log('No action taken for this click');
+                }
             }
         });
         
@@ -537,28 +634,13 @@ class SimpleCalendar {
             e.preventDefault();
             e.stopPropagation();
             const eventData = JSON.parse(e.target.dataset.json || '{}');
-            const eventObj = { event: eventData, monthDate: this.options.date };
+            const eventObj = { event: eventData, monthDate: LiteralDate.parse(this.options.date) };
             if (this.options.eventClick) {
                 this.options.eventClick(eventObj);
             }
             return false;
         });
         
-        // Direct day clicks - separate handler for calendar days
-        Dom.on(this.element, 'click', '.calendar-day', (e) => {
-            // Only trigger if we didn't click on an event
-            if (!e.target.matches('.event') && !e.target.closest('.event')) {
-                const calendarDay = e.target.matches('.calendar-day') ? e.target : e.target.closest('.calendar-day');
-                const dayData = calendarDay.dataset;
-                if (dayData.date && this.options.dayClick) {
-                    const dateParam = { 
-                        monthDate: this.options.date,
-                        dateClick: new Date(dayData.date)
-                    };
-                    this.options.dayClick(dateParam);
-                }
-            }
-        });
         
         // Day view time slot clicks - handle specific time slots in day view
         Dom.on(this.element, 'click', '.add-day', (e) => {
@@ -572,25 +654,24 @@ class SimpleCalendar {
                 if (targetData.date && this.options.dayClick) {
                     // Extract time from CSS classes (e.g., "time-9-30" means 9:30)
                     const timeMatch = target.className.match(/time-(\d+)-(\d+)|time-all-day/);
-                    let clickedDate = new Date(targetData.date);
+                    let clickedDate;
                     
                     if (timeMatch) {
                         if (timeMatch[0] === 'time-all-day') {
                             // All-day slot - set to start of day
-                            clickedDate.setHours(0, 0, 0, 0);
+                            clickedDate = LiteralDate.createWithTime(targetData.date, 0, 0);
                         } else {
                             // Specific time slot
                             const hours = parseInt(timeMatch[1]);
                             const minutes = parseInt(timeMatch[2]);
-                            clickedDate.setHours(hours, minutes, 0, 0);
+                            clickedDate = LiteralDate.createWithTime(targetData.date, hours, minutes);
                         }
+                    } else {
+                        // Fallback to midnight
+                        clickedDate = LiteralDate.createWithTime(targetData.date, 0, 0);
                     }
                     
-                    const dateParam = { 
-                        monthDate: this.options.date,
-                        dateClick: clickedDate
-                    };
-                    this.options.dayClick(dateParam);
+                    this.options.dayClick(clickedDate);
                 }
             }
         });
@@ -635,7 +716,7 @@ class SimpleCalendar {
             const target = e.target;
             const data = target.dataset;
             if (data.date) {
-                this.options.date = new Date(data.date);
+                this.options.date = LiteralDate.parse(data.date);
                 this.fetchEvents();
             }
             
@@ -670,6 +751,8 @@ class SimpleCalendar {
             e.stopPropagation();
             
             this.options.date.setFullYear(this.options.date.getFullYear() + 1);
+            // Normalize to literal date to prevent timezone drift
+            this.options.date = LiteralDate.parse(this.options.date);
             this.options.keepYearDropdownOpen = true;
             this.fetchEvents();
             return false;
@@ -682,6 +765,8 @@ class SimpleCalendar {
             e.stopPropagation();
             
             this.options.date.setFullYear(this.options.date.getFullYear() - 1);
+            // Normalize to literal date to prevent timezone drift
+            this.options.date = LiteralDate.parse(this.options.date);
             this.options.keepYearDropdownOpen = true;
             this.fetchEvents();
             return false;
@@ -809,7 +894,7 @@ class SimpleCalendar {
             console.warn('SimpleCalendar: Cannot draw, instance is destroyed or element is null');
             return;
         }
-        this.element.innerHTML = this.template(this.options);
+        this.element.innerHTML = this.template({...this.options, LiteralDate});
         
         // Add background class if showBackground option is true
         if (this.options.showBackground) {
@@ -833,7 +918,7 @@ class SimpleCalendar {
         }
         
         // Mark today
-        const todayClass = (new Date()).toDateCssClass();
+        const todayClass = LiteralDate.toCssClass(new Date());
         const todayElement = Dom.select('.' + todayClass, this.element);
         if (todayElement) {
             todayElement.classList.add('today');
@@ -845,15 +930,15 @@ class SimpleCalendar {
             } else if (this.options.mode === 'month' || this.options.mode === 'week') {
                 // Sort events so multi-day events are rendered first (at the top)
                 const sortedEvents = [...this.options.data].sort((a, b) => {
-                    const aIsMultiDay = a.end && new Date(a.start).toDateString() !== new Date(a.end).toDateString();
-                    const bIsMultiDay = b.end && new Date(b.start).toDateString() !== new Date(b.end).toDateString();
+                    const aIsMultiDay = a.end && !LiteralDate.isEqual(a.start, a.end);
+                    const bIsMultiDay = b.end && !LiteralDate.isEqual(b.start, b.end);
                     
                     // Multi-day events first, then by start date
                     if (aIsMultiDay && !bIsMultiDay) return -1;
                     if (!aIsMultiDay && bIsMultiDay) return 1;
                     
                     // If both are same type, sort by start date
-                    return new Date(a.start) - new Date(b.start);
+                    return LiteralDate.parse(a.start) - LiteralDate.parse(b.start);
                 });
                 
                 sortedEvents.forEach((event, index) => this.monthAddEvent(index, event));
@@ -883,9 +968,9 @@ class SimpleCalendar {
             'data-json': JSON.stringify(event)
         }, event.title);
 
-        const start = new Date(event.start);
-        const end = new Date(event.end) || start;
-        const time = new Date(event.start).toTimeString();
+        const start = LiteralDate.parse(event.start);
+        const end = LiteralDate.parse(event.end) || start;
+        const time = LiteralDate.parse(event.start).toTimeString();
         const hour = start.getHours();
         let timeclass = '.time-22-0';
         const startint = start.toDateInt();
@@ -937,13 +1022,13 @@ class SimpleCalendar {
             'data-json': JSON.stringify(event)
         }, event.title);
 
-        const e = new Date(event.start);
-        const dateclass = e.toDateCssClass();
-        let day = Dom.select('.' + e.toDateCssClass(), this.element);
+        const e = LiteralDate.parse(event.start);
+        const dateclass = LiteralDate.toCssClass(e);
+        let day = Dom.select('.' + LiteralDate.toCssClass(e), this.element);
         const empty = Dom.create('div', { class: 'clear event js-cal-option' }, '&nbsp;');
         let numbevents = 0;
-        const time = new Date(event.start).toTimeString();
-        const endday = event.end && Dom.select('.' + new Date(event.end).toDateCssClass(), this.element);
+        const time = LiteralDate.parse(event.start).toTimeString();
+        const endday = event.end && Dom.select('.' + LiteralDate.toCssClass(LiteralDate.parse(event.end)), this.element);
         const checkanyway = new Date(e.getFullYear(), e.getMonth(), e.getDate() + 40);
 
         if (!!time && this.options.showTimeInEvent) {
@@ -951,14 +1036,14 @@ class SimpleCalendar {
         }
         
         if (!event.end) {
-            const dayElement = Dom.select('.' + new Date(event.start).toDateCssClass(), this.element);
+            const dayElement = Dom.select('.' + LiteralDate.toCssClass(LiteralDate.parse(event.start)), this.element);
             if (dayElement) {
                 dayElement.appendChild(eventEl);
             }
             return;
         }
 
-        while (e <= new Date(event.end) && (day || endday || this.options.date < checkanyway)) {
+        while (e <= LiteralDate.parse(event.end) && (day || endday || this.options.date < checkanyway)) {
             if (day) {
                 if (e && e.getDay() == 0) { // reset on Sundays
                     numbevents = 0;
@@ -975,7 +1060,7 @@ class SimpleCalendar {
                 }
                 
                 // Set css style
-                const cssStyle = this.getEventBaseCssStyle(event, dateclass === new Date(event.start).toDateCssClass(), dateclass === new Date(event.end).toDateCssClass());
+                const cssStyle = this.getEventBaseCssStyle(event, dateclass === LiteralDate.toCssClass(LiteralDate.parse(event.start)), dateclass === LiteralDate.toCssClass(LiteralDate.parse(event.end)));
                 Object.keys(cssStyle).forEach(key => {
                     eventEl.style[key] = cssStyle[key];
                 });
@@ -986,17 +1071,13 @@ class SimpleCalendar {
                 }
                 
                 // Determine if this is the first, last, or middle day of the event
-                const eventStartDate = new Date(event.start);
-                const eventEndDate = new Date(event.end);
-                const currentDate = new Date(e);
+                const eventStartDate = LiteralDate.parse(event.start);
+                const eventEndDate = LiteralDate.parse(event.end);
+                const currentDate = LiteralDate.parse(e);
                 
-                // Normalize dates to compare just the day (ignore time)
-                const startDay = new Date(eventStartDate.getFullYear(), eventStartDate.getMonth(), eventStartDate.getDate());
-                const endDay = new Date(eventEndDate.getFullYear(), eventEndDate.getMonth(), eventEndDate.getDate());
-                const currentDay = new Date(currentDate.getFullYear(), currentDate.getMonth(), currentDate.getDate());
-                
-                const isBegin = currentDay.getTime() === startDay.getTime();
-                const isEnd = currentDay.getTime() === endDay.getTime();
+                // Compare literal dates (no time normalization needed)
+                const isBegin = LiteralDate.isEqual(currentDate, eventStartDate);
+                const isEnd = LiteralDate.isEqual(currentDate, eventEndDate);
                 
                 // Remove any existing classes
                 eventEl.classList.remove('begin', 'end');
@@ -1013,7 +1094,7 @@ class SimpleCalendar {
                 eventEl.classList.remove('begin', 'end'); // Remove classes from clone
             }
             e.setDate(e.getDate() + 1);
-            const newDateclass = e.toDateCssClass();
+            const newDateclass = LiteralDate.toCssClass(e);
             day = Dom.select('.' + newDateclass, this.element);
         }
     }
@@ -1021,8 +1102,8 @@ class SimpleCalendar {
     yearAddEvents(events, year) {
         const counts = [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0];
         events.forEach((v) => {
-            if (new Date(v.start).getFullYear() === year) {
-                // counts[new Date(v.start).getMonth()]++;
+            if (LiteralDate.parse(v.start).getFullYear() === year) {
+                // counts[LiteralDate.parse(v.start).getMonth()]++;
             }
         });
         counts.forEach((v, i) => {

@@ -62,7 +62,16 @@ function initializeCalendar() {
             alert('Event clicked: ' + JSON.stringify(infoObj));
         },
         dayClick: function (dateObj) {
-            alert('Day clicked: ' + JSON.stringify(dateObj));
+            // Convert Date object to local date string to avoid timezone issues in JSON
+            const localDateStr = dateObj instanceof Date ? 
+                dateObj.getFullYear() + '-' + 
+                String(dateObj.getMonth() + 1).padStart(2, '0') + '-' + 
+                String(dateObj.getDate()).padStart(2, '0') + 
+                (dateObj.getHours() > 0 || dateObj.getMinutes() > 0 ? 
+                    ' ' + String(dateObj.getHours()).padStart(2, '0') + ':' + String(dateObj.getMinutes()).padStart(2, '0') : 
+                    '') : 
+                dateObj;
+            alert('Day clicked: ' + localDateStr);
         },
         stateChange: function(state) {
             // Sync sandbox controls with calendar state
@@ -262,7 +271,7 @@ function requestData(calendarRequestObject, callback) {
           "title": "📅 Single Day Meeting",
           "text": "Regular single day meeting.",
           "Description": "Regular single day meeting.",
-          "start": "2025-10-01",
+          "start": "2025-09-28",
           "end": "2025-10-01",
           "backgroundColor": "#e3f2fd"
         },
@@ -404,6 +413,19 @@ function requestData(calendarRequestObject, callback) {
           "start": "2025-10-04",
           "end": "2025-10-18",
           "backgroundColor": "#fff9c4"
+        },
+        
+        // Test event for literal date handling (should end on October 21)
+        {
+          "Id": 13,
+          "CalendarItemTypeId": 113,
+          "CalendarItemTypeName": "Test",
+          "title": "🧪 Date Test Event",
+          "text": "Event to test literal date handling - should end on Oct 21.",
+          "Description": "Event to test literal date handling - should end on Oct 21.",
+          "start": "2025-10-19",
+          "end": "2025-10-21",
+          "backgroundColor": "#ff6b6b"
         }
       ]);
     /*displaySpinner();
