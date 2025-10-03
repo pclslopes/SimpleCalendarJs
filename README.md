@@ -71,11 +71,16 @@ const calendar = new SimpleCalendar('#calendar', {
             }
         ]);
     },
-    dayClick: function(params) {
-        console.log('Day clicked:', params.dateClick);
+    dayClick: function(dateObject) {
+        console.log('Day clicked:', dateObject);
+        // dateObject is a Date object representing the clicked date
+        // In day view, it includes time information (e.g., 14:30 for 2:30 PM slot)
     },
-    eventClick: function(params) {
-        console.log('Event clicked:', params.event);
+    eventClick: function(eventInfo) {
+        console.log('Event clicked:', eventInfo);
+        // eventInfo contains:
+        // - day: Date object of the clicked calendar day
+        // - data: Complete event object with all properties
     },
     stateChange: function(state) {
         console.log('Calendar state changed:', state);

@@ -59,7 +59,16 @@ function initializeCalendar() {
         ...getLanguageSettings(),
         events: requestData,
         eventClick: function (infoObj) {
-            alert('Event clicked: ' + JSON.stringify(infoObj));
+            // Convert day Date object to local date string to avoid timezone issues
+            const result = {
+                day: infoObj.day instanceof Date ? 
+                    infoObj.day.getFullYear() + '-' + 
+                    String(infoObj.day.getMonth() + 1).padStart(2, '0') + '-' + 
+                    String(infoObj.day.getDate()).padStart(2, '0') : 
+                    infoObj.day,
+                data: infoObj.data
+            };
+            alert('Event clicked: ' + JSON.stringify(result));
         },
         dayClick: function (dateObj) {
             // Convert Date object to local date string to avoid timezone issues in JSON

@@ -577,7 +577,9 @@ class SimpleCalendar {
             if (target.matches('.calendar-day') || target.matches('.add-day')) {
                 // Handle day clicks - DON'T change the calendar's viewing date for simple day clicks
                 // In day view, let the .add-day handler handle the click to include time
-                if (data.date && this.options.dayClick && this.options.mode !== 'day') {
+                // Skip if an event was clicked
+                if (data.date && this.options.dayClick && this.options.mode !== 'day' && 
+                    !e.target.matches('.event') && !e.target.closest('.event')) {
                     const clickedDate = LiteralDate.parse(data.date);
                     this.options.dayClick(clickedDate);
                 }
@@ -634,9 +636,20 @@ class SimpleCalendar {
             e.preventDefault();
             e.stopPropagation();
             const eventData = JSON.parse(e.target.dataset.json || '{}');
-            const eventObj = { event: eventData, monthDate: LiteralDate.parse(this.options.date) };
+            
+            // Get the day that was clicked (find the parent calendar day)
+            const calendarDay = e.target.closest('.calendar-day') || e.target.closest('.add-day');
+            let clickedDate = null;
+            
+            if (calendarDay && calendarDay.dataset.date) {
+                clickedDate = LiteralDate.parse(calendarDay.dataset.date);
+            }
+            
             if (this.options.eventClick) {
-                this.options.eventClick(eventObj);
+                this.options.eventClick({
+                    day: clickedDate,
+                    data: eventData
+                });
             }
             return false;
         });
