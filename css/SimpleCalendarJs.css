@@ -116,7 +116,7 @@
     padding: 8px 4px;
     font-size: 0.875em;
     font-weight: 600;
-    color: #495057;
+    color: #374151 !important; /* Darker color for better visibility in light themes */
 }
 
 .selected {
@@ -140,13 +140,14 @@
     text-align: center;
 }
 
-.date {
+.date, .calendar-day .date {
     padding: 2px 4px;
     margin: 0;
+    color: #1f2937 !important; /* Ensure dark color for day numbers in light theme */
 }
 
 .outside .date {
-    color: #808080;
+    color: #9ca3af !important; /* Slightly darker gray for outside dates */
 }
 
 /* Current date styling - only show background when showBackground is true */
@@ -155,7 +156,7 @@
 }
 
 .currentdate .date {
-    color: #e74c3c;
+    color: #e74c3c !important; /* Ensure current date is visible */
     font-weight: 800;
     /*border-radius: 50%;*/
     border-top-left-radius: 10px;
@@ -206,10 +207,12 @@
 
 [data-bs-theme="dark"] .calendar-with-background .calendar-table thead td {
     background-color: #404040 !important;
+    color: #f1f5f9 !important; /* Bright white for better contrast */
 }
 
 [data-bs-theme="dark"] .calendar-with-background .calendar-table thead .c-name {
     background-color: #404040 !important;
+    color: #f1f5f9 !important; /* Bright white for better contrast against dark gray */
 }
 
 [data-bs-theme="dark"] .calendar-with-background .calendar-day.currentdate {
@@ -227,7 +230,7 @@
 [data-bs-theme="dark"] .cal-nav-button {
     background-color: #404040;
     border-color: #555555;
-    color: #ffffff;
+    color: #f1f5f9 !important; /* Bright white for better contrast */
 }
 
 [data-bs-theme="dark"] .cal-nav-button:hover {
@@ -238,7 +241,7 @@
 [data-bs-theme="dark"] .cal-nav-button.cal-nav-primary {
     background-color: #555555;
     border-color: #666666;
-    color: #ffffff;
+    color: #f1f5f9 !important; /* Bright white for better contrast */
 }
 
 [data-bs-theme="dark"] .cal-nav-button.cal-nav-primary:hover {
@@ -246,25 +249,33 @@
     border-color: #777777;
 }
 
-/* Dark mode transparent buttons when showBackground is false */
-[data-bs-theme="dark"] #calendar:not(.calendar-with-background) .cal-nav-button {
+/* Dark mode transparent buttons when showBackground is false - Higher specificity for Tailwind */
+[data-bs-theme="dark"] #calendar:not(.calendar-with-background) .cal-nav-button,
+[data-bs-theme="dark"] #calendar:not(.calendar-with-background) .cal-nav-button.cal-nav-button {
     background-color: transparent !important;
     border-color: transparent !important;
+    color: inherit !important;
 }
 
-[data-bs-theme="dark"] #calendar:not(.calendar-with-background) .cal-nav-button:hover {
+[data-bs-theme="dark"] #calendar:not(.calendar-with-background) .cal-nav-button:hover,
+[data-bs-theme="dark"] #calendar:not(.calendar-with-background) .cal-nav-button.cal-nav-button:hover {
     background-color: rgba(255,255,255,0.1) !important;
     border-color: transparent !important;
+    color: inherit !important;
 }
 
-[data-bs-theme="dark"] #calendar:not(.calendar-with-background) .cal-nav-button.cal-nav-primary {
+[data-bs-theme="dark"] #calendar:not(.calendar-with-background) .cal-nav-button.cal-nav-primary,
+[data-bs-theme="dark"] #calendar:not(.calendar-with-background) .cal-nav-button.cal-nav-primary.cal-nav-button {
     background-color: transparent !important;
     border-color: transparent !important;
+    color: inherit !important;
 }
 
-[data-bs-theme="dark"] #calendar:not(.calendar-with-background) .cal-nav-button.cal-nav-primary:hover {
+[data-bs-theme="dark"] #calendar:not(.calendar-with-background) .cal-nav-button.cal-nav-primary:hover,
+[data-bs-theme="dark"] #calendar:not(.calendar-with-background) .cal-nav-button.cal-nav-primary.cal-nav-button:hover {
     background-color: rgba(255,255,255,0.15) !important;
     border-color: transparent !important;
+    color: inherit !important;
 }
 
 [data-bs-theme="dark"] .event {
@@ -364,7 +375,7 @@
 .cal-nav-button {
     border: 1px solid #dee2e6;
     background-color: #f8f9fa;
-    color: #495057;
+    color: #374151 !important; /* Darker color for better visibility */
     padding: 6px 12px;
     margin: 0 2px;
     cursor: pointer;
@@ -375,25 +386,33 @@
     text-decoration: none;
 }
 
-/* Transparent buttons when showBackground is false */
-#calendar:not(.calendar-with-background) .cal-nav-button {
+/* Transparent buttons when showBackground is false - Higher specificity for Tailwind compatibility */
+#calendar:not(.calendar-with-background) .cal-nav-button,
+#calendar:not(.calendar-with-background) .cal-nav-button.cal-nav-button {
     background-color: transparent !important;
     border-color: transparent !important;
+    color: inherit !important;
 }
 
-#calendar:not(.calendar-with-background) .cal-nav-button:hover {
+#calendar:not(.calendar-with-background) .cal-nav-button:hover,
+#calendar:not(.calendar-with-background) .cal-nav-button.cal-nav-button:hover {
     background-color: rgba(0,0,0,0.05) !important;
     border-color: transparent !important;
+    color: inherit !important;
 }
 
-#calendar:not(.calendar-with-background) .cal-nav-button.cal-nav-primary {
+#calendar:not(.calendar-with-background) .cal-nav-button.cal-nav-primary,
+#calendar:not(.calendar-with-background) .cal-nav-button.cal-nav-primary.cal-nav-button {
     background-color: transparent !important;
     border-color: transparent !important;
+    color: inherit !important;
 }
 
-#calendar:not(.calendar-with-background) .cal-nav-button.cal-nav-primary:hover {
+#calendar:not(.calendar-with-background) .cal-nav-button.cal-nav-primary:hover,
+#calendar:not(.calendar-with-background) .cal-nav-button.cal-nav-primary.cal-nav-button:hover {
     background-color: rgba(0,0,0,0.1) !important;
     border-color: transparent !important;
+    color: inherit !important;
 }
 
 .cal-nav-button:hover {
@@ -404,7 +423,7 @@
 .cal-nav-button.cal-nav-primary {
     background-color: #e9ecef;
     border-color: #adb5bd;
-    color: #495057;
+    color: #374151 !important; /* Darker color for better visibility */
 }
 
 .cal-nav-button.cal-nav-primary:hover {
@@ -887,7 +906,7 @@ html[data-bs-theme="dark"] #calendar .year-dropdown-menu {
 
 html[data-bs-theme="dark"] .month-dropdown-item,
 html[data-bs-theme="dark"] #calendar .month-dropdown-item {
-    color: #ffffff !important;
+    color: #f1f5f9 !important; /* Bright white for better contrast */
 }
 
 html[data-bs-theme="dark"] .month-dropdown-item:hover,
@@ -911,7 +930,7 @@ html[data-bs-theme="dark"] #calendar .view-dropdown-menu {
 
 html[data-bs-theme="dark"] .view-dropdown-item,
 html[data-bs-theme="dark"] #calendar .view-dropdown-item {
-    color: #ffffff !important;
+    color: #f1f5f9 !important; /* Bright white for better contrast */
 }
 
 html[data-bs-theme="dark"] .view-dropdown-item:hover,
@@ -922,4 +941,74 @@ html[data-bs-theme="dark"] #calendar .view-dropdown-item:hover {
 html[data-bs-theme="dark"] .view-dropdown-item.active,
 html[data-bs-theme="dark"] #calendar .view-dropdown-item.active {
     background-color: #555555 !important;
+}
+
+/* ================================================
+   TAILWIND CSS COMPATIBILITY OVERRIDES
+   ================================================ */
+
+/* Force higher specificity for calendar elements to override Tailwind utilities */
+#calendar .calendar-table * {
+    box-sizing: border-box !important;
+}
+
+/* Ensure day numbers are always dark in light theme, light in dark theme */
+#calendar .calendar-day .date,
+#calendar .date {
+    color: #1f2937 !important;
+    font-size: inherit !important;
+    font-family: inherit !important;
+}
+
+/* Dark theme day numbers */
+[data-bs-theme="dark"] #calendar .calendar-day .date,
+[data-bs-theme="dark"] #calendar .date {
+    color: #f1f5f9 !important; /* Bright white for better contrast */
+}
+
+/* Dark theme headers and navigation - ensure bright white text */
+[data-bs-theme="dark"] #calendar .calendar-table thead .c-name,
+[data-bs-theme="dark"] #calendar .cal-nav-button {
+    color: #f1f5f9 !important;
+}
+
+/* Outside dates */
+#calendar .outside .date {
+    color: #9ca3af !important;
+}
+
+[data-bs-theme="dark"] #calendar .outside .date {
+    color: #6b7280 !important;
+}
+
+/* Current date override - works for both light and dark themes */
+#calendar .currentdate .date,
+[data-bs-theme="dark"] #calendar .currentdate .date {
+    color: #e74c3c !important;
+}
+
+/* Button text colors - force inheritance from parent */
+#calendar .cal-nav-button,
+#calendar .cal-nav-button * {
+    text-decoration: none !important;
+}
+
+/* Force transparent backgrounds when showBackground is false */
+#calendar:not(.calendar-with-background) .cal-nav-button {
+    background: transparent !important;
+    border-color: transparent !important;
+    box-shadow: none !important;
+}
+
+/* Reset any inherited Tailwind button styles */
+#calendar .cal-nav-button {
+    appearance: none !important;
+    -webkit-appearance: none !important;
+    -moz-appearance: none !important;
+}
+
+/* Ensure proper font rendering */
+#calendar, #calendar * {
+    -webkit-font-smoothing: antialiased !important;
+    -moz-osx-font-smoothing: grayscale !important;
 }

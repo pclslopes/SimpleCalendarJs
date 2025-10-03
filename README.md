@@ -403,6 +403,8 @@ function CalendarComponent({ options }) {
 
 ### Next.js with Tailwind CSS
 
+SimpleCalendarJs is fully compatible with Tailwind CSS. The calendar includes built-in CSS overrides to prevent conflicts with Tailwind's utility classes.
+
 ```jsx
 import { useTheme } from 'next-themes';
 import { useEffect, useRef } from 'react';
@@ -416,6 +418,7 @@ function Calendar() {
         if (calendarRef.current) {
             calendarInstance.current = new SimpleCalendar(calendarRef.current, {
                 theme: theme, // 'light', 'dark', or 'system'
+                showBackground: false, // Set to false for transparent integration with Tailwind
                 // other options...
             });
         }
@@ -430,6 +433,12 @@ function Calendar() {
     return <div ref={calendarRef} />;
 }
 ```
+
+**Tailwind CSS Compatibility Features:**
+- **Automatic CSS specificity**: Built-in overrides prevent Tailwind utility conflicts
+- **Transparent integration**: When `showBackground: false`, buttons and backgrounds are fully transparent
+- **Text visibility**: Day numbers and button text use high-contrast colors that work with both light and dark themes
+- **Reset prevention**: Calendar styles are protected from Tailwind's CSS reset
 
 ### Vue 3
 
