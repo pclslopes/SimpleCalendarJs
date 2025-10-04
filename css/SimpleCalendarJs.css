@@ -1298,3 +1298,33 @@ html[data-bs-theme="dark"] .simple-calendar .view-dropdown-item.active {
 [data-bs-theme="dark"] .simple-calendar .outside .sc_date {
     color: #6b7280 !important;
 }
+
+/* ================================================
+   SINGLEDAY MODE STYLING
+   ================================================ */
+
+/* SingleDay mode: Center the day digits in calendar cells */
+.simple-calendar .calendar-day.single-day-mode {
+    text-align: center;
+    vertical-align: middle;
+    position: relative;
+}
+
+.simple-calendar .calendar-day.single-day-mode .sc_date {
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    margin: 0;
+    line-height: 1;
+}
+
+/* Default background for days with events in SingleDay mode */
+.simple-calendar .calendar-day.single-day-mode.has-events {
+    background-color: rgba(0, 0, 0, 0.08) !important; /* Light gray tint */
+}
+
+/* Dark mode default background for days with events */
+[data-bs-theme="dark"] .simple-calendar .calendar-day.single-day-mode.has-events {
+    background-color: rgba(255, 255, 255, 0.12) !important; /* Light white tint in dark mode */
+}

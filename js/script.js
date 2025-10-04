@@ -32,7 +32,7 @@ function initializeCalendar() {
     
     var currentYear = parseInt(yearControl?.value) || new Date().getFullYear();
     var currentMonth = parseInt(monthControl?.value) || new Date().getMonth();
-    var calendarDate = new Date(currentYear, currentMonth, 1);
+    var calendarDate = new Date();
     
     const calendarElement = document.querySelector('#calendar');
     if (!calendarElement) {
@@ -53,6 +53,7 @@ function initializeCalendar() {
         showNavigation: document.querySelector('#showNavigation')?.checked !== false,
         theme: document.querySelector('#themeMode')?.value || 'auto',
         showBackground: document.querySelector('#showBackground')?.checked || false,
+        calendarMonthViewType: document.querySelector('#calendarMonthViewType')?.value || 'MultiDay',
         headerBackgroundColor: document.querySelector('#headerBgColor')?.value,
         bodyBackgroundColor: document.querySelector('#bodyBgColor')?.value,
         useShortDays: document.querySelector('#useShortDays')?.checked || false,
@@ -128,6 +129,14 @@ function setupPropertyControls() {
     const themeSelector = document.querySelector('#themeMode');
     if (themeSelector) {
         themeSelector.addEventListener('change', function() {
+            refreshCalendar();
+        });
+    }
+
+    // Month view type selector
+    const monthViewTypeSelector = document.querySelector('#calendarMonthViewType');
+    if (monthViewTypeSelector) {
+        monthViewTypeSelector.addEventListener('change', function() {
             refreshCalendar();
         });
     }
@@ -234,6 +243,10 @@ function syncSandboxControls(state) {
     // Update theme selector to match calendar state
     const themeControl = document.querySelector('#themeMode');
     if (themeControl) themeControl.value = state.theme;
+    
+    // Update month view type selector to match calendar state
+    const monthViewTypeControl = document.querySelector('#calendarMonthViewType');
+    if (monthViewTypeControl) monthViewTypeControl.value = state.calendarMonthViewType || 'MultiDay';
     
     // Update month and year to match calendar state
     if (state.date) {

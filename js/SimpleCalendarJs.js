@@ -141,7 +141,7 @@ const template = `{{
           {{ for (i = 0; i < 7; i++) { }}
           {{ console.log(date.toDateCssClass());}}
           {{ if (thedate > last) { dayclass = nextmonthcss; } else if (thedate >= first) { dayclass = thismonthcss; } }}
-          <td class="calendar-day {{: dayclass }} {{: thedate.toDateCssClass() }} {{: today.toDateCssClass() === thedate.toDateCssClass() ? 'currentdate sc_today_date':'' }} {{: daycss[i] }} js-cal-option add-day" data-date="{{: LiteralDate.toDateString(thedate) }}">
+          <td class="calendar-day {{: dayclass }} {{: thedate.toDateCssClass() }} {{: today.toDateCssClass() === thedate.toDateCssClass() ? 'currentdate sc_today_date':'' }} {{: daycss[i] }} {{: mode === 'month' && calendarMonthViewType === 'SingleDay' ? 'single-day-mode' : '' }} js-cal-option add-day" data-date="{{: LiteralDate.toDateString(thedate) }}">
             <div class="sc_date">{{: thedate.getDate() }}</div>
             {{ thedate.setDate(thedate.getDate() + 1);}}
 
@@ -440,6 +440,7 @@ class SimpleCalendar {
             lastmonthcss: "outside",
             nextmonthcss: "outside",
             mode: "month",
+            calendarMonthViewType: "MultiDay", // 'SingleDay' or 'MultiDay'
             useShortDays: false,
             showTimeInEvent: true,
             showBackground: false,
@@ -953,20 +954,26 @@ class SimpleCalendar {
             if (this.options.mode === 'year') {
                 this.yearAddEvents(this.options.data, this.options.date.getFullYear());
             } else if (this.options.mode === 'month' || this.options.mode === 'week') {
-                // Sort events so multi-day events are rendered first (at the top)
-                const sortedEvents = [...this.options.data].sort((a, b) => {
-                    const aIsMultiDay = a.end && !LiteralDate.isEqual(a.start, a.end);
-                    const bIsMultiDay = b.end && !LiteralDate.isEqual(b.start, b.end);
+                if (this.options.mode === 'month' && this.options.calendarMonthViewType === 'SingleDay') {
+                    // SingleDay mode: Only apply background colors to days with events, don't render events
+                    this.applySingleDayBackgrounds(this.options.data);
+                } else {
+                    // MultiDay mode (default): Render events normally
+                    // Sort events so multi-day events are rendered first (at the top)
+                    const sortedEvents = [...this.options.data].sort((a, b) => {
+                        const aIsMultiDay = a.end && !LiteralDate.isEqual(a.start, a.end);
+                        const bIsMultiDay = b.end && !LiteralDate.isEqual(b.start, b.end);
+                        
+                        // Multi-day events first, then by start date
+                        if (aIsMultiDay && !bIsMultiDay) return -1;
+                        if (!aIsMultiDay && bIsMultiDay) return 1;
+                        
+                        // If both are same type, sort by start date
+                        return LiteralDate.parse(a.start) - LiteralDate.parse(b.start);
+                    });
                     
-                    // Multi-day events first, then by start date
-                    if (aIsMultiDay && !bIsMultiDay) return -1;
-                    if (!aIsMultiDay && bIsMultiDay) return 1;
-                    
-                    // If both are same type, sort by start date
-                    return LiteralDate.parse(a.start) - LiteralDate.parse(b.start);
-                });
-                
-                sortedEvents.forEach((event, index) => this.monthAddEvent(index, event));
+                    sortedEvents.forEach((event, index) => this.monthAddEvent(index, event));
+                }
             } else {
                 this.options.data.forEach((event, index) => this.dayAddEvent(index, event));
             }
@@ -1122,6 +1129,34 @@ class SimpleCalendar {
             const newDateclass = LiteralDate.toCssClass(e);
             day = Dom.select('.' + newDateclass, this.element);
         }
+    }
+
+    applySingleDayBackgrounds(events) {
+        // SingleDay mode: Apply background colors to days with events, don't render actual events
+        events.forEach((event) => {
+            const eventStart = LiteralDate.parse(event.start);
+            const eventEnd = event.end ? LiteralDate.parse(event.end) : eventStart;
+            
+            // Iterate through all days the event spans
+            let currentDate = new Date(eventStart);
+            while (currentDate <= eventEnd) {
+                const dayClass = LiteralDate.toCssClass(currentDate);
+                const dayElement = Dom.select('.' + dayClass, this.element);
+                
+                if (dayElement) {
+                    // Add a CSS class to indicate this day has events
+                    dayElement.classList.add('has-events');
+                    
+                    // Apply background color from event if specified
+                    if (event.backgroundColor) {
+                        dayElement.style.backgroundColor = event.backgroundColor;
+                    }
+                }
+                
+                // Move to next day
+                currentDate.setDate(currentDate.getDate() + 1);
+            }
+        });
     }
 
     yearAddEvents(events, year) {

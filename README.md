@@ -116,6 +116,7 @@ const calendar = new SimpleCalendar(calendarElement, {
 | `eventClick` | function | `null` | Callback for event clicks |
 | `stateChange` | function | `null` | Callback when calendar state changes |
 | `showBackground` | boolean | `false` | Show background colors |
+| `calendarMonthViewType` | string | `'MultiDay'` | Month view type: 'MultiDay' (show events) or 'SingleDay' (event backgrounds only) |
 | `headerBackgroundColor` | string | `null` | Custom header background color |
 | `bodyBackgroundColor` | string | `null` | Custom body background color |
 | `showTimeInEvent` | boolean | `true` | Display time in events |
@@ -147,6 +148,51 @@ const calendar = new SimpleCalendar(calendarElement, {
     allDay: false
 }
 ```
+
+## Month View Types
+
+SimpleCalendarJs supports two distinct month view modes:
+
+### MultiDay Mode (Default)
+Shows events as text overlays on calendar days. This is the traditional calendar view where event titles are displayed within the day cells.
+
+```javascript
+const calendar = new SimpleCalendar('#calendar', {
+    calendarMonthViewType: 'MultiDay', // Default
+    data: [
+        {
+            start: '2024-11-15',
+            end: '2024-11-17', 
+            title: 'Conference',
+            backgroundColor: '#007bff'
+        }
+    ]
+});
+```
+
+### SingleDay Mode
+Shows event presence through background colors only. Day numbers are centered and no event text is displayed. This provides a clean, minimalist view that highlights which days have events.
+
+```javascript
+const calendar = new SimpleCalendar('#calendar', {
+    calendarMonthViewType: 'SingleDay',
+    data: [
+        {
+            start: '2024-11-15',
+            end: '2024-11-17',
+            title: 'Conference', // Title not displayed in SingleDay mode
+            backgroundColor: '#e0e0e0' // Custom color or defaults to gray variations
+        }
+    ]
+});
+```
+
+**SingleDay Mode Features:**
+- Day numbers are centered in the cell
+- Event backgrounds use subtle gray variations by default
+- No event text is displayed for a clean appearance  
+- Custom `backgroundColor` values in events are respected
+- Ideal for overview calendars or when space is limited
 
 ## UI Customization
 
@@ -367,6 +413,7 @@ The state object contains:
 - `showTodayButton`: Today button visibility setting
 - `showMonthYear`: Month/year navigation visibility setting
 - `showModeButtons`: Mode buttons visibility setting
+- `calendarMonthViewType`: Month view type ('MultiDay' or 'SingleDay')
 
 ## Framework Integration
 
