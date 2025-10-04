@@ -43,15 +43,15 @@ const template = `{{
                 <td style="text-align: left;">
                   {{ if (showNavigation) { }}
                   <span class="cal-nav-group">
-                    <button class="js-cal-prev cal-nav-button">←</button>
-                    <button class="js-cal-next cal-nav-button">→</button>
+                    <span class="js-cal-prev cal-nav-button">←</span>
+                    <span class="js-cal-next cal-nav-button">→</span>
                   </span>
                   {{ } }}
                   {{ if (showTodayButton) { }}
-                  <button class="js-cal-option cal-nav-button button btn-today {{: first.toDateInt() <= today.toDateInt() && today.toDateInt() <= last.toDateInt() ? 'cal-nav-primary':'' }}" data-date="{{: LiteralDate.toDateString(today)}}" data-mode="month">{{: todayname }}</button>
+                  <span class="js-cal-option cal-nav-button button btn-today {{: first.toDateInt() <= today.toDateInt() && today.toDateInt() <= last.toDateInt() ? 'cal-nav-primary':'' }}" data-date="{{: LiteralDate.toDateString(today)}}" data-mode="month">{{: todayname }}</span>
                   {{ } }}
                 </td>
-                <td {{ if (!showModeButtons) { }}style="text-align: right; padding-right: 0;"{{ } }}>
+                <td {{ if (!showModeButtons) { }}colspan="2" style="text-align: right; padding-right: 0;"{{ } }}>
                   {{ if (showMonthYear) { }}
                   <span class="cal-nav-group">
                     {{ if (mode !== 'day') { }}
@@ -68,8 +68,8 @@ const template = `{{
                           <span class="js-cal-year-dropdown cal-nav-button cal-nav-primary">{{: year }} ▼</span>
                           <div class="year-dropdown-menu">
                             <div class="year-nav-buttons">
-                              <button class="year-nav-prev cal-nav-button">←</button>
-                              <button class="year-nav-next cal-nav-button">→</button>
+                              <span class="year-nav-prev cal-nav-button">←</span>
+                              <span class="year-nav-next cal-nav-button">→</span>
                             </div>
                           </div>
                         </div>
@@ -83,13 +83,13 @@ const template = `{{
                   </span>
                   {{ } }}
                 </td>
+                {{ if (showModeButtons) { }}
                 <td style="text-align: right">
-                  {{ if (showModeButtons) { }}
                   <!-- Desktop view switcher -->
                   <span class="cal-nav-group desktop-view-switcher">
-                    <button class="js-cal-option cal-nav-button button {{: mode==='month'? 'active cal-nav-primary':'' }}" data-mode="month">{{: monthText }}</button>
-                    <button class="js-cal-option cal-nav-button button {{: mode==='week'? 'active cal-nav-primary':'' }}" data-mode="week">{{: weekText }}</button>
-                    <button class="js-cal-option cal-nav-button button {{: mode==='day'? 'active cal-nav-primary':'' }}" data-mode="day">{{: dayText }}</button>
+                    <span class="js-cal-option cal-nav-button button {{: mode==='month'? 'active cal-nav-primary':'' }}" data-mode="month">{{: monthText }}</span>
+                    <span class="js-cal-option cal-nav-button button {{: mode==='week'? 'active cal-nav-primary':'' }}" data-mode="week">{{: weekText }}</span>
+                    <span class="js-cal-option cal-nav-button button {{: mode==='day'? 'active cal-nav-primary':'' }}" data-mode="day">{{: dayText }}</span>
                   </span>
                   
                   <!-- Mobile hamburger menu -->
@@ -103,8 +103,8 @@ const template = `{{
                       </div>
                     </div>
                   </div>
-                  {{ } }}
                 </td>
+                {{ } }}
               </tr>
             </table>
 
@@ -141,8 +141,8 @@ const template = `{{
           {{ for (i = 0; i < 7; i++) { }}
           {{ console.log(date.toDateCssClass());}}
           {{ if (thedate > last) { dayclass = nextmonthcss; } else if (thedate >= first) { dayclass = thismonthcss; } }}
-          <td class="calendar-day {{: dayclass }} {{: thedate.toDateCssClass() }} {{: today.toDateCssClass() === thedate.toDateCssClass() ? 'currentdate today-date':'' }} {{: daycss[i] }} js-cal-option add-day" data-date="{{: LiteralDate.toDateString(thedate) }}">
-            <div class="date">{{: thedate.getDate() }}</div>
+          <td class="calendar-day {{: dayclass }} {{: thedate.toDateCssClass() }} {{: today.toDateCssClass() === thedate.toDateCssClass() ? 'currentdate sc_today_date':'' }} {{: daycss[i] }} js-cal-option add-day" data-date="{{: LiteralDate.toDateString(thedate) }}">
+            <div class="sc_date">{{: thedate.getDate() }}</div>
             {{ thedate.setDate(thedate.getDate() + 1);}}
 
           </td>
@@ -436,7 +436,7 @@ class SimpleCalendar {
             monthText: "Month",
             weekText: "Week", 
             dayText: "Day",
-            thismonthcss: "current",
+            thismonthcss: "sc_current",
             lastmonthcss: "outside",
             nextmonthcss: "outside",
             mode: "month",
@@ -479,13 +479,13 @@ class SimpleCalendar {
     }
     
     init() {
-        console.log('Options: ' + JSON.stringify(this.options));
+        //console.log('Options: ' + JSON.stringify(this.options));
         const dateCopy = new Date('' + this.options.date);
         const defaultDate = new Date(this.options.date);
         const startDate = defaultDate.setMonth(defaultDate.getMonth() - 1);
         const endDate = defaultDate.setMonth(defaultDate.getMonth() + 3);
-        console.log('Current Date: ' + new Date(this.options.date));
-        console.log('Date Range Init: ' + new Date(startDate) + ' > ' + new Date(endDate));
+        //console.log('Current Date: ' + new Date(this.options.date));
+        //console.log('Date Range Init: ' + new Date(startDate) + ' > ' + new Date(endDate));
         
         if (this.options.events) {
             this.options.events({ defaultDate: new Date(dateCopy), start: new Date(startDate), end: new Date(endDate) }, this.eventCallback.bind(this));
@@ -579,7 +579,7 @@ class SimpleCalendar {
                 // In day view, let the .add-day handler handle the click to include time
                 // Skip if an event was clicked
                 if (data.date && this.options.dayClick && this.options.mode !== 'day' && 
-                    !e.target.matches('.event') && !e.target.closest('.event')) {
+                    !e.target.matches('.sc_event') && !e.target.closest('.sc_event')) {
                     const clickedDate = LiteralDate.parse(data.date);
                     this.options.dayClick(clickedDate);
                 }
@@ -622,8 +622,17 @@ class SimpleCalendar {
             
             const target = e.target;
             const data = target.dataset;
+            
             if (data.mode) {
-                Dom.extend(this.options, data);
+                // Use the same logic as the main handler for consistency
+                this.options.mode = data.mode;
+                
+                // Handle date if provided
+                if (data.date) { 
+                    this.options.date = LiteralDate.parse(data.date); 
+                }
+                
+                this.triggerStateChange();
                 this.draw();
             }
             
@@ -632,7 +641,7 @@ class SimpleCalendar {
         });
         
         // Event clicks
-        Dom.on(this.element, 'click', '.event', (e) => {
+        Dom.on(this.element, 'click', '.sc_event', (e) => {
             e.preventDefault();
             e.stopPropagation();
             const eventData = JSON.parse(e.target.dataset.json || '{}');
@@ -660,7 +669,7 @@ class SimpleCalendar {
             if (this.destroyed || !this.options) return;
             
             // Only trigger if we didn't click on an event and we're in day view
-            if (!e.target.matches('.event') && !e.target.closest('.event') && this.options.mode === 'day') {
+            if (!e.target.matches('.sc_event') && !e.target.closest('.sc_event') && this.options.mode === 'day') {
                 const target = e.target;
                 const targetData = target.dataset;
                 
@@ -909,6 +918,9 @@ class SimpleCalendar {
         }
         this.element.innerHTML = this.template({...this.options, LiteralDate});
         
+        // Always add base calendar class for CSS targeting
+        this.element.classList.add('simple-calendar');
+        
         // Add background class if showBackground option is true
         if (this.options.showBackground) {
             this.element.classList.add('calendar-with-background');
@@ -975,7 +987,7 @@ class SimpleCalendar {
         const titleArray = event.title.split('&nbsp;');
         const cleanTitle = titleArray && titleArray.length > 1 ? titleArray[1] : event.title;
         const eventEl = Dom.create('div', {
-            class: 'event',
+            class: 'sc_event',
             title: cleanTitle,
             'data-index': index,
             'data-json': JSON.stringify(event)
@@ -1003,7 +1015,7 @@ class SimpleCalendar {
         
         // Apply border class if eventBorder is enabled
         if (this.options.eventBorder) {
-            eventEl.classList.add('event-with-border');
+            eventEl.classList.add('sc_event_with_border');
         }
 
         console.log('Hour: ' + hour);
@@ -1029,7 +1041,7 @@ class SimpleCalendar {
         const titleArray = event.title.split('&nbsp;');
         const cleanTitle = titleArray && titleArray.length > 1 ? titleArray[1] : event.title;
         let eventEl = Dom.create('div', {
-            class: 'event',
+            class: 'sc_event',
             title: cleanTitle,
             'data-index': index,
             'data-json': JSON.stringify(event)
@@ -1038,7 +1050,7 @@ class SimpleCalendar {
         const e = LiteralDate.parse(event.start);
         const dateclass = LiteralDate.toCssClass(e);
         let day = Dom.select('.' + LiteralDate.toCssClass(e), this.element);
-        const empty = Dom.create('div', { class: 'clear event js-cal-option' }, '&nbsp;');
+        const empty = Dom.create('div', { class: 'clear sc_event js-cal-option' }, '&nbsp;');
         let numbevents = 0;
         const time = LiteralDate.parse(event.start).toTimeString();
         const endday = event.end && Dom.select('.' + LiteralDate.toCssClass(LiteralDate.parse(event.end)), this.element);
@@ -1061,13 +1073,13 @@ class SimpleCalendar {
                 if (e && e.getDay() == 0) { // reset on Sundays
                     numbevents = 0;
                 }
-                const existing = Dom.selectAll('.event', day).length;
+                const existing = Dom.selectAll('.sc_event', day).length;
                 numbevents = Math.max(numbevents, existing);
                 for (let i = 0; i < numbevents - existing; i++) {
                     const emptyClone = empty.cloneNode(true);
                     // Apply placeholder border class to maintain alignment when eventBorder is enabled
                     if (this.options.eventBorder) {
-                        emptyClone.classList.add('placeholder-with-border');
+                        emptyClone.classList.add('sc_placeholder_with_border');
                     }
                     day.appendChild(emptyClone);
                 }
@@ -1080,7 +1092,7 @@ class SimpleCalendar {
                 
                 // Apply border class if eventBorder is enabled
                 if (this.options.eventBorder) {
-                    eventEl.classList.add('event-with-border');
+                    eventEl.classList.add('sc_event_with_border');
                 }
                 
                 // Determine if this is the first, last, or middle day of the event
@@ -1135,20 +1147,55 @@ class SimpleCalendar {
         const colorRgb = this.hexToRgb(baseColor);
         
         if (colorRgb) {
-            const newColor = { r: Math.abs(colorRgb.r - 32), g: Math.abs(colorRgb.g - 15), b: Math.abs(colorRgb.b - 7) };
-            const borderColor = { r: Math.abs(newColor.r - 100), g: Math.abs(newColor.g - 100), b: Math.abs(newColor.b - 100) };
+            // Create a subtle gradient from slightly lighter to original color
+            const newColor = { 
+                r: Math.min(255, colorRgb.r + 20), 
+                g: Math.min(255, colorRgb.g + 20), 
+                b: Math.min(255, colorRgb.b + 20) 
+            };
+            
+            // Calculate optimal text color using WCAG contrast algorithm
+            const textColor = this.getOptimalTextColor(colorRgb);
 
             const finalCss = {
                 'background-image': 'linear-gradient(to bottom, ' + this.rgbToHex(newColor) + ' 0px, ' + event.backgroundColor + ' 100%)',
                 'background-repeat': 'repeat-x',
-                'color': this.rgbToHex(borderColor)
+                'color': textColor
             };
-            
-            // Don't override border-radius here - let CSS handle it based on .begin/.end classes
             
             return finalCss;
         }
         return {};
+    }
+
+    // Calculate optimal text color (black or white) based on background luminance
+    getOptimalTextColor(bgColor) {
+        const luminance = this.getLuminance(bgColor);
+        // Use white text for dark backgrounds, black for light backgrounds
+        // Threshold of 0.5 works well for most cases
+        return luminance > 0.5 ? '#000000' : '#ffffff';
+    }
+
+    // Calculate relative luminance according to WCAG guidelines
+    getLuminance(color) {
+        const r = this.getRelativeLuminanceComponent(color.r / 255);
+        const g = this.getRelativeLuminanceComponent(color.g / 255);
+        const b = this.getRelativeLuminanceComponent(color.b / 255);
+        return 0.2126 * r + 0.7152 * g + 0.0722 * b;
+    }
+
+    // Helper function for luminance calculation
+    getRelativeLuminanceComponent(c) {
+        return c <= 0.03928 ? c / 12.92 : Math.pow((c + 0.055) / 1.055, 2.4);
+    }
+
+    // Calculate contrast ratio between two colors (for debugging)
+    getContrastRatio(color1, color2) {
+        const l1 = this.getLuminance(color1);
+        const l2 = this.getLuminance(color2);
+        const lighter = Math.max(l1, l2);
+        const darker = Math.min(l1, l2);
+        return (lighter + 0.05) / (darker + 0.05);
     }
 
     hexToRgb(hex) {
