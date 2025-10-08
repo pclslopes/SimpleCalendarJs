@@ -1,218 +1,523 @@
 <!DOCTYPE html>
-<html lang="en" data-bs-theme="auto">
+<html lang="en">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>SimpleCalendarJs</title>
-    
-    <link rel="preconnect" href="https://fonts.googleapis.com">
-    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-    <link href="https://fonts.googleapis.com/css2?family=Dancing+Script&family=Geist+Mono:wght@100..900&family=Handlee&family=Source+Code+Pro:wght@300&display=swap" rel="stylesheet">
-
-    <!-- Bootstrap CSS -->
-    <link href="https://cdnjs.cloudflare.com/ajax/libs/bootstrap/5.3.0/css/bootstrap.min.css" rel="stylesheet">
-    
-    <!-- Font Awesome -->
-    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" rel="stylesheet">
-   
-    <!-- Custom CSS -->
-    <link href="css/styles.css" rel="stylesheet">
-    <link href="css/SimpleCalendarJs.css" rel="stylesheet">
-
-    <script src="js/darkmode.js"></script>
+    <title>Simple Calendar JS - Demo</title>
+    <link rel="stylesheet" href="css/SimpleCalendarJs.css">
+    <style>
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+            margin: 0;
+            padding: 20px;
+            background: #f5f5f5;
+            line-height: 1.6;
+        }
+        
+        /*.container {
+            max-width: 1200px;
+            margin: 0 auto;
+            background: white;
+            border-radius: 8px;
+            overflow: hidden;
+            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+        }*/
+        
+        .demo-header {
+            background: #2c3e50;
+            color: white;
+            padding: 20px;
+            text-align: center;
+        }
+        
+        .demo-header h1 {
+            margin: 0 0 10px 0;
+            font-size: 2rem;
+        }
+        
+        .demo-header p {
+            margin: 0;
+            opacity: 0.9;
+        }
+        
+        .demo-controls {
+            background: #ecf0f1;
+            padding: 16px;
+            border-bottom: 1px solid #bdc3c7;
+            display: flex;
+            flex-wrap: wrap;
+            gap: 12px;
+            align-items: center;
+        }
+        
+        .demo-controls label {
+            font-weight: 500;
+            color: #2c3e50;
+        }
+        
+        .demo-controls button {
+            background: #3498db;
+            color: white;
+            border: none;
+            padding: 8px 16px;
+            border-radius: 4px;
+            cursor: pointer;
+            font-size: 14px;
+            transition: background 0.2s;
+        }
+        
+        .demo-controls button:hover {
+            background: #2980b9;
+        }
+        
+        .demo-controls input[type="checkbox"] {
+            margin-left: 8px;
+        }
+        
+        #calendar-container {
+            height: 85vh; /* 85% of viewport height */
+            min-height: 600px;
+            max-height: 900px;
+        }
+        
+        @media (max-width: 768px) {
+            body {
+                padding: 10px;
+            }
+            
+            .demo-header h1 {
+                font-size: 1.5rem;
+            }
+            
+            .demo-controls {
+                flex-direction: column;
+                align-items: stretch;
+            }
+            
+            .demo-controls > * {
+                margin-bottom: 8px;
+            }
+            
+            #calendar-container {
+                height: 80vh; /* Slightly less on mobile */
+                min-height: 500px;
+                max-height: 700px;
+            }
+        }
+    </style>
 </head>
 <body>
-    <!-- Navigation -->
-    <nav class="navbar navbar-expand-lg navbar-light bg-light">
-        <div class="container">
-            <a class="navbar-brand d-flex align-items-center" href="#">
-                <img src="images/calendar-logo.svg" width="40" height="40" class="me-2" alt="Logo">
-                <strong class="text-secondary geist-mono-600">SimpleCalendarJs</strong>
-            </a>
-            <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav">
-                <span class="navbar-toggler-icon"></span>
-            </button>
-            <div class="collapse navbar-collapse justify-content-end" id="navbarNav">
-                <ul class="navbar-nav">
-                    <li class="nav-item"><a href="index.html" class="nav-link">Examples</a></li>
-                    <li class="nav-item"><a class="nav-link" href="#calendar">Demo</a></li>
-                    <li class="nav-item"><a class="nav-link" href="docs.html">Docs</a></li>
-                </ul>
-            </div>
+    <div class="container">
+        <div class="demo-header">
+            <h1>Simple Calendar JS</h1>
+            <p>A responsive, pure JavaScript calendar component with month, week, and day views</p>
         </div>
-    </nav>
-
-    <div class="container mt-4">
-        <div class="text-center mb-4">
-            <h1 class="display-5">SimpleCalendarJs Examples</h1>
-            <p class="lead">Interactive calendar component demonstrations</p>
+        
+        <div class="demo-controls">
+            <label>
+                Fullday Mode:
+                <input type="checkbox" id="fulldayToggle">
+            </label>
+            
+            <button id="todayBtn">Go to Today</button>
+            <button id="addEventBtn">Add Sample Event</button>
+            <button id="toggleModeBtn">Toggle Fullday Mode</button>
+            
+            <label>
+                Grid Borders:
+                <select id="gridBordersSelect">
+                    <option value="both">Both</option>
+                    <option value="vertical">Vertical Only</option>
+                    <option value="horizontal">Horizontal Only</option>
+                    <option value="none">None</option>
+                </select>
+            </label>
+            
+            <label>
+                Event Borders:
+                <input type="checkbox" id="eventBordersToggle">
+            </label>
+            
+            <label>
+                Event Border Color:
+                <input type="color" id="eventBorderColorPicker" value="#6c757d">
+            </label>
+            
+            <label>
+                Default Event Color:
+                <input type="color" id="eventColorPicker" value="#4c6f94">
+            </label>
+            
+            <label>
+                Show Month Button:
+                <input type="checkbox" id="showMonthButtonToggle" checked>
+            </label>
+            
+            <label>
+                Show Week Button:
+                <input type="checkbox" id="showWeekButtonToggle" checked>
+            </label>
+            
+            <label>
+                Show Day Button:
+                <input type="checkbox" id="showDayButtonToggle" checked>
+            </label>
+            
+            <label>
+                Show Navigation:
+                <input type="checkbox" id="showNavigationToggle" checked>
+            </label>
         </div>
-
-        <div class="row">
-            <div class="col-md-8 mb-8">
-                <div class="mb-3 text-center">
-                    <button id="calendar-theme-test" class="btn btn-outline-info">
-                        <i class="fas fa-palette"></i> Test Calendar Themes
-                    </button>
-                </div>
-                <div id='calendar'></div>
-            </div>
-            <div class="col-md-4 mb-4">
-                <div class="card">
-                    <div class="card-header text-center">
-                        <h5>Calendar Properties</h5>
-                        <small class="text-muted">Toggle features to see changes</small>
-                    </div>
-                    <div class="card-body">
-                        <div class="mb-3">
-                            <div class="form-check form-switch">
-                                <input class="form-check-input" type="checkbox" id="showBackground">
-                                <label class="form-check-label" for="showBackground">Show Background</label>
-                            </div>
-                        </div>
-                        <div class="mb-3">
-                            <div class="form-check form-switch">
-                                <input class="form-check-input" type="checkbox" id="showTimeInEvent" checked>
-                                <label class="form-check-label" for="showTimeInEvent">Show Time in Events</label>
-                            </div>
-                        </div>
-                        <div class="mb-3">
-                            <div class="form-check form-switch">
-                                <input class="form-check-input" type="checkbox" id="useShortDays">
-                                <label class="form-check-label" for="useShortDays">Use Short Day Names</label>
-                            </div>
-                        </div>
-                        <div class="mb-3">
-                            <div class="form-check form-switch">
-                                <input class="form-check-input" type="checkbox" id="showDayAsAllDayEvents">
-                                <label class="form-check-label" for="showDayAsAllDayEvents">Day View as All-Day Events</label>
-                            </div>
-                        </div>
-                        <div class="mb-3">
-                            <div class="form-check form-switch">
-                                <input class="form-check-input" type="checkbox" id="eventBorder">
-                                <label class="form-check-label" for="eventBorder">Event Borders</label>
-                            </div>
-                        </div>
-                        <div class="mb-3">
-                            <div class="form-check form-switch">
-                                <input class="form-check-input" type="checkbox" id="showTodayButton" checked>
-                                <label class="form-check-label" for="showTodayButton">Show Today Button</label>
-                            </div>
-                        </div>
-                        <div class="mb-3">
-                            <div class="form-check form-switch">
-                                <input class="form-check-input" type="checkbox" id="showMonthYear" checked>
-                                <label class="form-check-label" for="showMonthYear">Show Month/Year</label>
-                            </div>
-                        </div>
-                        <div class="mb-3">
-                            <div class="form-check form-switch">
-                                <input class="form-check-input" type="checkbox" id="showModeButtons" checked>
-                                <label class="form-check-label" for="showModeButtons">Show Mode Buttons</label>
-                            </div>
-                            <div class="form-check form-switch">
-                                <input class="form-check-input" type="checkbox" id="showNavigation" checked>
-                                <label class="form-check-label" for="showNavigation">Show Navigation Arrows</label>
-                            </div>
-                        </div>
-                        <div class="mb-3">
-                            <label for="themeMode" class="form-label">Theme Mode</label>
-                            <select class="form-select" id="themeMode">
-                                <option value="auto" selected>Auto Detect</option>
-                                <option value="light">Light</option>
-                                <option value="dark">Dark</option>
-                            </select>
-                        </div>
-                        <div class="mb-3">
-                            <label for="calendarMode" class="form-label">Default View Mode</label>
-                            <select class="form-select" id="calendarMode">
-                                <option value="month" selected>Month</option>
-                                <option value="week">Week</option>
-                                <option value="day">Day</option>
-                            </select>
-                        </div>
-                        <div class="mb-3">
-                            <label for="calendarMonthViewType" class="form-label">Month View Type</label>
-                            <select class="form-select" id="calendarMonthViewType">
-                                <option value="MultiDay" selected>MultiDay (Show Events)</option>
-                                <option value="SingleDay">SingleDay (Event Backgrounds)</option>
-                            </select>
-                        </div>
-                        <div class="mb-3">
-                            <label for="calendarMonth" class="form-label">Month</label>
-                            <select class="form-select" id="calendarMonth">
-                                <option value="0">January</option>
-                                <option value="1">February</option>
-                                <option value="2">March</option>
-                                <option value="3">April</option>
-                                <option value="4">May</option>
-                                <option value="5">June</option>
-                                <option value="6">July</option>
-                                <option value="7">August</option>
-                                <option value="8">September</option>
-                                <option value="9">October</option>
-                                <option value="10">November</option>
-                                <option value="11">December</option>
-                            </select>
-                        </div>
-                        <div class="mb-3">
-                            <label for="calendarYear" class="form-label">Year</label>
-                            <input type="number" class="form-control" id="calendarYear" min="2020" max="2030">
-                        </div>
-                        <div class="mb-3">
-                            <button type="button" class="btn btn-primary w-100" id="todayButton">Today</button>
-                        </div>
-                        <div class="mb-3">
-                            <label for="headerBgColor" class="form-label">Header Background</label>
-                            <input type="color" class="form-control form-control-color" id="headerBgColor" value="#e3f2fd">
-                        </div>
-                        <div class="mb-3">
-                            <label for="bodyBgColor" class="form-label">Body Background</label>
-                            <input type="color" class="form-control form-control-color" id="bodyBgColor" value="#fafafa">
-                        </div>
-                        <div class="mb-3">
-                            <label for="languagePreset" class="form-label">Language Preset</label>
-                            <select class="form-select" id="languagePreset">
-                                <option value="en" selected>English</option>
-                                <option value="de">German (Deutsch)</option>
-                                <option value="es">Spanish (Español)</option>
-                                <option value="fr">French (Français)</option>
-                            </select>
-                        </div>
-                    </div>
-                </div>
-            </div>
-        </div>
+        
+        <div id="calendar-container"></div>
     </div>
 
-
-
-    <!-- Footer -->
-    <footer class="footer mt-auto py-3 bg-light">
-        <div class="container text-center">
-            <span class="text-muted">&copy; <span id="current-year"></span> SimpleCalendarJs. All Rights Reserved.</span>
-            &nbsp;&nbsp;
-            <button id="mode-toggle" class="btn btn-outline-secondary mode-toggle">
-                <span id="mode-icon">🌓</span> Toggle Mode
-            </button>
-        </div>
-    </footer>
-
-    <!-- Bootstrap JS -->
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/bootstrap/5.3.0/js/bootstrap.bundle.min.js"></script>
-    
-    
-    <!-- Moment -->
-    <script src='https://cdnjs.cloudflare.com/ajax/libs/moment.js/2.29.4/moment.min.js'></script>
-
-    <!-- Calendar -->
     <script src="js/SimpleCalendarJs.js"></script>
+    <script>
+        // Sample events data (normally this would come from an API/database)
+        const sampleEvents = [
+            {
+                id: 1,
+                title: 'Team Meeting',
+                startDate: new Date(),
+                endDate: new Date(),
+                time: '10:00 AM',
+                color: '#e74c3c',
+                colorIsGradient: true
+            },
+            {
+                id: 2,
+                title: 'Project Conference',
+                startDate: new Date(Date.now() + 86400000), // Tomorrow
+                endDate: new Date(Date.now() + 4 * 86400000), // 4 days from now
+                time: '9:00 AM',
+                color: '#2ecc71'
+            },
+            {
+                id: 3,
+                title: 'Sprint Planning',
+                startDate: new Date(Date.now() + 2 * 86400000), // Day after tomorrow
+                endDate: new Date(Date.now() + 2 * 86400000), // Same day
+                time: '2:30 PM',
+                colorIsGradient: true
+            },
+            {
+                id: 4,
+                title: 'Early Morning Jog',
+                startDate: new Date(),
+                endDate: new Date(),
+                time: '5:30 AM',
+                color: '#f39c12',
+                colorIsGradient: false
+            },
+            {
+                id: 5,
+                title: 'Late Night Study',
+                startDate: new Date(),
+                endDate: new Date(),
+                time: '11:30 PM',
+                color: '#9b59b6',
+                colorIsGradient: true
+            },
+            {
+                id: 6,
+                title: 'Training Workshop',
+                startDate: new Date(Date.now() + 10 * 86400000),
+                endDate: new Date(Date.now() + 12 * 86400000),
+                time: '9:00 AM'
+            },
+            {
+                id: 7,
+                title: 'Midnight Oil Burning',
+                startDate: new Date(Date.now() + 86400000), // Tomorrow
+                endDate: new Date(Date.now() + 86400000),
+                time: '12:30 AM'
+            },
+            {
+                id: 8,
+                title: 'Dawn Meditation',
+                startDate: new Date(Date.now() + 2 * 86400000), // Day after tomorrow
+                endDate: new Date(Date.now() + 2 * 86400000),
+                time: '4:45 AM'
+            },
+            {
+                id: 9,
+                title: 'Airport Drop-off',
+                startDate: new Date(),
+                endDate: new Date(),
+                time: '3:00 AM'
+            },
+            {
+                id: 10,
+                title: 'Movie Marathon End',
+                startDate: new Date(Date.now() + 3 * 86400000),
+                endDate: new Date(Date.now() + 3 * 86400000),
+                time: '11:45 PM',
+                colorIsGradient: true
+            },
+            {
+                id: 11,
+                title: 'Night Shift Work',
+                startDate: new Date(Date.now() + 86400000), // Tomorrow
+                endDate: new Date(Date.now() + 86400000),
+                time: '11:00 PM'
+            },
+            {
+                id: 12,
+                title: 'Early Bird Gym',
+                startDate: new Date(Date.now() + 4 * 86400000),
+                endDate: new Date(Date.now() + 4 * 86400000),
+                time: '5:00 AM'
+            },
+            {
+                id: 13,
+                title: 'Morning Standup',
+                startDate: new Date(),
+                endDate: new Date(),
+                time: '9:00 AM'
+            },
+            {
+                id: 14,
+                title: 'Code Review Session',
+                startDate: new Date(),
+                endDate: new Date(),
+                time: '11:30 AM'
+            },
+            {
+                id: 15,
+                title: 'Lunch with Client',
+                startDate: new Date(),
+                endDate: new Date(),
+                time: '12:30 PM'
+            },
+            {
+                id: 16,
+                title: 'Design Review',
+                startDate: new Date(),
+                endDate: new Date(),
+                time: '3:00 PM'
+            },
+            {
+                id: 17,
+                title: 'Sprint Planning',
+                startDate: new Date(),
+                endDate: new Date(),
+                time: '4:30 PM'
+            },
+            {
+                id: 18,
+                title: 'Documentation Update',
+                startDate: new Date(),
+                endDate: new Date(),
+                time: '6:00 PM'
+            },
+            {
+                id: 19,
+                title: 'October Conference Week',
+                startDate: new Date(2025, 9, 8), // October 8th, 2025
+                endDate: new Date(2025, 9, 12), // October 12th, 2025
+                time: '9:00 AM'
+            },
+            {
+                id: 20,
+                title: 'Product Launch Campaign',
+                startDate: new Date(2025, 9, 12), // October 12th, 2025
+                endDate: new Date(2025, 9, 15), // October 15th, 2025
+                time: '10:00 AM'
+            }
+        ];
 
-    <!-- Custom JS -->
-    <script src="js/script.js"></script>
-    
+        // Initialize the calendar with callback function and click handlers
+        const calendar = new SimpleCalendarJs('#calendar-container', {
+            view: 'month',
+            date: new Date(),
+            fulldayMode: false,
+            eventBorders: true,
+            events: function(dateRange) {
+                // This callback is called once per view with a date range object
+                // dateRange contains: { startDate, endDate }
+                // You can implement any logic here: API calls, filtering, etc.
+                
+                console.log('Fetching events for range:', dateRange.startDate.toDateString(), 'to', dateRange.endDate.toDateString());
+                
+                // In a real application, you might fetch from an API:
+                // return fetch(`/api/events?start=${dateRange.startDate.toISOString()}&end=${dateRange.endDate.toISOString()}`).then(r => r.json());
+                
+                // For this demo, we'll filter the sample data for the visible range
+                return sampleEvents.filter(event => {
+                    const eventStart = new Date(event.startDate);
+                    const eventEnd = new Date(event.endDate);
+                    
+                    // Set to start of day for comparison
+                    eventStart.setHours(0, 0, 0, 0);
+                    eventEnd.setHours(0, 0, 0, 0);
+                    const rangeStart = new Date(dateRange.startDate);
+                    const rangeEnd = new Date(dateRange.endDate);
+                    rangeStart.setHours(0, 0, 0, 0);
+                    rangeEnd.setHours(23, 59, 59, 999);
+                    
+                    // Return events that overlap with the visible range
+                    return eventEnd >= rangeStart && eventStart <= rangeEnd;
+                });
+            },
+            
+            // Day click handler - receives clicked date/time info
+            dayClick: function(clickInfo, originalEvent) {
+                console.log('Day clicked:', clickInfo.date.toDateString(), clickInfo.time ? `at ${clickInfo.time}` : '(all day)');
+                const timeText = clickInfo.time ? ` at ${clickInfo.time}` : ' (all day)';
+                alert(`You clicked on ${clickInfo.date.toDateString()}${timeText}`);
+            },
+            
+            // Event click handler - receives event object, date/time info, and original click event
+            eventClick: function(event, clickInfo, originalEvent) {
+                console.log('Event clicked:', event.title, 'on', clickInfo.date.toDateString(), clickInfo.time ? `at ${clickInfo.time}` : '(all day)');
+                const timeText = clickInfo.time ? ` at ${clickInfo.time}` : ' (all day)';
+                alert(`You clicked on event "${event.title}" on ${clickInfo.date.toDateString()}${timeText}\n\nEvent details:\nID: ${event.id}\nEvent Time: ${event.time || 'All day'}`);
+            },
+            
+            // Change state handler - receives current calendar state whenever it changes
+            changeState: function(state) {
+                console.log('Calendar state changed:', state);
+                // state contains: { view, date, fulldayMode, startHour, endHour, timeSlotMinutes }
+            }
+        });
 
-    
+        // Demo controls
+        const fulldayToggle = document.getElementById('fulldayToggle');
+        const todayBtn = document.getElementById('todayBtn');
+        const addEventBtn = document.getElementById('addEventBtn');
+        const toggleModeBtn = document.getElementById('toggleModeBtn');
+        const gridBordersSelect = document.getElementById('gridBordersSelect');
+        const eventBordersToggle = document.getElementById('eventBordersToggle');
+        const eventBorderColorPicker = document.getElementById('eventBorderColorPicker');
+        const eventColorPicker = document.getElementById('eventColorPicker');
+        const showMonthButtonToggle = document.getElementById('showMonthButtonToggle');
+        const showWeekButtonToggle = document.getElementById('showWeekButtonToggle');
+        const showDayButtonToggle = document.getElementById('showDayButtonToggle');
+        const showNavigationToggle = document.getElementById('showNavigationToggle');
+
+        fulldayToggle.addEventListener('change', (e) => {
+            calendar.setFulldayMode(e.target.checked);
+        });
+
+        todayBtn.addEventListener('click', () => {
+            calendar.goToToday();
+        });
+
+        addEventBtn.addEventListener('click', () => {
+            const sampleEvents = [
+                'Client Presentation',
+                'Code Review',
+                'Lunch Break',
+                'Training Session',
+                'Sprint Planning',
+                'Team Standup',
+                'Design Review',
+                'Product Demo'
+            ];
+            
+            const randomTitle = sampleEvents[Math.floor(Math.random() * sampleEvents.length)];
+            const randomDate = new Date();
+            randomDate.setDate(randomDate.getDate() + Math.floor(Math.random() * 30) - 15);
+            
+            const eventLength = Math.floor(Math.random() * 5) + 1; // 1-5 days
+            const endDate = new Date(randomDate);
+            endDate.setDate(endDate.getDate() + eventLength - 1);
+            
+            const newEvent = {
+                id: Date.now(),
+                title: randomTitle,
+                startDate: randomDate,
+                endDate: endDate,
+                time: '12:00'
+            };
+            
+            calendar.addEvent(newEvent);
+        });
+
+        toggleModeBtn.addEventListener('click', () => {
+            fulldayToggle.checked = !fulldayToggle.checked;
+            calendar.setFulldayMode(fulldayToggle.checked);
+        });
+
+        gridBordersSelect.addEventListener('change', (e) => {
+            calendar.setGridBorders(e.target.value);
+        });
+
+        eventBordersToggle.addEventListener('change', (e) => {
+            calendar.setEventBorders(e.target.checked);
+        });
+
+        eventBorderColorPicker.addEventListener('change', (e) => {
+            calendar.setEventBorderColor(e.target.value);
+        });
+
+        eventColorPicker.addEventListener('change', (e) => {
+            calendar.setDefaultEventColor(e.target.value);
+        });
+
+        showMonthButtonToggle.addEventListener('change', (e) => {
+            calendar.setShowMonthButton(e.target.checked);
+        });
+
+        showWeekButtonToggle.addEventListener('change', (e) => {
+            calendar.setShowWeekButton(e.target.checked);
+        });
+
+        showDayButtonToggle.addEventListener('change', (e) => {
+            calendar.setShowDayButton(e.target.checked);
+        });
+
+        showNavigationToggle.addEventListener('change', (e) => {
+            calendar.setShowNavigation(e.target.checked);
+        });
+
+        // Keyboard shortcuts
+        document.addEventListener('keydown', (e) => {
+            if (e.target.tagName === 'INPUT') return;
+            
+            switch(e.key) {
+                case 'ArrowLeft':
+                    e.preventDefault();
+                    calendar.navigate('prev');
+                    break;
+                case 'ArrowRight':
+                    e.preventDefault();
+                    calendar.navigate('next');
+                    break;
+                case 't':
+                case 'T':
+                    e.preventDefault();
+                    calendar.goToToday();
+                    break;
+                case 'm':
+                case 'M':
+                    e.preventDefault();
+                    calendar.setView('month');
+                    break;
+                case 'w':
+                case 'W':
+                    e.preventDefault();
+                    calendar.setView('week');
+                    break;
+                case 'd':
+                case 'D':
+                    e.preventDefault();
+                    calendar.setView('day');
+                    break;
+            }
+        });
+
+        // Update control states
+        fulldayToggle.checked = calendar.fulldayMode;
+        gridBordersSelect.value = calendar.options.gridBorders;
+        eventBordersToggle.checked = calendar.options.eventBorders;
+        eventBorderColorPicker.value = calendar.options.eventBorderColor;
+        eventColorPicker.value = calendar.options.defaultEventColor;
+        showMonthButtonToggle.checked = calendar.options.showMonthButton;
+        showWeekButtonToggle.checked = calendar.options.showWeekButton;
+        showDayButtonToggle.checked = calendar.options.showDayButton;
+        showNavigationToggle.checked = calendar.options.showNavigation;
+    </script>
 </body>
 </html>

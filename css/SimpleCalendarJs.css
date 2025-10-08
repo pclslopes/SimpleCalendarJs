@@ -1,1330 +1,1319 @@
 /**
- * SimpleCalendarJs - Pure CSS Calendar Component
- * No external dependencies
+ * SimpleCalendarJs v2.0.0
+ * A clean, modern, and feature-rich JavaScript calendar component with zero dependencies
  * 
- * @author Pedro Lopes
- * @license Free for Personal and Non-Commercial Use
- *          Commercial license required for commercial use
- *          See https://www.simplecalendarjs.com for licensing details
+ * @author Pedro Lopes <simplecalendarjs@gmail.com>
+ * @homepage https://www.simplecalendarjs.com
+ * @license SEE LICENSE IN LICENSE
+ * @repository https://github.com/pclslopes/SimpleCalendarJs
  */
-/*.simple-calendar {
+
+/* Simple Calendar JS CSS - All classes prefixed with 'sc-' */
+
+.sc-calendar {
+    font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, sans-serif;
+    background: #ffffff;
+    border-radius: 8px;
+    box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+    overflow: hidden;
     width: 100%;
-    margin-bottom: 20px;
-    background-color: transparent;
-}*/
-
-/* Nuclear option - remove ALL borders from calendar with maximum specificity */
-/*.simple-calendar *,
-.simple-calendar table,
-.simple-calendar tbody,
-.simple-calendar thead,
-.simple-calendar tfoot,
-.simple-calendar tr,
-.simple-calendar td,
-.simple-calendar th {
-    border: 0 !important;
-    border-width: 0 !important;
-    border-style: none !important;
-    border-color: transparent !important;
-    outline: 0 !important;
-}*/
-
-/* Exception: Allow borders on events when eventBorder is enabled */
-.sc_event.sc_event_with_border {
-    border-top: 1px solid #666 !important;
-    border-bottom: 1px solid #666 !important;
-    box-sizing: border-box !important;
+    max-width: 100%;
+    display: flex;
+    flex-direction: column;
 }
 
-/* Border for single-day events and start of multi-day events */
-.sc_event.sc_event_with_border.begin {
-    border-left: 1px solid #666 !important;
+/* Header Styles */
+.sc-header {
+    background: #f8f9fa;
+    border-bottom: 1px solid #e9ecef;
+    padding: 16px;
+    display: grid;
+    grid-template-columns: 1fr auto 1fr;
+    align-items: center;
+    gap: 12px;
 }
 
-/* Border for single-day events and end of multi-day events */
-.sc_event.sc_event_with_border.end {
-    border-right: 1px solid #666 !important;
+.sc-nav {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    justify-self: start;
 }
 
-/* Clear event placeholders need same border spacing to align properly when borders are enabled */
-.clear.sc_event.sc_placeholder_with_border {
-    border-top: 1px solid transparent !important;
-    border-bottom: 1px solid transparent !important;
-    border-left: 1px solid transparent !important;
-    border-right: 1px solid transparent !important;
-    box-sizing: border-box !important;
-}
-
-/* Override for month buttons - allow box-shadow */
-/* .calendar-month {
-    box-shadow: 0 2px 4px rgba(0,0,0,0.1) !important;
-}
-
-.simple-calendar .calendar-month:hover {
-    box-shadow: 0 4px 8px rgba(0,0,0,0.15) !important;
-}
-
-.simple-calendar [data-bs-theme="dark"] .calendar-month {
-    box-shadow: 0 2px 4px rgba(0,0,0,0.3) !important;
-}
-
-.simple-calendar [data-bs-theme="dark"] .calendar-month:hover {
-    box-shadow: 0 4px 8px rgba(0,0,0,0.4) !important;
-}*/
-
-.calendar-with-background {
-    background-color: transparent; /* Keep container transparent even with backgrounds */
-}
-
-.calendar-table {
-    border-collapse: collapse;
-    width: 100%;
-    table-layout: fixed;
-    font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
-    background-color: transparent;
-    border: none;
-}
-
-.calendar-with-background .calendar-table {
-    background-color: #ffffff;
-}
-
-.calendar-day {
-    width: 14.28%; /* 100% / 7 days */
-    height: 100px;
-    border: none;
-    padding: 0;
+.sc-title {
     margin: 0;
-    vertical-align: top;
-    position: relative;
-    background-color: transparent;
+    font-size: 1.25rem;
+    font-weight: 600;
+    color: #212529;
+    white-space: nowrap;
+    text-align: center;
+    justify-self: center;
+}
+
+.sc-btn {
+    background: #ffffff;
+    border: 1px solid #dee2e6;
+    border-radius: 4px;
+    padding: 8px 12px;
+    cursor: pointer;
+    font-size: 0.875rem;
+    font-weight: 500;
+    transition: all 0.2s ease;
+    min-width: 36px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.sc-nav .sc-btn {
+    background: transparent;
+    border: none;
+    font-size: 1.2rem;
+    padding: 8px;
+    min-width: 32px;
+    color: #212529;
+    font-weight: bold;
+}
+
+.sc-btn:hover {
+    background: #e9ecef;
+    border-color: #adb5bd;
+}
+
+.sc-nav .sc-btn:hover {
+    background: rgba(108, 117, 125, 0.1);
+    color: #495057;
+}
+
+.sc-btn:active {
+    background: #dee2e6;
+}
+
+.sc-nav .sc-btn:active {
+    background: rgba(108, 117, 125, 0.2);
+}
+
+.sc-view-switcher {
+    display: flex;
+    gap: 4px;
+    justify-self: end;
+}
+
+.sc-view-btn.sc-active {
+    background: #4c6f94;
+    color: #ffffff;
+    border-color: #4c6f94;
+}
+
+.sc-view-btn.sc-active:hover {
+    background: #0056b3;
+    border-color: #0056b3;
+}
+
+/* Content Styles */
+.sc-content {
+    flex: 1;
+    min-height: 520px;
+    display: flex;
+    flex-direction: column;
+}
+
+.sc-view-container {
+    flex: 1;
     overflow: hidden;
 }
 
-/* Header row styling */
-.calendar-table thead td {
-    border: none;
-    background-color: transparent;
-    padding: 10px;
+/* Month View Styles */
+.sc-month-view {
+    height: 100%;
+    display: flex;
+    flex-direction: column;
+}
+
+.sc-weekdays {
+    display: grid;
+    grid-template-columns: repeat(7, 1fr);
+    background: #f8f9fa;
+    border-bottom: 1px solid #e9ecef;
+}
+
+.sc-weekday {
+    padding: 12px 8px;
     text-align: center;
     font-weight: 600;
+    font-size: 0.875rem;
+    color: #6c757d;
+    border-right: 1px solid #e9ecef;
 }
 
-/* Remove left padding from first header cell to align navigation with calendar edge */
-.calendar-table thead td:first-child {
-    padding-left: 0 !important;
-    text-align: left;
+.sc-weekday:last-child {
+    border-right: none;
 }
 
-/* Remove right padding from last header cell to align buttons with calendar right edge */
-.calendar-table thead td:last-child {
-    padding-right: 0 !important;
-    text-align: right;
+.sc-days-grid {
+    display: grid;
+    grid-template-columns: repeat(7, 1fr);
+    grid-template-rows: repeat(6, minmax(80px, 1fr));
+    flex: 1;
+    overflow: visible;
+    /*min-height: 480px;*/
 }
 
-.calendar-table thead .c-name {
-    background-color: transparent;
-    border: none;
-    padding: 8px 4px;
-    font-size: 0.875em;
-    font-weight: 600;
-    color: #374151 !important; /* Darker color for light theme */
+/* Allow cells to grow vertically in month fullday mode */
+.sc-month-view.sc-fullday .sc-days-grid {
+    grid-template-rows: repeat(6, auto);
+    min-height: auto;
 }
 
-/* Override week day header color for dark theme */
-[data-bs-theme="dark"] .calendar-table thead .c-name {
-    color: #f1f5f9 !important; /* Bright white for dark theme */
+.sc-month-view.sc-fullday .sc-day {
+    display: flex;
+    flex-direction: column;
+    min-height: 60px;
+    /*padding: 4px;*/
+    position: relative;
 }
 
-.selected {
-    background-color: #eee;
-}
-
-/* Background colors - applied when showBackground option is true */
-.calendar-with-background .calendar-day {
-    background-color: #ffffff !important;
-}
-
-.calendar-with-background .calendar-table thead td {
-    background-color: #f8f9fa !important;
-}
-
-.calendar-with-background .calendar-table thead .c-name {
-    background-color: #f8f9fa !important;
-}
-
-.sc_date, .c-name{
-    text-align: center;
-}
-
-.sc_date, .calendar-day .sc_date {
-    padding: 2px 4px;
-    margin: 0;
-    color: #1f2937 !important; /* Ensure dark color for day numbers in light theme */
-}
-
-.outside .sc_date {
-    color: #9ca3af !important; /* Slightly darker gray for outside dates */
-}
-
-/* Current date styling - only show background when showBackground is true */
-.calendar-with-background .calendar-day.currentdate {
-    background-color: #eeeded !important;
-}
-
-.currentdate .sc_date {
-    color: #e74c3c !important; /* FORCE red color for current date */
-    font-weight: 800 !important;
-    /*border-radius: 50%;*/
-    border-top-left-radius: 10px;
-    border-top-right-radius: 10px;
-}
-
-/* Current date number background - only when showBackground is true */
-.calendar-with-background .currentdate .sc_date {
-    background-color: #eeeded;
-}
-
-.calendar-with-background .sc_today_date {
-    background-color: #eeeded;
-}
-
-/* Dark mode styles */
-[data-bs-theme="dark"] .calendar-table {
-    background-color: transparent;
-    color: #ffffff;
-}
-
-[data-bs-theme="dark"] .calendar-with-background .calendar-table {
-    background-color: #1a1a1a;
-}
-
-[data-bs-theme="dark"] .calendar-day {
-    background-color: transparent;
-    border: none;
-    color: #ffffff;
-}
-
-[data-bs-theme="dark"] .calendar-table thead td {
-    background-color: transparent;
-    border: none;
-    color: #ffffff;
-}
-
-[data-bs-theme="dark"] .calendar-table thead .c-name {
-    background-color: transparent;
-    border: none;
-    color: #ffffff;
-}
-
-/* Dark mode backgrounds when showBackground option is true */
-[data-bs-theme="dark"] .calendar-with-background .calendar-day {
-    background-color: #2d2d2d !important;
-}
-
-[data-bs-theme="dark"] .calendar-with-background .calendar-table thead td {
-    background-color: #404040 !important;
-    color: #f1f5f9 !important; /* Bright white for better contrast */
-}
-
-/* Dark mode navigation alignment */
-[data-bs-theme="dark"] .calendar-table thead td:first-child {
-    padding-left: 0 !important;
-    text-align: left;
-}
-
-[data-bs-theme="dark"] .calendar-table thead td:last-child {
-    padding-right: 0 !important;
-    text-align: right;
-}
-
-[data-bs-theme="dark"] .calendar-with-background .calendar-table thead .c-name {
-    background-color: #404040 !important;
-    color: #f1f5f9 !important; /* Bright white for better contrast against dark gray */
-}
-
-[data-bs-theme="dark"] .calendar-with-background .calendar-day.currentdate {
-    background-color: #3a3a3a !important;
-}
-
-[data-bs-theme="dark"] .calendar-with-background .currentdate .sc_date {
-    background-color: #3a3a3a;
-}
-
-[data-bs-theme="dark"] .calendar-with-background .sc_today_date {
-    background-color: #3a3a3a;
-}
-
-/* Dark theme button styling - ONLY apply when showBackground is true or no specific scoping */
-[data-bs-theme="dark"] .simple-calendar.calendar-with-background .cal-nav-button,
-[data-bs-theme="dark"] .simple-calendar:not([id]) .cal-nav-button {
-    background-color: #404040;
-    border-color: #555555;
-    color: #f1f5f9 !important; /* Bright white for better contrast */
-}
-
-[data-bs-theme="dark"] .simple-calendar.calendar-with-background .cal-nav-button:hover,
-[data-bs-theme="dark"] .simple-calendar:not([id]) .cal-nav-button:hover {
-    background-color: #555555;
-    border-color: #666666;
-}
-
-[data-bs-theme="dark"] .simple-calendar.calendar-with-background .cal-nav-button.cal-nav-primary,
-[data-bs-theme="dark"] .simple-calendar:not([id]) .cal-nav-button.cal-nav-primary {
-    background-color: #555555;
-    border-color: #666666;
-    color: #f1f5f9 !important; /* Bright white for better contrast */
-}
-
-[data-bs-theme="dark"] .simple-calendar.calendar-with-background .cal-nav-button.cal-nav-primary:hover,
-[data-bs-theme="dark"] .simple-calendar:not([id]) .cal-nav-button.cal-nav-primary:hover {
-    background-color: #666666;
-    border-color: #777777;
-}
-
-/* Removed duplicate dark theme rules */
-
-/* Removed dark theme event color overrides - let getEventBaseCssStyle handle colors */
-
-.calendar-events-table .timetitle {
-    white-space: nowrap;
-    text-align: right;
-    font-size: 12px !important;
-    font-weight: normal !important;
-    color: #374151 !important; /* Dark color for light theme */
-}
-
-.button, .btn-today {
+.sc-day {
+    display: flex;
+    flex-direction: column;
+    min-height: 80px;
     cursor: pointer;
+    transition: background-color 0.2s ease;
+    overflow: visible;
 }
 
-/* Event styling for multi-day spanning - NO COLOR OVERRIDES */
-.sc_event {
-    font-size: 0.75em;
+.sc-day:hover {
+    background: #f8f9fa;
+}
+
+.sc-day-number {
+    text-align: center;
+    font-weight: 500;
+    margin-bottom: 4px;
+    font-size: 0.875rem;
+    line-height: 1.2;
+}
+
+.sc-day.sc-other-month .sc-day-number {
+    color: #adb5bd;
+}
+
+.sc-day.sc-today {
+    background: #e3f2fd;
+}
+
+.sc-day.sc-today .sc-day-number {
+    color: #dc3545;
+    font-weight: 600;
+}
+
+/* Month view count mode (when fullday mode is off) */
+.sc-day-count-mode {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.sc-day-content {
+    text-align: center;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+}
+
+.sc-day-count-mode .sc-day-number {
+    font-size: 1.125rem;
+    font-weight: 600;
+    margin-bottom: 4px;
+}
+
+.sc-event-count {
+    font-size: 0.7rem;
+    font-weight: 600;
+    line-height: 1.2;
+    background: #e9ecef;
+    color: #495057;
     padding: 2px 6px;
-    line-height: 1.4;
-    min-height: 1.4em; /* Ensure consistent height for all events */
-    white-space: nowrap;
+    border-radius: 10px;
+    display: inline-block;
+    margin-top: 2px;
+    min-width: 16px;
+    text-align: center;
+    box-sizing: border-box;
+}
+
+.sc-day-count-mode.sc-today .sc-event-count {
+    background: #007bff;
+    color: #ffffff;
+}
+
+.sc-day-count-mode.sc-other-month .sc-event-count {
+    background: #f8f9fa;
+    color: #adb5bd;
+}
+
+.sc-day-events {
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+    gap: 2px;
+    overflow: hidden;
+    padding: 4px;
+}
+
+/* No sc-day-events container in fullday mode - events are direct children of sc-day */
+
+.sc-month-view.sc-fullday .sc-day-number {
+    flex-shrink: 0;
+    margin-bottom: 4px;
+    padding: 4px 6px 0 6px;
+}
+
+/* Base Event Styles - shared properties only */
+.sc-event-month,
+.sc-event-time,
+.sc-event-week,
+.sc-event-day {
+    background: var(--sc-event-color, #4c6f94);
+    color: #ffffff;
+    border-radius: 3px;
+    line-height: 1.2;
     overflow: hidden;
     text-overflow: ellipsis;
-    margin: 2px 1px 1px 1px; /* Reduced left/right margins for single-day events */
-    cursor: pointer;
-    /* background-color and color handled by getEventBaseCssStyle */
-    position: relative;
-    border-radius: 3px;
+    white-space: nowrap;
     box-sizing: border-box;
-    display: block; /* Ensure proper block-level behavior */
-    
-    /* CRITICAL: Ensure getEventBaseCssStyle colors always work */
-    /* These properties are intentionally NOT set here - they come from inline styles */
 }
 
-/* Maximum specificity protection for event colors in Tailwind environments */
-.simple-calendar div.sc_event.sc_event,
-.simple-calendar .calendar-day div.sc_event.sc_event,
-.simple-calendar tbody td div.sc_event.sc_event {
-    /* Prevent any CSS framework from overriding event colors */
-    /* Colors come ONLY from inline styles set by getEventBaseCssStyle() */
-    /* This high-specificity selector ensures inline styles always win */
-}
-
-/* Multi-day event seamless styling */
-.sc_event.begin:not(.end) {
-    border-top-right-radius: 0 !important;
-    border-bottom-right-radius: 0 !important;
-    border-right: none !important;
-    margin-right: 0 !important;
-}
-
-.sc_event.end:not(.begin) {
-    border-top-left-radius: 0 !important;
-    border-bottom-left-radius: 0 !important;
-    border-left: none !important;
-    margin-left: 0 !important;
-}
-
-.sc_event:not(.begin):not(.end) {
-    border-radius: 0 !important;
-    border-left: none !important;
-    border-right: none !important;
-    margin-left: 0 !important;
-    margin-right: 0 !important;
-}
-
-.sc_event.begin.end {
-    /* Single day events keep normal styling */
-    border-radius: 3px !important;
-    /*border: 1px solid #90caf9 !important;*/
-}
-
-/* All-day events - colors handled by getEventBaseCssStyle */
-.sc_event.all-day {
-    /* background-color, color, and border-color handled by getEventBaseCssStyle */
-}
-
-
-
-.sc_event.clear {
-    background: none;
-    /*border: 1px solid transparent;*/
-    min-height: 1.4em; /* Match line-height of regular events */
-    height: auto;
-    /* Ensure same padding and margins as regular events for consistent spacing */
+/* Month View Event Styles - non-fullday mode */
+.sc-month-view .sc-event-month {
     padding: 2px 6px;
-    line-height: 1.4;
-    font-size: 0.75em;
+    font-size: 0.75rem;
+    height: 18px;
+    margin: 1px 4px;
+    min-width: 0;
+    display: block;
+}
+/* Month view fullday mode - event container (responsive) */
+.sc-month-view.sc-fullday .sc-event-month {
+    position: relative;
+    padding: 2px 6px;
+    border-radius: 3px;
+    min-height: 18px;
+    display: block;
     box-sizing: border-box;
+    overflow: visible;
 }
 
-/* Navigation buttons - Pure CSS - Default transparent */
-.cal-nav-button {
-    border: none;
-    background-color: transparent;
-    color: #374151 !important; /* Darker color for light theme */
-    padding: 6px 12px;
-    margin: 0 2px;
-    cursor: pointer;
-    border-radius: 4px;
-    font-size: 14px;
-    transition: all 0.2s ease;
-    display: inline-block;
-    text-decoration: none;
-    user-select: none; /* Prevent text selection on spans */
-    -webkit-user-select: none;
-    -moz-user-select: none;
+/* Event text styling (separate from container) */
+.sc-month-view.sc-fullday .sc-event-text {
+    font-size: 0.75rem;
+    line-height: 1.2;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+    position:absolute;
+    display: block;
+    width: 100%;
 }
 
-/* Enhanced hover effects for span navigation buttons */
-.cal-nav-button:hover {
-    background-color: rgba(0, 0, 0, 0.08) !important; /* Darker than active state */
-    transform: translateY(-1px);
-    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+/* Month View Multi-day Event Styles */
+.sc-month-view .sc-event-single {
+    border-radius: 3px;
 }
 
-/* Active/pressed state for better feedback */
-.cal-nav-button:active {
-    transform: translateY(0);
-    box-shadow: 0 1px 2px rgba(0, 0, 0, 0.1);
+.sc-month-view .sc-event-start {
+    border-radius: 3px 0 0 3px;
 }
 
-/* Override button color for dark theme - Force bright text */
-[data-bs-theme="dark"] .cal-nav-button {
-    color: #f1f5f9 !important; /* Bright white for dark theme */
-}
-
-/* Dark mode hover effects */
-[data-bs-theme="dark"] .cal-nav-button:hover {
-    background-color: rgba(255, 255, 255, 0.1) !important;
-    transform: translateY(-1px);
-    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.3);
-}
-
-/* Primary button state - TRANSPARENT mode (showBackground: false) */
-.simple-calendar:not(.calendar-with-background) .cal-nav-button.cal-nav-primary {
-    background-color: rgba(0, 0, 0, 0.05) !important; /* Same as hover effect */
-    color: #374151 !important; /* Force same color as other buttons in light mode */
-    font-weight: 500;
-}
-
-.simple-calendar:not(.calendar-with-background) .cal-nav-button.cal-nav-primary:hover {
-    background-color: rgba(0, 0, 0, 0.12) !important; /* Darker than regular hover (0.08) */
-    color: #374151 !important; /* Force same color as other buttons in light mode */
-    transform: translateY(-1px);
-    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.15);
-}
-
-/* Primary button state - BACKGROUND mode (showBackground: true) */
-.simple-calendar.calendar-with-background .cal-nav-button.cal-nav-primary {
-    background-color: #dee2e6 !important; /* Darker gray */
-    color: #374151 !important;
-    font-weight: 500;
-}
-
-.simple-calendar.calendar-with-background .cal-nav-button.cal-nav-primary:hover {
-    background-color: #ced4da !important; /* Even darker gray on hover */
-    color: #374151 !important;
-    transform: translateY(-1px);
-    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
-}
-
-/* Dark mode primary button - TRANSPARENT mode */
-[data-bs-theme="dark"] .simple-calendar:not(.calendar-with-background) .cal-nav-button.cal-nav-primary {
-    background-color: rgba(255, 255, 255, 0.1) !important; /* Same as dark hover effect */
-    color: #f1f5f9 !important; /* Force same color as other buttons in dark mode */
-}
-
-[data-bs-theme="dark"] .simple-calendar:not(.calendar-with-background) .cal-nav-button.cal-nav-primary:hover {
-    background-color: rgba(255, 255, 255, 0.15) !important; /* Slightly brighter on hover */
-    color: #f1f5f9 !important; /* Force same color as other buttons in dark mode */
-    transform: translateY(-1px);
-    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.4);
-}
-
-/* Dark mode primary button - BACKGROUND mode */
-[data-bs-theme="dark"] .simple-calendar.calendar-with-background .cal-nav-button.cal-nav-primary {
-    background-color: #555555 !important; /* Darker gray for dark theme */
-    color: #f1f5f9 !important;
-}
-
-[data-bs-theme="dark"] .simple-calendar.calendar-with-background .cal-nav-button.cal-nav-primary:hover {
-    background-color: #666666 !important; /* Even darker on hover */
-    color: #f1f5f9 !important;
-    transform: translateY(-1px);
-    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.3);
-}
-
-/* Background styling when showBackground is true */
-.simple-calendar.calendar-with-background .cal-nav-button {
-    border: 1px solid #dee2e6;
-    background-color: #f8f9fa;
-}
-
-/* Background styling hover and primary states when showBackground is true */
-.simple-calendar.calendar-with-background .cal-nav-button:hover {
-    background-color: #e9ecef;
-    border-color: #adb5bd;
-}
-
-.simple-calendar.calendar-with-background .cal-nav-button.cal-nav-primary {
-    background-color: #e9ecef;
-    border-color: #adb5bd;
-    color: #374151 !important;
-}
-
-.simple-calendar.calendar-with-background .cal-nav-button.cal-nav-primary:hover {
-    background-color: #dee2e6;
-    border-color: #6c757d;
-}
-
-/* Removed conflicting transparent button rules for calendar-with-background */
-
-/* Only show background/border when showBackground is true - moved these to the calendar-with-background section */
-
-.cal-nav-group {
-    display: inline-flex;
-    margin: 0 4px 0 0; /* Remove left margin to align with calendar edge */
-}
-
-/* Right-aligned navigation groups (mode buttons) - remove right margin */
-.calendar-table thead td:last-child .cal-nav-group {
-    margin: 0 0 0 4px; /* Remove right margin to align with calendar right edge */
-}
-
-/* When mode buttons are hidden, month/year goes to middle cell with text-align: right */
-.calendar-table thead td[style*="text-align: right"] .cal-nav-group {
-    margin: 0 !important; /* Remove all margins when in right-aligned cell */
-}
-
-/* Remove right margins from month/year dropdown buttons in right-aligned context */
-.calendar-table thead td[style*="text-align: right"] .js-cal-month-dropdown,
-.calendar-table thead td[style*="text-align: right"] .js-cal-year-dropdown,
-.calendar-table thead td[style*="text-align: right"] .month-dropdown-container,
-.calendar-table thead td[style*="text-align: right"] .year-dropdown-container {
-    margin-right: 0 !important;
-}
-
-/* Specifically target the last dropdown button to ensure it aligns with the right edge */
-.calendar-table thead td[style*="text-align: right"] .year-dropdown-container:last-child .js-cal-year-dropdown,
-.calendar-table thead td[style*="text-align: right"] .cal-nav-button:last-child {
-    margin-right: 0 !important;
-}
-
-/* Override base cal-nav-button margin for right-aligned context */
-.calendar-table thead td[style*="text-align: right"] .cal-nav-button {
-    margin-right: 0 !important;
-}
-
-/* Handle edge cases - any cell that should align content to the right */
-.calendar-table thead td[style*="padding-right: 0"] .cal-nav-group,
-.calendar-table thead td[style*="padding-right:0"] .cal-nav-group {
-    margin-right: 0 !important;
-}
-
-.calendar-table thead td[style*="padding-right: 0"] .cal-nav-button,
-.calendar-table thead td[style*="padding-right:0"] .cal-nav-button {
-    margin-right: 0 !important;
-}
-
-/* Right-aligned mobile view switcher - remove right margin */
-.calendar-table thead td:last-child .mobile-view-switcher {
-    margin-right: 0 !important;
-}
-
-/* Nuclear option: Remove right margin from any cal-nav-button that's the rightmost element */
-.calendar-table thead td .cal-nav-group:last-child .cal-nav-button:last-child,
-.calendar-table thead td > .cal-nav-button:last-child,
-.calendar-table thead td > :last-child .cal-nav-button:last-child {
-    margin-right: 0 !important;
-}
-
-/* ================================================
-   UNIVERSAL DARK THEME SUPPORT
-   ================================================ */
-
-/* Dark theme navigation button transparency */
-[data-bs-theme="dark"] .simple-calendar:not(.calendar-with-background) .cal-nav-button,
-[data-bs-theme="dark"] .simple-calendar:not(.calendar-with-background) .js-cal-prev,
-[data-bs-theme="dark"] .simple-calendar:not(.calendar-with-background) .js-cal-next,
-[data-bs-theme="dark"] .simple-calendar:not(.calendar-with-background) .js-cal-option,
-[data-bs-theme="dark"] .simple-calendar:not(.calendar-with-background) .js-cal-month-dropdown,
-[data-bs-theme="dark"] .simple-calendar:not(.calendar-with-background) .js-cal-year-dropdown,
-[data-bs-theme="dark"] .simple-calendar:not(.calendar-with-background) .js-cal-view-dropdown {
-    background-color: transparent !important;
-    background-image: none !important;
-    background: transparent !important;
-    border: none !important;
-    border-color: transparent !important;
-    border-width: 0 !important;
-    border-style: none !important;
-    box-shadow: none !important;
-    outline: none !important;
-    color: #f1f5f9 !important; /* Brighter white for better contrast */
-    cursor: pointer !important;
-    pointer-events: auto !important;
-}
-
-/* Dark theme week day headers */
-[data-bs-theme="dark"] .simple-calendar .c-name {
-    color: #f1f5f9 !important; /* Brighter white for better contrast */
-}
-
-/* Current month days styling - but NOT today's date */
-.sc_current .sc_date:not(.sc_today_date .sc_date) {
-    color: #1f2937 !important; /* Dark color for light theme */
-}
-
-/* Dark theme current month day numbers - but NOT today's date */
-[data-bs-theme="dark"] .sc_current .sc_date:not(.sc_today_date .sc_date),
-[data-bs-theme="dark"] .simple-calendar tbody td:not(.prevmonth):not(.nextmonth):not(.prev-month):not(.next-month):not(.other-month) {
-    color: #f1f5f9 !important; /* Bright white for dark theme */
-}
-
-/* TODAY'S DATE - HIGHEST PRIORITY - ALWAYS RED */
-.sc_current.sc_today_date .sc_date,
-.sc_today_date .sc_date,
-.currentdate.sc_today_date .sc_date,
-[data-bs-theme="dark"] .sc_current.sc_today_date .sc_date,
-[data-bs-theme="dark"] .sc_today_date .sc_date,
-[data-bs-theme="dark"] .currentdate.sc_today_date .sc_date {
-    color: #e74c3c !important; /* FORCE red for today's date */
-    font-weight: 800 !important;
-}
-
-/* Event colors - PROTECT getEventBaseCssStyle inline styles from CSS overrides */
-/* DO NOT add any background-color, color, or background-image rules for .sc_event */
-/* Let JavaScript inline styles handle ALL event coloring */
-
-/* Ensure event colors from getEventBaseCssStyle are never overridden by CSS */
-.simple-calendar .sc_event {
-    /* NO color properties here - let inline styles from getEventBaseCssStyle handle them */
-    /* This comment serves as a reminder to never add color overrides */
-}
-
-/* Dark theme current date highlighting */
-[data-bs-theme="dark"] .simple-calendar .calendar-day.currentdate,
-[data-bs-theme="dark"] .simple-calendar .currentdate {
-    color: #e2e8f0 !important;
-}
-
-/* Dark theme previous/next month days - darker for visual hierarchy */
-[data-bs-theme="dark"] .simple-calendar tbody td.prevmonth,
-[data-bs-theme="dark"] .simple-calendar tbody td.nextmonth,
-[data-bs-theme="dark"] .simple-calendar tbody td.prev-month,
-[data-bs-theme="dark"] .simple-calendar tbody td.next-month,
-[data-bs-theme="dark"] .simple-calendar tbody td.other-month,
-[data-bs-theme="dark"] .simple-calendar tbody .prevmonth,
-[data-bs-theme="dark"] .simple-calendar tbody .nextmonth,
-[data-bs-theme="dark"] .simple-calendar tbody .prev-month,
-[data-bs-theme="dark"] .simple-calendar tbody .next-month,
-[data-bs-theme="dark"] .simple-calendar tbody .other-month {
-    color: #64748b !important;
-}
-
-/* Light theme navigation button transparency */
-.simple-calendar:not(.calendar-with-background) .cal-nav-button,
-.simple-calendar:not(.calendar-with-background) .js-cal-prev,
-.simple-calendar:not(.calendar-with-background) .js-cal-next,
-.simple-calendar:not(.calendar-with-background) .js-cal-option,
-.simple-calendar:not(.calendar-with-background) .js-cal-month-dropdown,
-.simple-calendar:not(.calendar-with-background) .js-cal-year-dropdown,
-.simple-calendar:not(.calendar-with-background) .js-cal-view-dropdown {
-    background-color: transparent !important;
-    background-image: none !important;
-    background: transparent !important;
-    border: none !important;
-    border-color: transparent !important;
-    border-width: 0 !important;
-    border-style: none !important;
-    box-shadow: none !important;
-    outline: none !important;
-    color: #374151 !important;
-    cursor: pointer !important;
-    pointer-events: auto !important;
-}
-
-/* Navigation button alignment - remove padding from edge cells */
-.simple-calendar th:first-child,
-.simple-calendar td:first-child {
-    padding-left: 0 !important;
-}
-
-/* ================================================
-   UNIVERSAL TAILWIND CSS OVERRIDES
-   ================================================ */
-
-/* Override Tailwind's default border styles ONLY when no event borders are intended */
-/*.simple-calendar:not(:has(.sc_event.sc_event_with_border)) *,
-.simple-calendar:not(:has(.sc_event.sc_event_with_border)) div,
-.simple-calendar:not(:has(.sc_event.sc_event_with_border)) span,
-.simple-calendar:not(:has(.sc_event.sc_event_with_border)) p {
-    border: none !important;
-    border-width: 0 !important;
-    border-style: none !important;
-    border-color: transparent !important;
-    outline: none !important;
-    box-shadow: none !important;
-}*/
-
-/* Override borders on events specifically when eventBorder is false */
-.simple-calendar:not(:has(.sc_event.sc_event_with_border)) [class*="sc_event"] {
-    border: none !important;
-    border-width: 0 !important;
-    border-style: none !important;
-    border-color: transparent !important;
-    outline: none !important;
-    box-shadow: none !important;
-}
-
-/* Clear events alignment fix when borders are enabled */
-.simple-calendar:has(.sc_event.sc_event_with_border) .sc_event.clear {
-    border: none !important;
-    padding: 3px 7px !important;
-    min-height: 1.4em !important;
-    box-sizing: border-box !important;
-}
-
-/* Right-aligned dropdown containers - remove right margin */
-.calendar-table thead td:last-child .view-dropdown-container {
-    margin-right: 0 !important;
-}
-
-/* Right-aligned month/year dropdown containers - remove right margin */
-.calendar-table thead td:last-child .month-dropdown-container {
-    margin-right: 0 !important;
-}
-
-.calendar-table thead td:last-child .year-dropdown-container {
-    margin-right: 0 !important;
-}
-
-/* Right-aligned individual buttons - remove right margin */
-.calendar-table thead td:last-child .cal-nav-button:last-child {
-    margin-right: 0 !important;
-}
-
-.cal-nav-group .cal-nav-button {
-    margin: 0;
+.sc-month-view .sc-event-middle {
     border-radius: 0;
 }
 
-.cal-nav-group .cal-nav-button:first-child {
-    border-top-left-radius: 4px;
-    border-bottom-left-radius: 4px;
+.sc-month-view .sc-event-end {
+    border-radius: 0 3px 3px 0;
 }
 
-.cal-nav-group .cal-nav-button:last-child {
-    border-top-right-radius: 4px;
-    border-bottom-right-radius: 4px;
+/* Month view multi-day events - basic styling (non-fullday mode) */
+.sc-month-view .sc-event-month.sc-event-start {
+    border-radius: 3px 0 0 3px;
 }
 
-/* Navigation arrow buttons - ensure they inherit all cal-nav-button styles */
-.js-cal-prev,
-.js-cal-next {
-    font-weight: bold;
-    min-width: 36px;
+.sc-month-view .sc-event-month.sc-event-middle {
+    border-radius: 0;
 }
 
-.js-cal-years hover{
-    color:#f00;
+.sc-month-view .sc-event-month.sc-event-end {
+    border-radius: 0 3px 3px 0;
 }
 
-.add-day{
-    cursor:crosshair;
+/* Month view multi-day events - seamless connections (fullday mode only) */
+.sc-month-view.sc-fullday .sc-event-month.sc-event-start {
+    position: relative;
 }
 
-/* Events table for day view */
-.calendar-events-table {
-    width: 100%;
-    border-collapse: collapse;
-    background-color: transparent;
+.sc-month-view.sc-fullday .sc-event-month.sc-event-start::after {
+    content: '';
+    position: absolute;
+    right: -2px;
+    top: 0;
+    bottom: 0;
+    width: 2px;
+    background: inherit;
+    z-index: 10;
 }
 
-/* Day view container cell - remove any inherited borders */
-.calendar-day td {
-    border: none !important;
-    background-color: transparent !important;
+.sc-month-view.sc-fullday .sc-event-month.sc-event-middle {
+    position: relative;
 }
 
-/* Ensure all table elements are borderless by default */
-.calendar-table,
-.calendar-table thead,
-.calendar-table tbody,
-.calendar-table tfoot,
-.calendar-table tr,
-.calendar-table th,
-.calendar-table td,
-.calendar-events-table,
-.calendar-events-table thead,
-.calendar-events-table tbody,
-.calendar-events-table tfoot,
-.calendar-events-table tr,
-.calendar-events-table th,
-.calendar-events-table td {
-    border: none !important;
-    border-top: none !important;
-    border-bottom: none !important;
-    border-left: none !important;
-    border-right: none !important;
-    outline: none !important;
-    background-color: transparent !important;
+.sc-month-view.sc-fullday .sc-event-month.sc-event-middle::before,
+.sc-month-view.sc-fullday .sc-event-month.sc-event-middle::after {
+    content: '';
+    position: absolute;
+    top: 0;
+    bottom: 0;
+    width: 2px;
+    background: inherit;
+    z-index: 10;
 }
 
-.calendar-events-table th,
-.calendar-events-table td {
-    padding: 2px 8px;
-    border: none;
-    background-color: transparent;
+.sc-month-view.sc-fullday .sc-event-month.sc-event-middle::before {
+    left: -2px;
 }
 
-/* No borders ever - completely borderless calendar */
-
-/* Remove border from day view header */
-.calendar-with-background .calendar-events-table th {
-    border: none !important;
+.sc-month-view.sc-fullday .sc-event-month.sc-event-middle::after {
+    right: -2px;
 }
 
-/* Remove borders from day view header row and table head */
-.calendar-with-background .calendar-events-table thead,
-.calendar-with-background .calendar-events-table thead tr,
-.calendar-with-background .calendar-events-table thead th {
-    border: none !important;
-    border-bottom: none !important;
-    border-top: none !important;
+.sc-month-view.sc-fullday .sc-event-month.sc-event-end {
+    position: relative;
 }
 
-.calendar-events-table th {
+.sc-month-view.sc-fullday .sc-event-month.sc-event-end::before {
+    content: '';
+    position: absolute;
+    left: -2px;
+    top: 0;
+    bottom: 0;
+    width: 2px;
+    background: inherit;
+    z-index: 10;
+}
+
+/* Month view fullday mode multi-day events - seamless connections */
+.sc-month-view.sc-fullday .sc-event-month.sc-event-single {
+    margin: 1px 4px !important;
+    border-radius: 3px !important;
+    z-index: 1;
+    position: relative;
+}
+
+.sc-month-view.sc-fullday .sc-event-month.sc-event-start {
+    margin: 1px 0 1px 4px !important;
+    border-radius: 3px 0 0 3px !important;
+    z-index: 2;
+    position: relative;
+}
+
+.sc-month-view.sc-fullday .sc-event-month.sc-event-middle {
+    margin: 1px 0 !important;
+    border-radius: 0 !important;
+    z-index: 2;
+    position: relative;
+}
+
+.sc-month-view.sc-fullday .sc-event-month.sc-event-end {
+    margin: 1px 4px 1px 0 !important;
+    border-radius: 0 3px 3px 0 !important;
+    z-index: 2;
+    position: relative;
+}
+
+/* Transparent placeholder for multi-day event alignment */
+.sc-event-placeholder {
+    opacity: 0 !important;
+}
+
+/* Month view fullday mode - placeholder styling */
+.sc-month-view.sc-fullday .sc-event-placeholder {
+    min-height: 18px;
+    padding: 2px 6px;
+    margin: 1px 4px;
+    display: block;
+    box-sizing: border-box;
+}
+
+/* Week view fullday mode - placeholder styling (same as month view) */
+.sc-week-view.sc-fullday .sc-event-placeholder {
+    min-height: 18px;
+    padding: 2px 6px;
+    margin: 1px 4px;
+    display: block;
+    box-sizing: border-box;
+    line-height: 0.9em;
+}
+
+/* Week View Styles */
+.sc-week-view {
+    height: 100%;
+    overflow-y: auto;
+    overflow-x: hidden;
+    max-height: calc(100vh - 200px);
+    display: grid;
+    grid-template-columns: 80px repeat(7, 1fr);
+    align-content: start;
+}
+
+.sc-time-column-header,
+.sc-day-header {
+    position: sticky;
+    top: 0;
+    z-index: 20;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    text-align: center;
+    padding: 12px 8px;
+    background: #f8f9fa;
+    height: 60px;
+    box-sizing: border-box;
+}
+
+.sc-day-header.sc-today {
+    background: #e3f2fd;
+}
+
+.sc-day-name {
+    font-size: 0.75rem;
+    color: #6c757d;
+    font-weight: 500;
+    margin-bottom: 2px;
+}
+
+.sc-day-header .sc-day-number {
+    font-size: 1.25rem;
     font-weight: 600;
-    font-size: 14px;
-    color: #374151 !important; /* Dark color for light theme */
+    color: #212529;
 }
 
-/* Day view backgrounds - only when showBackground is true */
-.calendar-with-background .calendar-events-table th {
-    background-color: #f8f9fa !important;
+.sc-day-header.sc-today .sc-day-number {
+    color: #dc3545;
     font-weight: 600;
-    padding: 4px 4px;
-    font-size: 14px;
 }
 
-.calendar-with-background .calendar-events-table {
-    background-color: #ffffff;
+.sc-time-slot,
+.sc-day-column {
+    height: 60px;
+    position: relative;
+    box-sizing: border-box;
 }
 
-[data-bs-theme="dark"] .calendar-events-table th,
-[data-bs-theme="dark"] .calendar-events-table td,
-[data-bs-theme="dark"] .calendar-events-table .timetitle {
-    color: #f1f5f9 !important; /* Bright white for dark theme */
+.sc-time-slot {
+    background: #f8f9fa;
+    padding: 4px 8px 8px 8px;
+    font-size: 0.75rem;
+    color: #6c757d;
+    text-align: center;
+    display: flex;
+    align-items: flex-start;
+    justify-content: center;
 }
 
-/* No dark mode borders either */
-
-/* Remove border from dark mode day view header */
-[data-bs-theme="dark"] .calendar-with-background .calendar-events-table th {
-    border: none !important;
-}
-
-/* Remove borders from dark mode day view header row and table head */
-[data-bs-theme="dark"] .calendar-with-background .calendar-events-table thead,
-[data-bs-theme="dark"] .calendar-with-background .calendar-events-table thead tr,
-[data-bs-theme="dark"] .calendar-with-background .calendar-events-table thead th {
-    border: none !important;
-    border-bottom: none !important;
-    border-top: none !important;
-}
-
-/* Dark mode day view backgrounds - only when showBackground is true */
-[data-bs-theme="dark"] .calendar-with-background .calendar-events-table th {
-    background-color: #404040 !important;
-    color: #ffffff;
-    font-weight: 600;
-    padding: 4px 4px;
-    font-size: 14px;
-}
-
-[data-bs-theme="dark"] .calendar-with-background .calendar-events-table {
-    background-color: #2d2d2d;
-}
-
-/* Month selection styling - Year view */
-.calendar-month {
-    padding: 20px 8px;
-    margin: 4px;
-    border: 1px solid #dee2e6;
-    background-color: #f8f9fa;
+/* Special time slots for before/after hours */
+.sc-time-slot:first-child,
+.sc-time-slot:last-child {
+    background: #e9ecef;
     color: #495057;
+    font-weight: 500;
+    font-style: italic;
+}
+
+.sc-day-column {
     cursor: pointer;
-    border-radius: 8px;
-    transition: all 0.2s ease;
+    background: #ffffff;
+}
+
+
+.sc-day-column.sc-today {
+    background: #f8fcff;
+}
+
+.sc-day-column:hover {
+    background: #f8f9fa;
+}
+
+/* Half-hour dotted line in the middle of each hour cell */
+.sc-half-hour-line {
+    position: absolute;
+    top: 50%;
+    left: 0;
+    right: 0;
+    height: 0;
+    pointer-events: none;
+    z-index: 1;
+}
+
+/* Week View Event Styles */
+.sc-week-view .sc-event-time {
+    position: absolute;
+    top: 4px;
+    left: 4px;
+    right: 4px;
+    padding: 2px 6px;
+    font-size: 0.75rem;
+    line-height: 1.2;
+    border-radius: 3px;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+    z-index: 5;
+    min-height: 18px;
+    display: block;
+    box-sizing: border-box;
+    /* Center text vertically without flex */
+    padding-top: 3px;
+    padding-bottom: 1px;
+}
+
+/* Week View Multi-day Event Styles */
+.sc-week-view .sc-event-single {
+    border-radius: 3px;
+}
+
+.sc-week-view .sc-event-start {
+    border-radius: 3px 0 0 3px;
+}
+
+.sc-week-view .sc-event-middle {
+    border-radius: 0;
+}
+
+.sc-week-view .sc-event-end {
+    border-radius: 0 3px 3px 0;
+}
+
+/* Week view fullday events only */
+.sc-week-view.sc-fullday .sc-event {
+    width: 100%;
+    margin: 2px 4px;
+    padding: 2px 6px;
+    font-size: 0.75rem;
+    height: 18px;
+    min-width: 0;
+}
+
+/* Week view fullday mode multi-day events */
+.sc-week-view.sc-fullday .sc-event-start {
+    margin-right: 0;
+}
+
+.sc-week-view.sc-fullday .sc-event-middle {
+    margin-left: 0;
+    margin-right: 0;
+}
+
+.sc-week-view.sc-fullday .sc-event-end {
+    margin-left: 0;
+}
+
+
+/* Fullday Week View - same structure as month view */
+.sc-week-view.sc-fullday {
+    height: 100%;
+    display: flex;
+    flex-direction: column;
+}
+
+.sc-week-view.sc-fullday .sc-weekdays {
+    display: grid;
+    grid-template-columns: repeat(7, 1fr);
+    background: #f8f9fa;
+    border-bottom: 1px solid #e9ecef;
+}
+
+.sc-week-view.sc-fullday .sc-weekday {
+    padding: 12px 8px;
+    text-align: center;
+    font-weight: 600;
+    font-size: 0.875rem;
+    color: #6c757d;
+    border-right: 1px solid #e9ecef;
+}
+
+.sc-week-view.sc-fullday .sc-weekday:last-child {
+    border-right: none;
+}
+
+.sc-week-view.sc-fullday .sc-days-grid {
+    display: grid;
+    grid-template-columns: repeat(7, 1fr);
+    grid-template-rows: auto;
+    flex: 1;
+    min-height: auto;
+    overflow: visible;
+}
+
+.sc-week-view.sc-fullday .sc-day {
+    display: flex;
+    flex-direction: column;
+    min-height: 120px;
+    /*padding: 4px;*/
+    position: relative;
+    cursor: pointer;
+    transition: background-color 0.2s ease;
+    overflow: visible;
+}
+
+.sc-week-view.sc-fullday .sc-day:hover {
+    background: #f8f9fa;
+}
+
+.sc-week-view.sc-fullday .sc-day-number {
     text-align: center;
     font-weight: 500;
-    font-size: 1.1em;
-    display: inline-block;
+    margin-bottom: 4px;
+    font-size: 0.875rem;
+    line-height: 1.2;
+    flex-shrink: 0;
+    padding: 4px 6px 0 6px;
 }
 
-.calendar-month:hover {
-    background-color: #e9ecef;
-    border-color: #adb5bd;
-    transform: translateY(-2px);
+.sc-week-view.sc-fullday .sc-day.sc-today {
+    background: #e3f2fd;
 }
 
-[data-bs-theme="dark"] .calendar-month {
-    background-color: #404040;
-    border-color: #555555;
-    color: #ffffff;
+.sc-week-view.sc-fullday .sc-day.sc-today .sc-day-number {
+    color: #dc3545;
+    font-weight: 600;
 }
 
-[data-bs-theme="dark"] .calendar-month:hover {
-    background-color: #555555;
-    border-color: #666666;
-    transform: translateY(-2px);
+/* Week view fullday mode - event container (same as month) */
+.sc-week-view.sc-fullday .sc-event-week {
+    position: relative;
+    border-radius: 3px;
+    min-height: 18px;
+    padding: 2px 6px;
+    display: block;
+    box-sizing: border-box;
+    overflow: visible;
 }
 
-/* Year view table spacing */
-.calendar-table tbody tr td.calendar-month {
-    padding: 8px;
-    vertical-align: middle;
+/* Week view fullday mode - event text styling (same as month) */
+.sc-week-view.sc-fullday .sc-event-text {
+    font-size: 0.75rem;
+    line-height: 1.2;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+    position: absolute;
+    display: block;
+    width: 100%;
+}
+
+/* Week view fullday mode multi-day events - seamless connections */
+.sc-week-view.sc-fullday .sc-event-week.sc-event-single {
+    margin: 1px 4px !important;
+    border-radius: 3px !important;
+    z-index: 1;
+    position: relative;
+}
+
+.sc-week-view.sc-fullday .sc-event-week.sc-event-start {
+    margin: 1px 0 1px 4px !important;
+    border-radius: 3px 0 0 3px !important;
+    z-index: 2;
+    position: relative;
+}
+
+.sc-week-view.sc-fullday .sc-event-week.sc-event-start::after {
+    content: '';
+    position: absolute;
+    right: -2px;
+    top: 0;
+    bottom: 0;
+    width: 2px;
+    background: inherit;
+    z-index: 10;
+}
+
+.sc-week-view.sc-fullday .sc-event-week.sc-event-middle {
+    margin: 1px 0 !important;
+    border-radius: 0 !important;
+    z-index: 2;
+    position: relative;
+}
+
+.sc-week-view.sc-fullday .sc-event-week.sc-event-middle::before,
+.sc-week-view.sc-fullday .sc-event-week.sc-event-middle::after {
+    content: '';
+    position: absolute;
+    top: 0;
+    bottom: 0;
+    width: 2px;
+    background: inherit;
+    z-index: 10;
+}
+
+.sc-week-view.sc-fullday .sc-event-week.sc-event-middle::before {
+    left: -2px;
+}
+
+.sc-week-view.sc-fullday .sc-event-week.sc-event-middle::after {
+    right: -2px;
+}
+
+.sc-week-view.sc-fullday .sc-event-week.sc-event-end {
+    margin: 1px 4px 1px 0 !important;
+    border-radius: 0 3px 3px 0 !important;
+    z-index: 2;
+    position: relative;
+}
+
+.sc-week-view.sc-fullday .sc-event-week.sc-event-end::before {
+    content: '';
+    position: absolute;
+    left: -2px;
+    top: 0;
+    bottom: 0;
+    width: 2px;
+    background: inherit;
+    z-index: 10;
+}
+
+/* Day View Styles */
+.sc-day-view {
+    height: 100%;
+    overflow-y: auto;
+    overflow-x: hidden;
+    max-height: calc(100vh - 200px);
+    display: grid;
+    grid-template-columns: 80px 1fr;
+    align-content: start;
+}
+
+/* Fullday Day View */
+.sc-day-view.sc-fullday {
+    display: flex;
+    flex-direction: column;
+    padding: 0;
+    grid-template-columns: none;
+}
+
+.sc-day-view.sc-fullday .sc-day-header {
+    position: sticky;
+    top: 0;
+    z-index: 10;
+    background: #f8f9fa;
+    border-bottom: 1px solid #e9ecef;
+    padding: 16px;
     text-align: center;
-    width: 25%;
-    height: auto;
-    display: table-cell !important;
+    flex-shrink: 0;
 }
 
-/* Responsive year view */
+.sc-day-view.sc-fullday .sc-day-name {
+    font-size: 0.875rem;
+    color: #6c757d;
+    font-weight: 500;
+    margin-bottom: 4px;
+}
+
+.sc-day-view.sc-fullday .sc-day-number {
+    font-size: 1.5rem;
+    font-weight: 600;
+    color: #212529;
+}
+
+.sc-day-view.sc-fullday .sc-day-header.sc-today .sc-day-number {
+    color: #dc3545;
+}
+
+.sc-day-view.sc-fullday .sc-day-events {
+    flex: 1;
+    padding: 16px;
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+    overflow-y: auto;
+    cursor: pointer;
+}
+
+/* Day View Event Styles */
+.sc-day-view .sc-event-time {
+    position: absolute;
+    top: 4px;
+    left: 4px;
+    right: 4px;
+    padding: 2px 6px;
+    font-size: 0.75rem;
+    line-height: 1.2;
+    border-radius: 3px;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+    z-index: 5;
+    min-height: 18px;
+    display: block;
+    box-sizing: border-box;
+    /* Center text vertically without flex */
+    padding-top: 3px;
+    padding-bottom: 1px;
+}
+
+.sc-day-view .sc-event {
+    width: 100%;
+    margin: 2px 4px;
+    padding: 2px 6px;
+    font-size: 0.75rem;
+    height: 18px;
+    min-width: 0;
+}
+
+/* Day View Multi-day Event Styles */
+.sc-day-view .sc-event-single {
+    border-radius: 3px;
+}
+
+.sc-day-view .sc-event-start {
+    border-radius: 3px 0 0 3px;
+}
+
+.sc-day-view .sc-event-middle {
+    border-radius: 0;
+}
+
+.sc-day-view .sc-event-end {
+    border-radius: 0 3px 3px 0;
+}
+
+/* Day view fullday mode multi-day events */
+.sc-day-view.sc-fullday .sc-event-start {
+    margin-right: 0;
+}
+
+.sc-day-view.sc-fullday .sc-event-middle {
+    margin-left: 0;
+    margin-right: 0;
+}
+
+.sc-day-view.sc-fullday .sc-event-end {
+    margin-left: 0;
+}
+
+/* Day view fullday events - same styling as month/week view */
+.sc-day-view.sc-fullday .sc-event-day {
+    position: relative;
+    padding: 2px 6px;
+    border-radius: 3px;
+    margin: 1px 4px;
+    min-height: 18px;
+    box-sizing: border-box;
+    display: block;
+}
+
+/* Day view fullday mode - event text styling (same as month/week) */
+.sc-day-view.sc-fullday .sc-event-text {
+    font-size: 0.75rem;
+    line-height: 1.2;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+    position: absolute;
+    display: block;
+    width: 100%;
+}
+
+/* Responsive Design */
 @media (max-width: 768px) {
-    .calendar-month {
-        width: 100px;
-        height: 70px;
-        padding: 15px 12px;
-        margin: 6px;
-        font-size: 1em;
+    .sc-header {
+        grid-template-columns: 1fr;
+        grid-template-rows: auto auto auto;
+        gap: 8px;
+        justify-items: center;
     }
     
-    .calendar-table tbody tr td.calendar-month {
-        height: 100px;
+    .sc-view-switcher {
+        grid-row: 1;
+        justify-self: center;
+    }
+    
+    .sc-title {
+        grid-row: 2;
+        font-size: 1.125rem;
+        justify-self: center;
+    }
+    
+    .sc-nav {
+        grid-row: 3;
+        justify-self: center;
+    }
+    
+    
+    .sc-days-grid {
+        min-height: 360px;
+        grid-template-rows: repeat(6, minmax(60px, 1fr));
+    }
+    
+    .sc-day-number {
+        font-size: 0.75rem;
+    }
+    
+    .sc-day-count-mode .sc-day-number {
+        font-size: 1rem;
+    }
+    
+    .sc-event-count {
+        font-size: 0.625rem;
+        padding: 1px 4px;
+        min-width: 14px;
+    }
+    
+    .sc-event-month {
+        font-size: 0.6rem;
+        padding: 1px 3px;
+        height: 14px;
+    }
+    
+    
+    .sc-week-view .sc-event-time,
+    .sc-day-view .sc-event-time {
+        top: 3px;
+        left: 3px;
+        right: 3px;
+        padding: 1px 4px;
+        padding-top: 2px;
+        padding-bottom: 1px;
+        font-size: 0.65rem;
+        min-height: 16px;
+    }
+    
+    .sc-weekday {
+        padding: 8px 4px;
+        font-size: 0.75rem;
+    }
+    
+    .sc-week-header {
+        min-height: 50px;
+    }
+    
+    .sc-week-view {
+        grid-template-columns: 60px repeat(7, 1fr);
+    }
+    
+    .sc-week-view.sc-fullday {
+        grid-template-columns: repeat(7, 1fr);
+    }
+    
+    .sc-day-header {
+        padding: 8px 4px;
+    }
+    
+    .sc-day-name {
+        font-size: 0.625rem;
+    }
+    
+    .sc-day-header .sc-day-number {
+        font-size: 1rem;
+    }
+    
+    .sc-day-header.sc-today .sc-day-number {
+        color: #dc3545;
+        font-weight: 600;
+    }
+    
+    .sc-time-slot {
+        height: 40px;
+        padding: 4px;
+        font-size: 0.625rem;
+    }
+    
+    .sc-hour-slot {
+        height: 40px;
+    }
+    
+    .sc-day-view {
+        grid-template-columns: 60px 1fr;
+        max-height: calc(100vh - 160px);
+    }
+    
+    .sc-week-view {
+        max-height: calc(100vh - 160px);
     }
 }
 
 @media (max-width: 480px) {
-    .calendar-month {
-        width: 80px;
-        height: 60px;
-        padding: 12px 8px;
-        margin: 4px;
-        font-size: 0.9em;
+    .sc-calendar {
+        border-radius: 0;
+        box-shadow: none;
+        border: 1px solid #e9ecef;
     }
     
-    .calendar-table tbody tr td.calendar-month {
-        height: 80px;
+    .sc-header {
+        padding: 12px;
     }
+    
+    .sc-btn {
+        padding: 6px 8px;
+        font-size: 0.75rem;
+        min-width: 30px;
+    }
+    
+    .sc-title {
+        font-size: 1rem;
+    }
+    
+    .sc-day {
+        min-height: 50px;
+        padding: 2px;
+    }
+    
+    .sc-days-grid {
+        min-height: 300px;
+        grid-template-rows: repeat(6, minmax(50px, 1fr));
+    }
+    
+    .sc-day-count-mode .sc-day-number {
+        font-size: 0.875rem;
+    }
+    
+    .sc-event-count {
+        font-size: 0.5rem;
+        padding: 1px 3px;
+        min-width: 12px;
+    }
+    
+    .sc-weekday {
+        padding: 6px 2px;
+        font-size: 0.625rem;
+    }
+    
+    .sc-week-header {
+        min-height: 40px;
+    }
+    
+    .sc-week-view {
+        grid-template-columns: 50px repeat(7, 1fr);
+        max-height: calc(100vh - 140px);
+    }
+    
+    .sc-week-view.sc-fullday {
+        grid-template-columns: repeat(7, 1fr);
+    }
+    
+    .sc-time-slot {
+        height: 30px;
+        padding: 2px;
+        font-size: 0.5rem;
+    }
+    
+    .sc-hour-slot {
+        height: 30px;
+    }
+    
+    .sc-day-view {
+        grid-template-columns: 50px 1fr;
+        max-height: calc(100vh - 140px);
+    }
+    
+    .sc-week-view .sc-event-time,
+    .sc-day-view .sc-event-time {
+        top: 2px;
+        left: 2px;
+        right: 2px;
+        padding: 1px 3px;
+        padding-top: 2px;
+        padding-bottom: 0px;
+        font-size: 0.5rem;
+        min-height: 14px;
+    }
+    
 }
 
-/* Responsive day name display */
-.day-short {
-    display: none;
+/* Grid Border Options */
+.sc-borders-both .sc-day {
+    border-right: 1px solid #e9ecef;
+    border-bottom: 1px solid #e9ecef;
 }
 
-.day-long {
-    display: inline;
+.sc-borders-vertical .sc-day {
+    border-right: 1px solid #e9ecef;
+    border-bottom: none;
 }
 
-/* Show short day names on small screens */
-@media (max-width: 768px) {
-    .day-long {
+.sc-borders-horizontal .sc-day {
+    border-right: none;
+    border-bottom: 1px solid #e9ecef;
+}
+
+.sc-borders-none .sc-day {
+    border-right: none;
+    border-bottom: none;
+}
+
+/* Week view time slots and day columns */
+.sc-borders-both .sc-time-slot,
+.sc-borders-both .sc-day-column {
+    border-right: 1px solid #e9ecef;
+    border-bottom: 1px solid #e9ecef;
+}
+
+.sc-borders-vertical .sc-time-slot,
+.sc-borders-vertical .sc-day-column {
+    border-right: 1px solid #e9ecef;
+    border-bottom: none;
+}
+
+.sc-borders-horizontal .sc-time-slot,
+.sc-borders-horizontal .sc-day-column {
+    border-right: none;
+    border-bottom: 1px solid #e9ecef;
+}
+
+.sc-borders-none .sc-time-slot,
+.sc-borders-none .sc-day-column {
+    border-right: none;
+    border-bottom: none;
+}
+
+/* Week view fullday day cells */
+.sc-borders-both .sc-week-view.sc-fullday .sc-day {
+    border-right: 1px solid #e9ecef;
+    border-bottom: 1px solid #e9ecef;
+}
+
+.sc-borders-vertical .sc-week-view.sc-fullday .sc-day {
+    border-right: 1px solid #e9ecef;
+    border-bottom: none;
+}
+
+.sc-borders-horizontal .sc-week-view.sc-fullday .sc-day {
+    border-right: none;
+    border-bottom: 1px solid #e9ecef;
+}
+
+.sc-borders-none .sc-week-view.sc-fullday .sc-day {
+    border-right: none;
+    border-bottom: none;
+}
+
+/* Header borders */
+.sc-borders-both .sc-time-column-header,
+.sc-borders-both .sc-day-header {
+    border-right: 1px solid #e9ecef;
+    border-bottom: 1px solid #e9ecef;
+}
+
+.sc-borders-vertical .sc-time-column-header,
+.sc-borders-vertical .sc-day-header {
+    border-right: 1px solid #e9ecef;
+    border-bottom: none;
+}
+
+.sc-borders-horizontal .sc-time-column-header,
+.sc-borders-horizontal .sc-day-header {
+    border-right: none;
+    border-bottom: 1px solid #e9ecef;
+}
+
+.sc-borders-none .sc-time-column-header,
+.sc-borders-none .sc-day-header {
+    border-right: none;
+    border-bottom: none;
+}
+
+/* Half-hour lines */
+.sc-borders-both .sc-half-hour-line,
+.sc-borders-horizontal .sc-half-hour-line {
+    border-top: 1px dotted #e9ecef;
+}
+
+.sc-borders-vertical .sc-half-hour-line,
+.sc-borders-none .sc-half-hour-line {
+    border-top: none;
+}
+
+/* Keep last column without right border */
+.sc-borders-both .sc-day:last-child,
+.sc-borders-vertical .sc-day:last-child,
+.sc-borders-both .sc-day-column:nth-child(8n),
+.sc-borders-vertical .sc-day-column:nth-child(8n),
+.sc-borders-both .sc-week-view.sc-fullday .sc-day:last-child,
+.sc-borders-vertical .sc-week-view.sc-fullday .sc-day:last-child,
+.sc-borders-both .sc-day-header:nth-child(8n),
+.sc-borders-vertical .sc-day-header:nth-child(8n) {
+    border-right: none;
+}
+
+/* Event Border Options */
+:root {
+    --sc-event-border-color: #6c757d;
+}
+
+/* Event borders enabled */
+.sc-event-borders .sc-event-month:not(.sc-event-placeholder),
+.sc-event-borders .sc-event-week:not(.sc-event-placeholder),
+.sc-event-borders .sc-event-day:not(.sc-event-placeholder),
+.sc-event-borders .sc-event-time:not(.sc-event-placeholder) {
+    border: 1px solid var(--sc-event-border-color);
+}
+
+/* Single-day events - full borders */
+.sc-event-borders .sc-event-single:not(.sc-event-placeholder) {
+    border: 1px solid var(--sc-event-border-color);
+}
+
+/* Multi-day events - selective borders */
+.sc-event-borders .sc-event-start:not(.sc-event-placeholder) {
+    border-left: 1px solid var(--sc-event-border-color);
+    border-top: 1px solid var(--sc-event-border-color);
+    border-bottom: 1px solid var(--sc-event-border-color);
+}
+
+.sc-event-borders .sc-event-middle:not(.sc-event-placeholder) {
+    border-top: 1px solid var(--sc-event-border-color);
+    border-bottom: 1px solid var(--sc-event-border-color);
+}
+
+.sc-event-borders .sc-event-end:not(.sc-event-placeholder) {
+    border-right: 1px solid var(--sc-event-border-color);
+    border-top: 1px solid var(--sc-event-border-color);
+    border-bottom: 1px solid var(--sc-event-border-color);
+}
+
+.sc-event-borders .sc-day {
+  border-right: none;
+}
+
+.sc-week-view .sc-event-week {
+    border-right: none;
+}
+
+/* Event borders disabled (default) */
+.sc-event-no-borders .sc-event-month,
+.sc-event-no-borders .sc-event-week,
+.sc-event-no-borders .sc-event-day,
+.sc-event-no-borders .sc-event-time {
+    border: none !important;
+}
+
+/* Print Styles */
+@media print {
+    .sc-calendar {
+        box-shadow: none;
+        border: 1px solid #000;
+    }
+    
+    .sc-header {
+        background: #fff !important;
+        -webkit-print-color-adjust: exact;
+        print-color-adjust: exact;
+    }
+    
+    .sc-btn {
         display: none;
     }
     
-    .day-short {
-        display: inline;
+    .sc-view-switcher {
+        display: none;
     }
-}
-
-/* Very small screens - even shorter day names */
-@media (max-width: 480px) {
-    .day-short {
-        font-size: 0.8em;
-    }
-    
-    .calendar-table thead .c-name {
-        padding: 6px 2px;
-        font-size: 0.75em;
-    }
-}
-
-/* Mobile view switcher - now shown on all screen sizes */
-.mobile-view-switcher {
-    display: inline-block;
-}
-
-.view-dropdown-container {
-    position: relative;
-    display: inline-block;
-}
-
-.view-dropdown-menu {
-    display: none;
-    position: absolute;
-    top: 100%;
-    right: 0;
-    z-index: 1000;
-    background: #ffffff;
-    border: 1px solid #dee2e6;
-    border-radius: 4px;
-    box-shadow: 0 4px 8px rgba(0,0,0,0.1);
-    min-width: 120px;
-}
-
-.view-dropdown-item {
-    display: block !important;
-    padding: 8px 12px;
-    cursor: pointer;
-    border: none !important;
-    border-radius: 0 !important;
-    margin: 0 !important;
-    background: transparent !important;
-    text-align: left;
-    width: 100%;
-    transition: background-color 0.2s ease;
-    box-shadow: none !important;
-    color: #495057;
-    font-weight: normal !important;
-    font-size: 14px;
-}
-
-.view-dropdown-item:hover {
-    background-color: #f8f9fa !important;
-    transform: none !important;
-}
-
-.view-dropdown-item.active {
-    background-color: #e9ecef !important;
-    font-weight: 600 !important;
-}
-
-/* Use mobile-style dropdown for view switching on all screen sizes */
-.desktop-view-switcher {
-    display: none;
-}
-
-.mobile-view-switcher {
-    display: inline-block;
-}
-
-/* Month dropdown styling */
-.month-dropdown-container {
-    position: relative;
-    display: inline-block;
-}
-
-/* Year dropdown styling */
-.year-dropdown-container {
-    position: relative;
-    display: inline-block;
-}
-
-/* Connected dropdown buttons styling */
-.cal-nav-group .month-dropdown-container {
-    margin: 0;
-}
-
-.cal-nav-group .year-dropdown-container {
-    margin: 0;
-}
-
-.cal-nav-group .month-dropdown-container .cal-nav-button {
-    border-top-right-radius: 0;
-    border-bottom-right-radius: 0;
-    border-right: none;
-    margin: 0;
-}
-
-.cal-nav-group .year-dropdown-container .cal-nav-button {
-    border-top-left-radius: 0;
-    border-bottom-left-radius: 0;
-    border-top-right-radius: 4px;
-    border-bottom-right-radius: 4px;
-    margin: 0;
-}
-
-/* When month/year dropdowns are in the last cell (mode buttons hidden), ensure no right margin */
-.calendar-table thead td:last-child .month-dropdown-container .cal-nav-button,
-.calendar-table thead td:last-child .year-dropdown-container .cal-nav-button {
-    margin-right: 0 !important;
-}
-
-/* Override the default 2px right margin for any button that's the last element in the last cell */
-.calendar-table thead td:last-child > :last-child .cal-nav-button:last-child,
-.calendar-table thead td:last-child .cal-nav-button:last-of-type {
-    margin-right: 0 !important;
-}
-
-/* Remove bold from dropdown trigger buttons */
-.js-cal-month-dropdown,
-.js-cal-year-dropdown {
-    font-weight: normal !important;
-}
-
-.month-dropdown-menu {
-    display: none;
-    position: absolute;
-    top: 100%;
-    left: 0;
-    z-index: 1000;
-    background: #ffffff;
-    border: 1px solid #dee2e6;
-    border-radius: 4px;
-    box-shadow: 0 4px 8px rgba(0,0,0,0.1);
-    min-width: 150px;
-    max-height: 200px;
-    overflow-y: auto;
-}
-
-.year-dropdown-menu {
-    display: none;
-    position: absolute;
-    top: 100%;
-    left: 0;
-    z-index: 1000;
-    background: #ffffff;
-    border: 1px solid #dee2e6;
-    border-radius: 4px;
-    box-shadow: 0 4px 8px rgba(0,0,0,0.1);
-    min-width: 100px;
-}
-
-.month-dropdown-item {
-    display: block !important;
-    padding: 8px 12px;
-    cursor: pointer;
-    border: none !important;
-    border-radius: 0 !important;
-    margin: 0 !important;
-    background: transparent !important;
-    text-align: left;
-    width: 100%;
-    transition: background-color 0.2s ease;
-    box-shadow: none !important;
-    color: #495057;
-    font-weight: normal !important;
-    font-size: 14px;
-}
-
-.year-nav-buttons {
-    display: flex;
-    padding: 2px;
-    gap: 2px;
-}
-
-.year-nav-buttons .cal-nav-button {
-    flex: 1;
-    margin: 0 !important;
-    padding: 4px 8px;
-    font-size: 14px;
-    font-weight: bold;
-    border-radius: 3px !important;
-    min-width: 36px;
-}
-
-.month-dropdown-item:hover {
-    background-color: #f8f9fa !important;
-    transform: none !important;
-}
-
-.month-dropdown-item.active {
-    background-color: #e9ecef !important;
-    font-weight: 600 !important;
-}
-
-/* Light mode explicit styles */
-html[data-bs-theme="light"] .month-dropdown-menu,
-html:not([data-bs-theme="dark"]) .month-dropdown-menu {
-    background: #ffffff !important;
-    border-color: #dee2e6 !important;
-    box-shadow: 0 4px 8px rgba(0,0,0,0.1) !important;
-}
-
-html[data-bs-theme="light"] .year-dropdown-menu,
-html:not([data-bs-theme="dark"]) .year-dropdown-menu {
-    background: #ffffff !important;
-    border-color: #dee2e6 !important;
-    box-shadow: 0 4px 8px rgba(0,0,0,0.1) !important;
-}
-
-html[data-bs-theme="light"] .month-dropdown-item,
-html:not([data-bs-theme="dark"]) .month-dropdown-item {
-    color: #495057 !important;
-}
-
-html[data-bs-theme="light"] .month-dropdown-item:hover,
-html:not([data-bs-theme="dark"]) .month-dropdown-item:hover {
-    background-color: #f8f9fa !important;
-}
-
-.month-dropdown-item:first-child {
-    border-radius: 4px 4px 0 0 !important;
-}
-
-.month-dropdown-item:last-child {
-    border-radius: 0 0 4px 4px !important;
-}
-
-/* Dark mode dropdown */
-html[data-bs-theme="dark"] .month-dropdown-menu,
-html[data-bs-theme="dark"] .simple-calendar .month-dropdown-menu {
-    background: #2d2d2d !important;
-    border-color: #555555 !important;
-    box-shadow: 0 4px 8px rgba(0,0,0,0.3) !important;
-}
-
-html[data-bs-theme="dark"] .year-dropdown-menu,
-html[data-bs-theme="dark"] .simple-calendar .year-dropdown-menu {
-    background: #2d2d2d !important;
-    border-color: #555555 !important;
-    box-shadow: 0 4px 8px rgba(0,0,0,0.3) !important;
-}
-
-html[data-bs-theme="dark"] .month-dropdown-item,
-html[data-bs-theme="dark"] .simple-calendar .month-dropdown-item {
-    color: #f1f5f9 !important; /* Bright white for better contrast */
-}
-
-html[data-bs-theme="dark"] .month-dropdown-item:hover,
-html[data-bs-theme="dark"] .simple-calendar .month-dropdown-item:hover {
-    background-color: #404040 !important;
-}
-
-html[data-bs-theme="dark"] .month-dropdown-item.active,
-html[data-bs-theme="dark"] .simple-calendar .month-dropdown-item.active {
-    background-color: #555555 !important;
-    font-weight: 600 !important;
-}
-
-/* Dark mode view dropdown */
-html[data-bs-theme="dark"] .view-dropdown-menu,
-html[data-bs-theme="dark"] .simple-calendar .view-dropdown-menu {
-    background: #2d2d2d !important;
-    border-color: #555555 !important;
-    box-shadow: 0 4px 8px rgba(0,0,0,0.3) !important;
-}
-
-html[data-bs-theme="dark"] .view-dropdown-item,
-html[data-bs-theme="dark"] .simple-calendar .view-dropdown-item {
-    color: #f1f5f9 !important; /* Bright white for better contrast */
-}
-
-html[data-bs-theme="dark"] .view-dropdown-item:hover,
-html[data-bs-theme="dark"] .simple-calendar .view-dropdown-item:hover {
-    background-color: #404040 !important;
-}
-
-html[data-bs-theme="dark"] .view-dropdown-item.active,
-html[data-bs-theme="dark"] .simple-calendar .view-dropdown-item.active {
-    background-color: #555555 !important;
-}
-
-/* button Hover effects - Light mode*/
-.simple-calendar:not(.calendar-with-background) button.cal-nav-button:hover,
-.simple-calendar:not(.calendar-with-background) .cal-nav-button:hover,
-.simple-calendar:not(.calendar-with-background) button.cal-nav-button.cal-nav-button:hover,
-.simple-calendar:not(.calendar-with-background) .cal-nav-button.cal-nav-button:hover,
-.simple-calendar:not(.calendar-with-background) button.cal-nav-button.cal-nav-button.cal-nav-button:hover,
-.simple-calendar:not(.calendar-with-background) .cal-nav-button.cal-nav-button.cal-nav-button:hover {
-    background-color: rgba(0,0,0,0.08) !important; /* Darker than active state (0.05) */
-    background-image: none !important;
-    background: rgba(0,0,0,0.08) !important;
-    border: none !important;
-    border-color: transparent !important;
-    border-width: 0 !important;
-    border-style: none !important;
-    color: #374151 !important; /* Force same color as regular buttons */
-    box-shadow: none !important;
-    outline: none !important;
-}
-
-
-/* button active box - Dark mode*/
-[data-bs-theme="dark"] .simple-calendar button.cal-nav-button.cal-nav-primary,
-[data-bs-theme="dark"] .simple-calendar .cal-nav-button.cal-nav-primary,
-[data-bs-theme="dark"] .simple-calendar button.cal-nav-button.cal-nav-primary.cal-nav-button,
-[data-bs-theme="dark"] .simple-calendar .cal-nav-button.cal-nav-primary.cal-nav-button {
-    background-color: #555555 !important;
-    border-color: #666666 !important;
-    color: #f1f5f9 !important;
-}
-
-/* button Hover effects - Dark mode*/
-[data-bs-theme="dark"] .simple-calendar:not(.calendar-with-background) button.cal-nav-button:hover,
-[data-bs-theme="dark"] .simple-calendar:not(.calendar-with-background) .cal-nav-button:hover,
-[data-bs-theme="dark"] .simple-calendar:not(.calendar-with-background) button.cal-nav-button.cal-nav-button:hover,
-[data-bs-theme="dark"] .simple-calendar:not(.calendar-with-background) .cal-nav-button.cal-nav-button:hover,
-[data-bs-theme="dark"] .simple-calendar:not(.calendar-with-background) button.cal-nav-button.cal-nav-button.cal-nav-button:hover,
-[data-bs-theme="dark"] .simple-calendar:not(.calendar-with-background) .cal-nav-button.cal-nav-button.cal-nav-button:hover {
-    background-color: rgba(255,255,255,0.1) !important;
-    background-image: none !important;
-    background: rgba(255,255,255,0.1) !important;
-    border: none !important;
-    border-color: transparent !important;
-    border-width: 0 !important;
-    border-style: none !important;
-    color: #f1f5f9 !important; /* Force same color as regular buttons */
-    box-shadow: none !important;
-    outline: none !important;
-}
-
-/* Outside dates from teh current shown month (dimmed) */
-.simple-calendar .outside .sc_date {
-    color: #9ca3af !important;
-}
-
-[data-bs-theme="dark"] .simple-calendar .outside .sc_date {
-    color: #6b7280 !important;
-}
-
-/* ================================================
-   SINGLEDAY MODE STYLING
-   ================================================ */
-
-/* SingleDay mode: Center the day digits in calendar cells */
-.simple-calendar .calendar-day.single-day-mode {
-    text-align: center;
-    vertical-align: middle;
-    position: relative;
-}
-
-.simple-calendar .calendar-day.single-day-mode .sc_date {
-    position: absolute;
-    top: 50%;
-    left: 50%;
-    transform: translate(-50%, -50%);
-    margin: 0;
-    line-height: 1;
-}
-
-/* Default background for days with events in SingleDay mode */
-.simple-calendar .calendar-day.single-day-mode.has-events {
-    background-color: rgba(0, 0, 0, 0.08) !important; /* Light gray tint */
-}
-
-/* Dark mode default background for days with events */
-[data-bs-theme="dark"] .simple-calendar .calendar-day.single-day-mode.has-events {
-    background-color: rgba(255, 255, 255, 0.12) !important; /* Light white tint in dark mode */
 }

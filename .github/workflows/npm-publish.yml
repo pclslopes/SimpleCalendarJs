@@ -3,7 +3,7 @@ name: Publish to NPM
 on:
   push:
     tags:
-      - 'v*'  # Triggers on version tags like v1.0.0, v1.2.3, etc.
+      - 'live'  # Triggers only on the 'live' tag
   workflow_dispatch:  # Add this to enable manual triggers
 
 jobs:

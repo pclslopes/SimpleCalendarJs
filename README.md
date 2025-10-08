@@ -1,559 +1,370 @@
-# SimpleCalendarJs
+# Simple Calendar JS
 
-A clean, modern, and feature-rich JavaScript calendar component with responsive design and intuitive navigation.
+A pure JavaScript calendar component with no dependencies. Features responsive design, multiple view modes, and customizable styling.
 
 ## Features
 
-- **Multiple Views**: Month, Week, and Day views
-- **Responsive Design**: Mobile-friendly with hamburger menu for small screens
-- **Event Management**: Add, edit, and display events
-- **Modern Navigation**: Clean arrow buttons and dropdown navigation
-- **Dark Mode Support**: Light and dark theme options
-- **Zero Dependencies**: Pure JavaScript with no external dependencies
-- **Customizable**: Flexible styling and configuration options
-- **Touch-Friendly**: Optimized for mobile devices
-- **Framework Agnostic**: Works with vanilla JS, React, Vue, Angular, and more
-
-## Installation
-
-### NPM Installation (Recommended)
-
-```bash
-npm install simple-calendar-js
-```
-
-Then include in your project:
-
-```html
-<!-- Include SimpleCalendarJs from node_modules -->
-<link rel="stylesheet" href="node_modules/simple-calendar-js/css/SimpleCalendarJs.css">
-<script src="node_modules/simple-calendar-js/js/SimpleCalendarJs.js"></script>
-```
-
-### CDN Installation (Alternative)
-
-```html
-<!-- Include SimpleCalendarJs -->
-<link rel="stylesheet" href="css/SimpleCalendarJs.css">
-<script src="js/SimpleCalendarJs.js"></script>
-```
+- **Pure JavaScript** - No jQuery or other dependencies
+- **Three View Modes** - Month, Week, and Day views
+- **Responsive Design** - Works on desktop, tablet, and mobile
+- **Time-based Views** - Week and day views with customizable time slots
+- **Fullday Mode** - Toggle between time-based and fullday event display
+- **Multi-day Events** - Seamless event display across multiple days
+- **Smart Event Fetching** - Callback-based event loading with intelligent caching
+- **Event Callbacks** - Day click, event click, and state change handlers
+- **Grid Border Control** - Customizable grid borders (both, vertical, horizontal, none)
+- **CSS Prefix** - All classes prefixed with 'sc-' to avoid conflicts
+- **Template Strings** - Clean HTML generation using template literals
+- **Event Support** - Add, remove, and display events
+- **Keyboard Navigation** - Arrow keys, T (today), M/W/D (views)
 
 ## Quick Start
 
-### 1. Create Calendar Container
-
 ```html
-<div id="calendar"></div>
-```
-
-### 2. Initialize Calendar
-
-```javascript
-// Method 1: Using ES6 class (recommended)
-const calendar = new SimpleCalendar('#calendar', {
-    mode: 'month',
-    date: new Date(),
-    data: [
-        {
-            start: '2024-11-15',
-            end: '2024-11-17',
-            title: 'Conference',
-            backgroundColor: '#007bff'
-        }
-    ],
-    events: function(params, callback) {
-        // Fetch your events dynamically
-        callback([
-            {
-                start: new Date(),
-                title: 'Sample Event',
-                backgroundColor: '#007bff'
-            }
-        ]);
-    },
-    dayClick: function(dateObject) {
-        console.log('Day clicked:', dateObject);
-        // dateObject is a Date object representing the clicked date
-        // In day view, it includes time information (e.g., 14:30 for 2:30 PM slot)
-    },
-    eventClick: function(eventInfo) {
-        console.log('Event clicked:', eventInfo);
-        // eventInfo contains:
-        // - day: Date object of the clicked calendar day
-        // - data: Complete event object with all properties
-    },
-    stateChange: function(state) {
-        console.log('Calendar state changed:', state);
-        // Sync external controls with calendar state
-    }
-});
-
-// Method 2: Directly instantiating with element
-const calendarElement = document.querySelector('#calendar');
-const calendar = new SimpleCalendar(calendarElement, {
-    mode: 'month',
-    date: new Date(),
-    // ... same options as above
-});
-```
-
-### 3. Auto-initialization with data attributes
-
-```html
-<!-- HTML -->
-<div id="calendar" data-calendar='{"mode":"month"}'></div>
+<!DOCTYPE html>
+<html>
+<head>
+    <link rel="stylesheet" href="css/simple-calendar-js.css">
+</head>
+<body>
+    <div id="calendar"></div>
+    
+    <script src="js/simple-calendar-js.js"></script>
+    <script>
+        const calendar = new SimpleCalendarJs('#calendar', {
+            view: 'month',
+            date: new Date(),
+            fulldayMode: false,
+            events: []
+        });
+    </script>
+</body>
+</html>
 ```
 
 ## Configuration Options
 
-| Option | Type | Default | Description |
-|--------|------|---------|-------------|
-| `mode` | string | `'month'` | Initial view mode ('month', 'week', 'day') |
-| `date` | Date | `new Date()` | Initial date to display |
-| `data` | array | `[]` | Array of event objects to display |
-| `events` | function | `null` | Function to fetch events dynamically |
-| `dayClick` | function | `null` | Callback for day clicks |
-| `eventClick` | function | `null` | Callback for event clicks |
-| `stateChange` | function | `null` | Callback when calendar state changes |
-| `showBackground` | boolean | `false` | Show background colors |
-| `calendarMonthViewType` | string | `'MultiDay'` | Month view type: 'MultiDay' (show events) or 'SingleDay' (event backgrounds only) |
-| `headerBackgroundColor` | string | `null` | Custom header background color |
-| `bodyBackgroundColor` | string | `null` | Custom body background color |
-| `showTimeInEvent` | boolean | `true` | Display time in events |
-| `useShortDays` | boolean | `false` | Use short day names (Mon, Tue) |
-| `showDayAsAllDayEvents` | boolean | `false` | Show day events as all-day |
-| `eventBorder` | boolean | `false` | Add 1px border to calendar events |
-| `showTodayButton` | boolean | `true` | Show/hide Today button |
-| `showMonthYear` | boolean | `true` | Show/hide month/year navigation |
-| `showModeButtons` | boolean | `true` | Show/hide Month/Week/Day buttons |
-| `showNavigation` | boolean | `true` | Show/hide left/right arrow navigation |
-| `theme` | string | `'auto'` | Theme mode: 'auto', 'light', or 'dark' |
-| `todayname` | string | `'Today'` | Text for the Today button |
-| `monthText` | string | `'Month'` | Text for the Month button |
-| `weekText` | string | `'Week'` | Text for the Week button |
-| `dayText` | string | `'Day'` | Text for the Day button |
-| `days` | array | `['Sunday', 'Monday', ...]` | Full day names |
-| `shortDays` | array | `['Sun', 'Mon', ...]` | Short day names |
-| `months` | array | `['January', 'February', ...]` | Full month names |
-| `shortMonths` | array | `['Jan', 'Feb', ...]` | Short month names |
+```javascript
+const calendar = new SimpleCalendarJs('#calendar', {
+    // View Configuration
+    view: 'month',                    // 'month', 'week', or 'day'
+    date: new Date(),                 // Initial date to display
+    fulldayMode: false,               // Show fullday events only
+    
+    // Time Configuration (for week/day views)
+    startHour: 6,                     // Start time for week/day view (0-23)
+    endHour: 22,                      // End time for week/day view (0-23)
+    timeSlotMinutes: 30,              // Time slot intervals (currently supports 30)
+    
+    // Visual Configuration
+    gridBorders: 'both',              // 'both', 'vertical', 'horizontal', 'none'
+    eventBorders: false,              // true/false - whether events should have borders
+    eventBorderColor: '#6c757d',      // Color for event borders (when eventBorders: true)
+    defaultEventColor: '#4c6f94',     // Default color for events without custom colors
+    
+    // UI Element Visibility
+    showMonthButton: true,            // true/false - show month view button
+    showWeekButton: true,             // true/false - show week view button
+    showDayButton: true,              // true/false - show day view button
+    showNavigation: true,             // true/false - show navigation buttons (prev/next)
+    
+    // Data Configuration
+    events: [],                       // Array of event objects OR callback function
+    
+    // Event Handlers
+    dayClick: null,                   // Function called when day is clicked
+    eventClick: null,                 // Function called when event is clicked
+    changeState: null                 // Function called when calendar state changes
+});
+```
 
-## Event Object Format
+## Event Format
 
 ```javascript
-{
-    start: new Date('2024-01-15T10:00:00'),
-    end: new Date('2024-01-15T11:00:00'),
+// Single-day event with basic properties
+const singleEvent = {
+    id: 1,
     title: 'Meeting',
-    backgroundColor: '#007bff',
-    allDay: false
-}
+    date: new Date('2023-12-25'),
+    time: '10:00 AM'           // Optional: for time-based views
+};
+
+// Multi-day event with basic properties
+const multiDayEvent = {
+    id: 2,
+    title: 'Conference',
+    startDate: new Date('2023-12-25'),
+    endDate: new Date('2023-12-27'),
+    time: '9:00 AM'            // Optional: shown on start day
+};
+
+// Event with custom colors and styling
+const coloredEvent = {
+    id: 3,
+    title: 'Important Meeting',
+    date: new Date('2023-12-25'),
+    time: '2:00 PM',
+    color: '#e74c3c',          // Custom color (hex format)
+    colorIsGradient: true      // Apply gradient effect to color
+};
+
+// Event with solid custom color
+const solidColorEvent = {
+    id: 4,
+    title: 'Team Lunch',
+    date: new Date('2023-12-26'),
+    color: '#2ecc71',          // Custom green color
+    colorIsGradient: false     // Use solid color (default behavior)
+};
+
+// Event with gradient using default color
+const defaultGradientEvent = {
+    id: 5,
+    title: 'Training Session',
+    date: new Date('2023-12-27'),
+    colorIsGradient: true      // Use default color with gradient
+};
 ```
 
-## Month View Types
+### Event Color Properties
 
-SimpleCalendarJs supports two distinct month view modes:
+| Property | Type | Description |
+|----------|------|-------------|
+| `color` | string | Hex color code (e.g., '#e74c3c'). If not provided, uses `defaultEventColor` |
+| `colorIsGradient` | boolean | When `true`, creates a subtle gradient effect. When `false` or omitted, uses solid color |
 
-### MultiDay Mode (Default)
-Shows events as text overlays on calendar days. This is the traditional calendar view where event titles are displayed within the day cells.
+### Color Logic
+1. **`event.color` + `colorIsGradient: true`** → Custom color with gradient effect
+2. **`event.color` + `colorIsGradient: false`** → Custom solid color
+3. **`colorIsGradient: true` (no color)** → Default color with gradient effect
+4. **No color properties** → Default solid color
 
-```javascript
-const calendar = new SimpleCalendar('#calendar', {
-    calendarMonthViewType: 'MultiDay', // Default
-    data: [
-        {
-            start: '2024-11-15',
-            end: '2024-11-17', 
-            title: 'Conference',
-            backgroundColor: '#007bff'
-        }
-    ]
-});
-```
+Text color (black or white) is automatically calculated for optimal contrast using WCAG guidelines.
 
-### SingleDay Mode
-Shows event presence through background colors only. Day numbers are centered and no event text is displayed. This provides a clean, minimalist view that highlights which days have events.
+## Event Callbacks
 
 ```javascript
-const calendar = new SimpleCalendar('#calendar', {
-    calendarMonthViewType: 'SingleDay',
-    data: [
-        {
-            start: '2024-11-15',
-            end: '2024-11-17',
-            title: 'Conference', // Title not displayed in SingleDay mode
-            backgroundColor: '#e0e0e0' // Custom color or defaults to gray variations
-        }
-    ]
-});
-```
-
-**SingleDay Mode Features:**
-- Day numbers are centered in the cell
-- Event backgrounds use subtle gray variations by default
-- No event text is displayed for a clean appearance  
-- Custom `backgroundColor` values in events are respected
-- Ideal for overview calendars or when space is limited
-
-## UI Customization
-
-### Visibility Controls
-
-SimpleCalendarJs allows you to customize which UI elements are visible:
-
-```javascript
-const calendar = new SimpleCalendar('#calendar', {
-    showTodayButton: false,    // Hide the "Today" button
-    showMonthYear: false,      // Hide month/year dropdowns
-    showModeButtons: false,    // Hide Month/Week/Day buttons
-    showNavigation: false,     // Hide left/right arrow navigation
-    theme: 'dark',             // Force dark theme
-    eventBorder: true          // Add borders to events
-});
-```
-
-**Visibility Options:**
-- **showTodayButton**: Controls the "Today" button in the header
-- **showMonthYear**: Controls month dropdown, year dropdown, and date display
-- **showModeButtons**: Controls Month/Week/Day view switcher (both desktop and mobile)
-- **showNavigation**: Controls left/right arrow navigation buttons
-
-**Theme Options:**
-- **theme**: Set to 'auto' (default), 'light', or 'dark'
-  - `'auto'`: Detects theme from document, Tailwind classes, or system preference
-  - `'light'`: Forces light theme
-  - `'dark'`: Forces dark theme
-
-**Smart Layout:**
-- When mode buttons are hidden, month/year navigation automatically aligns to the right
-- When mode buttons are visible, month/year stays centered for balanced layout
-
-### Event Styling
-
-Control event appearance with borders and backgrounds:
-
-```javascript
-const calendar = new SimpleCalendar('#calendar', {
-    eventBorder: true,         // Add 1px borders to events
-    showBackground: true,      // Enable background colors
-    headerBackgroundColor: '#e3f2fd',
-    bodyBackgroundColor: '#fafafa'
-});
-```
-
-**Border Features:**
-- **Single events**: Full border with rounded corners
-- **Multi-day events**: Seamless flow with borders only on outer edges
-- **Automatic alignment**: Clear event placeholders maintain proper spacing
-
-### Localization & Customization
-
-SimpleCalendarJs provides comprehensive localization support for multiple languages. You can customize all text elements including button labels, day names, and month names.
-
-#### Built-in Language Support
-
-Choose from pre-configured languages:
-
-```javascript
-// English (default)
-const calendar = new SimpleCalendar('#calendar', {
-    todayname: 'Today',
-    monthText: 'Month',
-    weekText: 'Week', 
-    dayText: 'Day',
-    days: ['Sunday', 'Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday'],
-    shortDays: ['Sun', 'Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat'],
-    months: ['January', 'February', 'March', 'April', 'May', 'June', 
-             'July', 'August', 'September', 'October', 'November', 'December'],
-    shortMonths: ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 
-                  'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec']
-});
-
-// German
-const calendar = new SimpleCalendar('#calendar', {
-    todayname: 'Heute',
-    monthText: 'Monat',
-    weekText: 'Woche',
-    dayText: 'Tag',
-    days: ['Sonntag', 'Montag', 'Dienstag', 'Mittwoch', 'Donnerstag', 'Freitag', 'Samstag'],
-    shortDays: ['So', 'Mo', 'Di', 'Mi', 'Do', 'Fr', 'Sa'],
-    months: ['Januar', 'Februar', 'März', 'April', 'Mai', 'Juni', 
-             'Juli', 'August', 'September', 'Oktober', 'November', 'Dezember'],
-    shortMonths: ['Jan', 'Feb', 'Mär', 'Apr', 'Mai', 'Jun',
-                  'Jul', 'Aug', 'Sep', 'Okt', 'Nov', 'Dez']
-});
-
-// Spanish
-const calendar = new SimpleCalendar('#calendar', {
-    todayname: 'Hoy',
-    monthText: 'Mes',
-    weekText: 'Semana',
-    dayText: 'Día',
-    days: ['Domingo', 'Lunes', 'Martes', 'Miércoles', 'Jueves', 'Viernes', 'Sábado'],
-    shortDays: ['Dom', 'Lun', 'Mar', 'Mié', 'Jue', 'Vie', 'Sáb'],
-    months: ['Enero', 'Febrero', 'Marzo', 'Abril', 'Mayo', 'Junio', 
-             'Julio', 'Agosto', 'Septiembre', 'Octubre', 'Noviembre', 'Diciembre'],
-    shortMonths: ['Ene', 'Feb', 'Mar', 'Abr', 'May', 'Jun',
-                  'Jul', 'Ago', 'Sep', 'Oct', 'Nov', 'Dic']
-});
-
-// French
-const calendar = new SimpleCalendar('#calendar', {
-    todayname: 'Aujourd\'hui',
-    monthText: 'Mois',
-    weekText: 'Semaine',
-    dayText: 'Jour',
-    days: ['Dimanche', 'Lundi', 'Mardi', 'Mercredi', 'Jeudi', 'Vendredi', 'Samedi'],
-    shortDays: ['Dim', 'Lun', 'Mar', 'Mer', 'Jeu', 'Ven', 'Sam'],
-    months: ['Janvier', 'Février', 'Mars', 'Avril', 'Mai', 'Juin', 
-             'Juillet', 'Août', 'Septembre', 'Octobre', 'Novembre', 'Décembre'],
-    shortMonths: ['Jan', 'Fév', 'Mar', 'Avr', 'Mai', 'Jun',
-                  'Jul', 'Aoû', 'Sep', 'Oct', 'Nov', 'Déc']
-});
-```
-
-#### Custom Language Configuration
-
-Create your own language configuration:
-
-```javascript
-const calendar = new SimpleCalendar('#calendar', {
-    todayname: 'Vandaag',        // Dutch: Today
-    monthText: 'Maand',          // Dutch: Month
-    weekText: 'Week',            // Dutch: Week  
-    dayText: 'Dag',              // Dutch: Day
-    days: ['Zondag', 'Maandag', 'Dinsdag', 'Woensdag', 'Donderdag', 'Vrijdag', 'Zaterdag'],
-    shortDays: ['Zo', 'Ma', 'Di', 'Wo', 'Do', 'Vr', 'Za'],
-    months: ['Januari', 'Februari', 'Maart', 'April', 'Mei', 'Juni',
-             'Juli', 'Augustus', 'September', 'Oktober', 'November', 'December'],
-    shortMonths: ['Jan', 'Feb', 'Mrt', 'Apr', 'Mei', 'Jun',
-                  'Jul', 'Aug', 'Sep', 'Okt', 'Nov', 'Dec']
-});
-```
-
-### Data Sources
-
-Use either static data or dynamic event loading:
-
-```javascript
-// Static events
-const calendar = new SimpleCalendar('#calendar', {
-    data: [
-        { start: '2024-11-15', title: 'Meeting', backgroundColor: '#007bff' },
-        { start: '2024-11-20', end: '2024-11-22', title: 'Conference' }
-    ]
-});
-
-// Dynamic events
-const calendar = new SimpleCalendar('#calendar', {
-    events: function(params, callback) {
-        // params contains: defaultDate, start, end
-        fetch('/api/events?' + new URLSearchParams({
-            start: params.start.toISOString(),
-            end: params.end.toISOString()
-        }))
-        .then(response => response.json())
-        .then(callback);
+const calendar = new SimpleCalendarJs('#calendar', {
+    // Dynamic event loading
+    events: function(dateRange) {
+        // Called with {startDate, endDate} for visible range
+        // Return array of events for this range
+        return fetchEventsFromAPI(dateRange.startDate, dateRange.endDate);
+    },
+    
+    // Day click handler
+    dayClick: function(clickInfo, originalEvent) {
+        // clickInfo: {date, time} - time only for time-based views
+        console.log('Clicked on:', clickInfo.date, clickInfo.time);
+    },
+    
+    // Event click handler
+    eventClick: function(event, clickInfo, originalEvent) {
+        // event: the clicked event object
+        // clickInfo: {date, time} - date/time where event was clicked
+        console.log('Clicked event:', event.title, 'at', clickInfo.time);
+    },
+    
+    // State change handler
+    changeState: function(state) {
+        // state: {view, date, fulldayMode, startHour, endHour, timeSlotMinutes}
+        console.log('Calendar state changed:', state);
     }
 });
 ```
 
 ## API Methods
 
-The SimpleCalendar class provides several methods for programmatic control:
-
 ```javascript
-const calendar = new SimpleCalendar('#calendar', options);
+// Navigation
+calendar.navigate('next');                    // Navigate to next period
+calendar.navigate('prev');                    // Navigate to previous period
+calendar.goToDate(new Date());                // Go to specific date
+calendar.goToToday();                         // Go to today
 
-// Update calendar options
-calendar.updateOptions({
-    mode: 'week',
-    eventBorder: true
-});
+// View switching
+calendar.setView('month');                    // 'month', 'week', 'day'
+calendar.setFulldayMode(true);                // Toggle fullday mode
 
-// Get current options
-const currentOptions = calendar.getOptions();
+// Event management
+calendar.addEvent(event);                     // Add single event
+calendar.removeEvent(eventId);                // Remove event by ID
+calendar.setEvents(eventsArray);              // Replace all events
+calendar.setEvents(callbackFunction);         // Set dynamic event loading
 
-// Destroy calendar instance
-calendar.destroy();
+// Visual customization
+calendar.setGridBorders('none');              // 'both', 'vertical', 'horizontal', 'none'
+calendar.setEventBorders(true);               // Enable/disable event borders
+calendar.setEventBorderColor('#ff0000');      // Set event border color
+calendar.setDefaultEventColor('#3498db');     // Set default event color
+
+// UI element visibility
+calendar.setShowMonthButton(true);            // Show/hide month view button
+calendar.setShowWeekButton(true);             // Show/hide week view button
+calendar.setShowDayButton(true);              // Show/hide day view button
+calendar.setShowNavigation(true);             // Show/hide navigation buttons
+calendar.setViewButtonsVisibility(           // Set multiple button visibility at once
+    true,  // month button
+    true,  // week button
+    false  // day button
+);
 ```
 
-### Available Methods
+## CSS Classes
 
-| Method | Description |
-|--------|-------------|
-| `updateOptions(options)` | Updates calendar options and redraws |
-| `getOptions()` | Returns current calendar options |
-| `destroy()` | Removes event listeners and cleans up |
+All CSS classes are prefixed with `sc-` to prevent conflicts:
 
-## State Management
+### Main Structure
+- `.sc-calendar` - Main container
+- `.sc-header` - Calendar header
+- `.sc-content` - Content area
+- `.sc-view-container` - View-specific container
 
-### stateChange Callback
+### Views
+- `.sc-month-view` - Month view container
+- `.sc-week-view` - Week view container  
+- `.sc-day-view` - Day view container
+- `.sc-fullday` - Fullday mode modifier
 
-The `stateChange` callback is triggered whenever the calendar's internal state changes, such as when users click view buttons (Month/Week/Day) or when options are programmatically updated. This enables two-way data binding between the calendar and external controls.
+### Grid & Days
+- `.sc-days-grid` - Grid container for days
+- `.sc-day` - Individual day cell
+- `.sc-day-number` - Day number text
+- `.sc-today` - Today's date styling
+- `.sc-other-month` - Days from other months
 
+### Events
+- `.sc-event-month`, `.sc-event-week`, `.sc-event-day`, `.sc-event-time` - Event containers
+- `.sc-event-text` - Event text content
+- `.sc-event-single` - Single-day event
+- `.sc-event-start` - Multi-day event start
+- `.sc-event-middle` - Multi-day event middle
+- `.sc-event-end` - Multi-day event end
+- `.sc-event-placeholder` - Transparent placeholder for multi-day alignment
+
+### Event Count (Month View - Non-Fullday)
+- `.sc-day-count-mode` - Day cell in count mode
+- `.sc-day-content` - Container for day number and event count
+- `.sc-event-count` - Event count badge with rounded corners
+
+### Headers & Navigation
+- `.sc-nav` - Navigation buttons container
+- `.sc-title` - Month/date title
+- `.sc-view-switcher` - View mode buttons
+- `.sc-btn` - Button styling
+
+### Border Modifiers
+- `.sc-borders-both` - Show all grid borders
+- `.sc-borders-vertical` - Vertical grid borders only
+- `.sc-borders-horizontal` - Horizontal grid borders only  
+- `.sc-borders-none` - No grid borders
+- `.sc-event-borders` - Enable event borders
+- `.sc-event-no-borders` - Disable event borders (default)
+
+## CSS Custom Properties (Variables)
+
+The calendar uses CSS custom properties for easy theming:
+
+```css
+.sc-calendar {
+    --sc-event-color: #4c6f94;           /* Default event background color */
+    --sc-event-border-color: #6c757d;    /* Event border color */
+}
+```
+
+You can customize these by overriding them in your CSS:
+
+```css
+/* Custom theme example */
+.sc-calendar {
+    --sc-event-color: #e74c3c;
+    --sc-event-border-color: #c0392b;
+}
+
+/* Dark theme example */
+.sc-calendar.dark-theme {
+    --sc-event-color: #3498db;
+    background: #2c3e50;
+    color: #ecf0f1;
+}
+```
+
+## Event Count Badges
+
+In month view with `fulldayMode: false`, event counts are displayed as styled badges:
+
+- **Regular days**: Light gray background with dark text
+- **Today**: Blue background with white text  
+- **Other month days**: Very light gray background with muted text
+- **Responsive**: Automatically adjusts size on mobile devices
+- **Rounded corners**: Modern badge appearance with `border-radius: 10px`
+
+## Keyboard Shortcuts
+
+- **Arrow Left/Right** - Navigate to previous/next period
+- **T** - Go to today
+- **M** - Switch to month view
+- **W** - Switch to week view  
+- **D** - Switch to day view
+
+## Time Format
+
+Time strings should be in 12-hour format with AM/PM:
 ```javascript
-const calendar = new SimpleCalendar('#calendar', {
-    stateChange: function(state) {
-        // Update your UI controls to match calendar state
-        document.querySelector('#modeSelector').value = state.mode;
-        document.querySelector('#backgroundToggle').checked = state.showBackground;
-        document.querySelector('#timeToggle').checked = state.showTimeInEvent;
-    }
-});
+'9:00 AM'    // Valid
+'2:30 PM'    // Valid
+'09:00'      // Invalid
+'14:30'      // Invalid
 ```
 
-The state object contains:
-- `mode`: Current view mode ('month', 'week', 'day')
-- `date`: Current date being displayed
-- `showBackground`: Background display setting
-- `showTimeInEvent`: Time display in events setting
-- `useShortDays`: Short day names setting
-- `showDayAsAllDayEvents`: All-day events display setting
-- `eventBorder`: Border display on events setting
-- `showTodayButton`: Today button visibility setting
-- `showMonthYear`: Month/year navigation visibility setting
-- `showModeButtons`: Mode buttons visibility setting
-- `calendarMonthViewType`: Month view type ('MultiDay' or 'SingleDay')
+## Multi-day Events
 
-## Framework Integration
+Multi-day events are automatically detected when `startDate` and `endDate` differ:
+- **Start day**: Shows event title and colored bar
+- **Middle days**: Shows only colored bar (seamless connection)
+- **End day**: Shows only colored bar
 
-### React
+Events spanning across weeks will continue seamlessly in the next row.
 
-```jsx
-import { useEffect, useRef } from 'react';
+## Smart Event Caching
 
-function CalendarComponent({ options }) {
-    const calendarRef = useRef();
-    const calendarInstance = useRef();
+When using callback-based event loading, the calendar implements intelligent caching:
+- Only fetches missing date ranges
+- Merges overlapping ranges automatically
+- Minimizes API calls when navigating
+- Clears cache when `setEvents()` is called
 
-    useEffect(() => {
-        if (calendarRef.current) {
-            calendarInstance.current = new SimpleCalendar(calendarRef.current, options);
-        }
-        
-        return () => {
-            if (calendarInstance.current) {
-                calendarInstance.current.destroy();
-            }
-        };
-    }, []);
+## Color & Accessibility
 
-    useEffect(() => {
-        if (calendarInstance.current) {
-            calendarInstance.current.updateOptions(options);
-        }
-    }, [options]);
+The calendar automatically ensures good color contrast for accessibility:
 
-    return <div ref={calendarRef} />;
-}
+### WCAG Compliance
+- Text color (black or white) is automatically calculated for optimal contrast
+- Uses WCAG relative luminance algorithm to determine text color
+- Ensures contrast ratios meet accessibility standards
+
+### Gradient Algorithm
+When `colorIsGradient: true` is used:
+1. Base color is used as the bottom of the gradient
+2. Top color is calculated by adding 20 to each RGB component (capped at 255)
+3. Creates a subtle top-to-bottom linear gradient effect
+4. Text color is calculated based on the base color luminance
+
+### Color Processing
+```javascript
+// Examples of color processing
+const redEvent = {
+    color: '#e74c3c',           // Red base color
+    colorIsGradient: true       // Creates gradient from #ff6659 to #e74c3c
+};
+// Text color: white (due to dark base color)
+
+const yellowEvent = {
+    color: '#f1c40f',           // Yellow base color  
+    colorIsGradient: true       // Creates gradient from #fff323 to #f1c40f
+};
+// Text color: black (due to light base color)
 ```
-
-### Next.js with Tailwind CSS
-
-SimpleCalendarJs is fully compatible with Tailwind CSS. The calendar includes built-in CSS overrides to prevent conflicts with Tailwind's utility classes.
-
-```jsx
-import { useTheme } from 'next-themes';
-import { useEffect, useRef } from 'react';
-
-function Calendar() {
-    const { theme } = useTheme();
-    const calendarRef = useRef();
-    const calendarInstance = useRef();
-
-    useEffect(() => {
-        if (calendarRef.current) {
-            calendarInstance.current = new SimpleCalendar(calendarRef.current, {
-                theme: theme, // 'light', 'dark', or 'system'
-                showBackground: false, // Set to false for transparent integration with Tailwind
-                // other options...
-            });
-        }
-        
-        return () => {
-            if (calendarInstance.current) {
-                calendarInstance.current.destroy();
-            }
-        };
-    }, [theme]);
-
-    return <div ref={calendarRef} />;
-}
-```
-
-**Tailwind CSS Compatibility Features:**
-- **Automatic CSS specificity**: Built-in overrides prevent Tailwind utility conflicts
-- **Transparent integration**: When `showBackground: false`, buttons and backgrounds are fully transparent
-- **Text visibility**: Day numbers and button text use high-contrast colors that work with both light and dark themes
-- **Reset prevention**: Calendar styles are protected from Tailwind's CSS reset
-
-### Vue 3
-
-```vue
-<template>
-    <div ref="calendar"></div>
-</template>
-
-<script setup>
-import { ref, onMounted, onUnmounted, watch } from 'vue';
-
-const props = defineProps(['options']);
-const calendar = ref();
-let calendarInstance;
-
-onMounted(() => {
-    calendarInstance = new SimpleCalendar(calendar.value, props.options);
-});
-
-onUnmounted(() => {
-    if (calendarInstance) {
-        calendarInstance.destroy();
-    }
-});
-
-watch(() => props.options, (newOptions) => {
-    if (calendarInstance) {
-        calendarInstance.updateOptions(newOptions);
-    }
-}, { deep: true });
-</script>
-```
-
-### Angular
-
-```typescript
-import { Component, ElementRef, Input, OnDestroy, OnInit, ViewChild } from '@angular/core';
-
-@Component({
-    selector: 'simple-calendar',
-    template: '<div #calendar></div>'
-})
-export class SimpleCalendarComponent implements OnInit, OnDestroy {
-    @ViewChild('calendar', { static: true }) calendarRef!: ElementRef;
-    @Input() options: any = {};
-    
-    private calendarInstance: any;
-
-    ngOnInit() {
-        this.calendarInstance = new (window as any).SimpleCalendar(
-            this.calendarRef.nativeElement, 
-            this.options
-        );
-    }
-
-    ngOnDestroy() {
-        if (this.calendarInstance) {
-            this.calendarInstance.destroy();
-        }
-    }
-}
-```
-
-## Responsive Behavior
-
-- **Desktop (768px+)**: Full button navigation with Month | Week | Day buttons
-- **Mobile (<768px)**: Compact hamburger menu for view switching
-- **Touch-friendly**: Optimized touch targets and navigation
 
 ## Browser Support
 
@@ -562,26 +373,25 @@ export class SimpleCalendarComponent implements OnInit, OnDestroy {
 - Safari 12+
 - Edge 79+
 
+## File Structure
+
+```
+simple-calendar-js/
+├── css/
+│   └── simple-calendar-js.css    # Main stylesheet
+├── js/
+│   └── simple-calendar-js.js     # Main JavaScript file
+├── index.html                    # Demo page
+├── README.md                     # This file
+└── package.json                  # Package configuration
+```
+
 ## License
 
-**Free for Personal and Non-Commercial Use**
+**Personal and Non-Commercial Use License**
 
-This software is free to use for personal projects, educational purposes, and non-commercial applications.
+This project is free for personal, educational, and non-commercial use.
 
-**Commercial License Required**
+**Commercial use requires a separate license.** See [LICENSE](LICENSE) file for details.
 
-For commercial use (websites, applications, or services that generate revenue), you must purchase a commercial license.
-
-👉 **[Buy Commercial License](https://www.simplecalendarjs.com)**
-
-See the [LICENSE](LICENSE) file for full terms.
-
-## Support
-
-- 📧 Email: simplecalendarjs@gmail.com
-- 🌐 Website: [https://www.simplecalendarjs.com](https://www.simplecalendarjs.com)
-- 📖 Documentation: Available on the website
-
-## Author
-
-Pedro Lopes
+For commercial licensing: simplecalendarjs@gmail.com
