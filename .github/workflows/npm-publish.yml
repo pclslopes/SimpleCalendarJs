@@ -20,13 +20,19 @@ jobs:
           node-version: '18'
           registry-url: 'https://registry.npmjs.org'
           
+      - name: Install dependencies
+        run: npm ci
+        
+      - name: Build project
+        run: npm run build
+          
       - name: Verify package files
         run: |
           echo "Package name: $(node -p "require('./package.json').name")"
           echo "Package version: $(node -p "require('./package.json').version")"
           echo "Verifying required files exist:"
-          ls -la js/SimpleCalendarJs.js
-          ls -la css/SimpleCalendarJs.css
+          ls -la dist/SimpleCalendarJs.min.js
+          ls -la dist/SimpleCalendarJs.min.css
           ls -la LICENSE
           ls -la README.md
         
