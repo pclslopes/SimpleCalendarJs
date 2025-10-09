@@ -1367,6 +1367,15 @@
     border-bottom: none;
 }
 
+/* Always show hour lines in week view time slots */
+.sc-week-view:not(.sc-fullday) .sc-time-slot {
+    border-bottom: 1px solid var(--sc-border-color) !important;
+}
+
+.sc-week-view:not(.sc-fullday) .sc-day-column {
+    border-bottom: 1px solid var(--sc-border-color) !important;
+}
+
 /* Week view fullday day cells */
 .sc-borders-both .sc-week-view.sc-fullday .sc-day {
     border-right: 1px solid var(--sc-border-color);
@@ -1444,6 +1453,24 @@
 .sc-borders-vertical .sc-half-hour-line,
 .sc-borders-none .sc-half-hour-line {
     border-top: none;
+}
+
+/* Always show half-hour lines in week view time slots */
+.sc-week-view:not(.sc-fullday) .sc-half-hour-line {
+    border-top: 1px dotted var(--sc-border-color) !important;
+}
+
+/* Always show hour and half-hour lines in day view time slots */
+.sc-day-view:not(.sc-fullday) .sc-time-slot {
+    border-bottom: 1px solid var(--sc-border-color) !important;
+}
+
+.sc-day-view:not(.sc-fullday) .sc-day-column {
+    border-bottom: 1px solid var(--sc-border-color) !important;
+}
+
+.sc-day-view:not(.sc-fullday) .sc-half-hour-line {
+    border-top: 1px dotted var(--sc-border-color) !important;
 }
 
 /* Add right border to the grid container for complete border coverage */
