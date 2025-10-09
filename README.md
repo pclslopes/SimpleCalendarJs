@@ -13,6 +13,12 @@ A pure JavaScript calendar component with no dependencies. Features responsive d
 - **Smart Event Fetching** - Callback-based event loading with intelligent caching
 - **Event Callbacks** - Day click, event click, and state change handlers
 - **Grid Border Control** - Customizable grid borders (both, vertical, horizontal, none)
+- **Internationalization** - Full localization support for weekdays, months, and UI labels
+- **Month/Year Dropdowns** - Quick navigation with clickable month and year selectors
+- **Color Customization** - Comprehensive theming system with light/dark mode support
+- **Theme Integration** - Built-in dark theme with automatic color adaptation
+- **Enhanced Navigation** - Transparent navigation buttons with theme-aware hover effects
+- **Always-Visible Time Lines** - Hour and half-hour lines remain visible regardless of grid settings
 - **CSS Prefix** - All classes prefixed with 'sc-' to avoid conflicts
 - **Template Strings** - Clean HTML generation using template literals
 - **Event Support** - Add, remove, and display events
@@ -68,6 +74,54 @@ const calendar = new SimpleCalendarJs('#calendar', {
     showDayButton: true,              // true/false - show day view button
     showNavigation: true,             // true/false - show navigation buttons (prev/next)
     
+    // Localization Options
+    weekdays: ['Sunday', 'Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday'],
+    months: ['January', 'February', 'March', 'April', 'May', 'June', 'July', 'August', 'September', 'October', 'November', 'December'],
+    showWeekdayChars: null,           // null = full weekday names, number = show first N characters
+    labels: {                         // UI labels for buttons and text
+        month: 'Month',
+        week: 'Week', 
+        day: 'Day',
+        events: 'events',             // Badge text (plural)
+        event: 'event',               // Badge text (singular)
+        before: 'Before',             // Time slot label for early times
+        after: 'After'                // Time slot label for late times
+    },
+    
+    // Color Customization
+    colors: {
+        // Light theme colors (defaults)
+        background: '#ffffff',
+        backgroundSecondary: '#f8f9fa',
+        backgroundTertiary: '#ecf0f1',
+        text: '#212529',
+        textSecondary: '#6c757d',
+        textMuted: '#adb5bd',
+        border: '#e9ecef',
+        borderLight: '#dee2e6',
+        accent: '#4c6f94',
+        accentHover: '#0056b3',
+        todayBg: '#e3f2fd',
+        todayText: '#dc3545',
+        hoverBg: '#f8f9fa',
+        // Dark theme colors (auto-applied when data-theme="dark")
+        dark: {
+            background: '#2d2d2d',
+            backgroundSecondary: '#3a3a3a',
+            backgroundTertiary: '#4a4a4a',
+            text: '#ffffff',
+            textSecondary: '#cccccc',
+            textMuted: '#888888',
+            border: '#444444',
+            borderLight: '#555555',
+            accent: '#4a90e2',
+            accentHover: '#357abd',
+            todayBg: '#1a2f4a',
+            todayText: '#ff6b6b',
+            hoverBg: '#2d2d2d'
+        }
+    },
+    
     // Data Configuration
     events: [],                       // Array of event objects OR callback function
     
@@ -77,6 +131,163 @@ const calendar = new SimpleCalendarJs('#calendar', {
     changeState: null                 // Function called when calendar state changes
 });
 ```
+
+## Localization
+
+SimpleCalendarJs supports full internationalization with customizable text and date formats:
+
+```javascript
+const calendar = new SimpleCalendarJs('#calendar', {
+    // Portuguese example
+    weekdays: ['Domingo', 'Segunda', 'Terça', 'Quarta', 'Quinta', 'Sexta', 'Sábado'],
+    months: ['Janeiro', 'Fevereiro', 'Março', 'Abril', 'Maio', 'Junho', 'Julho', 'Agosto', 'Setembro', 'Outubro', 'Novembro', 'Dezembro'],
+    showWeekdayChars: 3,              // Show only first 3 characters: "Dom", "Seg", etc.
+    labels: {
+        month: 'Mês',
+        week: 'Semana', 
+        day: 'Dia',
+        events: 'eventos',
+        event: 'evento',
+        before: 'Antes das',
+        after: 'Depois das'
+    }
+});
+
+// French example
+const frenchCalendar = new SimpleCalendarJs('#calendar', {
+    weekdays: ['Dimanche', 'Lundi', 'Mardi', 'Mercredi', 'Jeudi', 'Vendredi', 'Samedi'],
+    months: ['Janvier', 'Février', 'Mars', 'Avril', 'Mai', 'Juin', 'Juillet', 'Août', 'Septembre', 'Octobre', 'Novembre', 'Décembre'],
+    showWeekdayChars: 2,              // Show first 2 characters: "Di", "Lu", etc.
+    labels: {
+        month: 'Mois',
+        week: 'Semaine',
+        day: 'Jour',
+        events: 'événements',
+        event: 'événement',
+        before: 'Avant',
+        after: 'Après'
+    }
+});
+```
+
+### Weekday Display Options
+- **`showWeekdayChars: null`** - Show full weekday names (default)
+- **`showWeekdayChars: 3`** - Show first 3 characters ("Sun", "Mon", etc.)
+- **`showWeekdayChars: 1`** - Show single character ("S", "M", etc.)
+
+## Month/Year Navigation
+
+In month view, clicking on the month or year title opens dropdown menus for quick navigation:
+
+### Features
+- **Month Dropdown** - Click month title to select any month
+- **Year Dropdown** - Click year title to select from a range of years
+- **Keyboard Support** - Navigate with arrow keys and Enter
+- **Auto-scroll** - Current month/year automatically scrolls into view
+- **Compact Design** - Minimal dropdown styling that adapts to themes
+
+### Styling
+The dropdowns automatically inherit the calendar's theme and can be customized via CSS:
+
+```css
+.sc-month-dropdown, .sc-year-dropdown {
+    /* Customize dropdown appearance */
+    max-height: 200px;
+    background: var(--sc-bg-secondary);
+    border: 1px solid var(--sc-border-color);
+}
+
+.sc-month-option:hover, .sc-year-option:hover {
+    background: var(--sc-hover-bg);
+    color: var(--sc-accent-color);
+}
+```
+
+## Color Customization
+
+SimpleCalendarJs provides a comprehensive color system that supports partial customization and automatic theme switching:
+
+### Basic Color Override
+```javascript
+const calendar = new SimpleCalendarJs('#calendar', {
+    colors: {
+        background: '#f0f8ff',        // Only override background
+        accent: '#ff6b6b'             // Only override accent color
+        // All other colors use defaults
+    }
+});
+```
+
+### Full Theme Customization
+```javascript
+const calendar = new SimpleCalendarJs('#calendar', {
+    colors: {
+        // Light theme colors
+        background: '#ffffff',
+        backgroundSecondary: '#f8f9fa',
+        backgroundTertiary: '#ecf0f1',
+        text: '#212529',
+        textSecondary: '#6c757d',
+        textMuted: '#adb5bd',
+        border: '#e9ecef',
+        borderLight: '#dee2e6',
+        accent: '#4c6f94',
+        accentHover: '#0056b3',
+        todayBg: '#e3f2fd',
+        todayText: '#dc3545',
+        hoverBg: '#f8f9fa',
+        
+        // Dark theme colors (optional)
+        dark: {
+            background: '#1a1a1a',
+            backgroundSecondary: '#2d2d2d',
+            backgroundTertiary: '#3a3a3a',
+            text: '#ffffff',
+            textSecondary: '#cccccc',
+            textMuted: '#888888',
+            border: '#444444',
+            borderLight: '#555555',
+            accent: '#4a90e2',
+            accentHover: '#357abd',
+            todayBg: '#1a2f4a',
+            todayText: '#ff6b6b',
+            hoverBg: '#2d2d2d'
+        }
+    }
+});
+```
+
+### Transparent Values
+Any color property can be set to `'transparent'` for seamless integration:
+
+```javascript
+colors: {
+    background: 'transparent',        // Calendar blends with page background
+    border: 'transparent',           // Remove all borders
+    hoverBg: 'transparent'           // Disable hover backgrounds
+}
+```
+
+### Color Properties Reference
+
+| Property | Description | Default (Light) | Default (Dark) |
+|----------|-------------|-----------------|----------------|
+| `background` | Main calendar background | `#ffffff` | `#2d2d2d` |
+| `backgroundSecondary` | Secondary backgrounds | `#f8f9fa` | `#3a3a3a` |
+| `backgroundTertiary` | Controls and headers | `#ecf0f1` | `#4a4a4a` |
+| `text` | Primary text color | `#212529` | `#ffffff` |
+| `textSecondary` | Secondary text | `#6c757d` | `#cccccc` |
+| `textMuted` | Muted/disabled text | `#adb5bd` | `#888888` |
+| `border` | Grid and element borders | `#e9ecef` | `#444444` |
+| `borderLight` | Light accent borders | `#dee2e6` | `#555555` |
+| `accent` | Active states and highlights | `#4c6f94` | `#4a90e2` |
+| `accentHover` | Hover states | `#0056b3` | `#357abd` |
+| `todayBg` | Today's date background | `#e3f2fd` | `#1a2f4a` |
+| `todayText` | Today's date text | `#dc3545` | `#ff6b6b` |
+| `hoverBg` | Hover backgrounds | `#f8f9fa` | `#2d2d2d` |
+
+### Theme Integration
+The calendar automatically detects `data-theme="dark"` on parent elements and applies dark colors accordingly. Perfect for integration with existing website theme systems.
 
 ## Event Format
 
@@ -250,8 +461,16 @@ All CSS classes are prefixed with `sc-` to prevent conflicts:
 ### Headers & Navigation
 - `.sc-nav` - Navigation buttons container
 - `.sc-title` - Month/date title
+- `.sc-title-month` - Clickable month title (in month view)
+- `.sc-title-year` - Clickable year title (in month view)
 - `.sc-view-switcher` - View mode buttons
 - `.sc-btn` - Button styling
+
+### Dropdown Navigation
+- `.sc-month-dropdown` - Month selection dropdown
+- `.sc-year-dropdown` - Year selection dropdown
+- `.sc-month-option` - Individual month option
+- `.sc-year-option` - Individual year option
 
 ### Border Modifiers
 - `.sc-borders-both` - Show all grid borders
@@ -263,8 +482,9 @@ All CSS classes are prefixed with `sc-` to prevent conflicts:
 
 ## CSS Custom Properties (Variables)
 
-The calendar uses CSS custom properties for easy theming:
+The calendar uses CSS custom properties for comprehensive theming. These are automatically managed by the color customization system, but can also be overridden directly:
 
+### Event Colors
 ```css
 .sc-calendar {
     --sc-event-color: #4c6f94;           /* Default event background color */
@@ -272,32 +492,108 @@ The calendar uses CSS custom properties for easy theming:
 }
 ```
 
-You can customize these by overriding them in your CSS:
-
+### Theme Colors (Auto-managed)
 ```css
-/* Custom theme example */
 .sc-calendar {
-    --sc-event-color: #e74c3c;
-    --sc-event-border-color: #c0392b;
+    /* Main backgrounds */
+    --sc-bg-primary: #ffffff;
+    --sc-bg-secondary: #f8f9fa;
+    --sc-bg-tertiary: #ecf0f1;
+    
+    /* Text colors */
+    --sc-text-primary: #212529;
+    --sc-text-secondary: #6c757d;
+    --sc-text-muted: #adb5bd;
+    
+    /* Borders */
+    --sc-border-color: #e9ecef;
+    --sc-border-light: #dee2e6;
+    
+    /* Interactive elements */
+    --sc-accent-color: #4c6f94;
+    --sc-accent-hover: #0056b3;
+    --sc-today-bg: #e3f2fd;
+    --sc-today-text: #dc3545;
+    --sc-hover-bg: #f8f9fa;
 }
 
-/* Dark theme example */
-.sc-calendar.dark-theme {
-    --sc-event-color: #3498db;
-    background: #2c3e50;
-    color: #ecf0f1;
+/* Dark theme variables (auto-applied with data-theme="dark") */
+[data-theme="dark"] .sc-calendar {
+    --sc-bg-primary: #2d2d2d;
+    --sc-bg-secondary: #3a3a3a;
+    --sc-bg-tertiary: #4a4a4a;
+    --sc-text-primary: #ffffff;
+    --sc-text-secondary: #cccccc;
+    --sc-text-muted: #888888;
+    --sc-border-color: #444444;
+    --sc-border-light: #555555;
+    --sc-accent-color: #4a90e2;
+    --sc-accent-hover: #357abd;
+    --sc-today-bg: #1a2f4a;
+    --sc-today-text: #ff6b6b;
+    --sc-hover-bg: #2d2d2d;
+}
+```
+
+### Manual Override Example
+```css
+/* Custom theme using CSS variables */
+.sc-calendar {
+    --sc-bg-primary: #f0f8ff;
+    --sc-accent-color: #ff6b6b;
+    --sc-today-bg: #ffe4e1;
+}
+
+/* Dark theme integration */
+[data-theme="dark"] .sc-calendar {
+    --sc-bg-primary: #1e1e1e;
+    --sc-accent-color: #ff8a80;
 }
 ```
 
 ## Event Count Badges
 
-In month view with `fulldayMode: false`, event counts are displayed as styled badges:
+In month view with `fulldayMode: false`, event counts are displayed as styled badges with theme-aware coloring:
 
-- **Regular days**: Light gray background with dark text
-- **Today**: Blue background with white text  
-- **Other month days**: Very light gray background with muted text
+- **Regular days**: Uses default event color with reduced opacity for background
+- **Today**: Full default event color background with white text
+- **Other month days**: Muted background with secondary text color
+- **Theme adaptive**: Automatically adjusts colors for light/dark themes
 - **Responsive**: Automatically adjusts size on mobile devices
 - **Rounded corners**: Modern badge appearance with `border-radius: 10px`
+
+### Badge Color Logic
+- Background uses `color-mix()` function to blend event color with theme background
+- Text color adapts to theme (darker in light mode, lighter in dark mode)
+- Today's badge uses full event color saturation for emphasis
+- Seamlessly integrates with custom color schemes
+
+## Enhanced Styling Features
+
+### Navigation Button Styling
+- **Transparent Background**: Navigation arrows have transparent backgrounds in both themes
+- **Theme-Aware Hover**: Hover effects use the default event color for consistency
+- **Proper Contrast**: Arrow colors automatically adjust for light/dark themes
+
+### View Button Styling  
+- **Active State**: Uses default event color when view button is active
+- **Inactive State**: Transparent background with theme-appropriate text color
+- **Consistent Theming**: Seamlessly adapts to color customization
+
+### Time Lines Enhancement
+- **Always Visible**: Hour and half-hour lines remain visible regardless of grid border settings
+- **Proper Hierarchy**: Uses `!important` declarations to ensure visibility
+- **Theme Integration**: Line colors adapt to current theme automatically
+
+### Today Highlighting
+- **Enhanced Contrast**: Today's background is darker in dark mode for better visibility
+- **Cross-View Consistency**: Today highlighting works consistently across month, week, and day views
+- **Customizable Colors**: Today colors can be overridden via color customization system
+
+### Page Integration
+- **Scrollable Layout**: Calendar no longer uses fixed positioning, allowing page scrolling
+- **Flexible Container**: Adapts to parent container constraints
+- **Better Integration**: Easier to embed in existing page layouts
 
 ## Keyboard Shortcuts
 

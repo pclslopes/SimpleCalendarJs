@@ -1,5 +1,5 @@
 /**
- * SimpleCalendarJs v2.0.1
+ * SimpleCalendarJs v2.0.2
  * A clean, modern, and feature-rich JavaScript calendar component with zero dependencies
  * 
  * @author Pedro Lopes <simplecalendarjs@gmail.com>
@@ -11,6 +11,44 @@
 class SimpleCalendarJs {
     constructor(container, options = {}) {
         this.container = typeof container === 'string' ? document.querySelector(container) : container;
+        
+        // Default colors
+        const defaultColors = {
+            // Light theme colors (defaults)
+            background: '#ffffff',
+            backgroundSecondary: '#f8f9fa', 
+            backgroundTertiary: '#ecf0f1',
+            text: '#212529',
+            textSecondary: '#6c757d',
+            textMuted: '#adb5bd',
+            border: '#e9ecef',
+            borderLight: '#dee2e6',
+            accent: '#4c6f94',
+            accentHover: '#0056b3',
+            todayBg: '#e3f2fd',
+            todayText: '#dc3545',
+            hoverBg: '#f8f9fa',
+            // Dark theme colors (auto-applied when data-theme="dark")
+            dark: {
+                background: '#2d2d2d',
+                backgroundSecondary: '#3a3a3a',
+                backgroundTertiary: '#4a4a4a',
+                text: '#ffffff',
+                textSecondary: '#cccccc',
+                textMuted: '#888888',
+                border: '#444444',
+                borderLight: '#555555',
+                accent: '#4a90e2',
+                accentHover: '#357abd',
+                todayBg: '#1a2f4a',
+                todayText: '#ff6b6b',
+                hoverBg: '#2d2d2d'
+            }
+        };
+        
+        // Merge user colors with defaults
+        const mergedColors = this.mergeColors(defaultColors, options.colors || {});
+        
         this.options = {
             view: 'month',
             date: new Date(),
@@ -35,7 +73,11 @@ class SimpleCalendarJs {
             months: ['January', 'February', 'March', 'April', 'May', 'June', 'July', 'August', 'September', 'October', 'November', 'December'],
             showWeekdayChars: null, // null = full weekday names, number = show first N characters
             labels: { month: 'Month', week: 'Week', day: 'Day', events: 'events', event: 'event', before: 'Before', after: 'After' }, // UI labels
-            ...options
+            // Color customization options
+            colors: mergedColors,
+            ...options,
+            // Ensure colors don't get overwritten by spread operator
+            colors: mergedColors
         };
         
         this.currentDate = new Date(this.options.date);
@@ -50,6 +92,29 @@ class SimpleCalendarJs {
         this.init();
     }
     
+    mergeColors(defaultColors, userColors) {
+        const merged = { ...defaultColors };
+        
+        // Merge light theme colors
+        Object.keys(userColors).forEach(key => {
+            if (key !== 'dark' && userColors[key] !== undefined) {
+                merged[key] = userColors[key];
+            }
+        });
+        
+        // Merge dark theme colors if provided
+        if (userColors.dark) {
+            merged.dark = { ...defaultColors.dark };
+            Object.keys(userColors.dark).forEach(key => {
+                if (userColors.dark[key] !== undefined) {
+                    merged.dark[key] = userColors.dark[key];
+                }
+            });
+        }
+        
+        return merged;
+    }
+    
     init() {
         this.container.innerHTML = this.getCalendarTemplate();
         this.applyGridBorders();
@@ -57,6 +122,7 @@ class SimpleCalendarJs {
         this.applyEventColor();
         this.applyViewButtonVisibility();
         this.applyNavigationVisibility();
+        this.applyCustomColors();
         this.bindEvents();
         this.render();
     }
@@ -146,6 +212,62 @@ class SimpleCalendarJs {
         if (navContainer) {
             navContainer.style.visibility = this.options.showNavigation ? 'visible' : 'hidden';
         }
+    }
+
+    applyCustomColors() {
+        const calendar = this.container.querySelector('.sc-calendar');
+        if (!calendar) return;
+
+        const colors = this.options.colors;
+
+        // Helper function to generate CSS variable declaration only if value is defined
+        const cssVar = (name, value) => value !== undefined ? `--${name}: ${value} !important;` : '';
+
+        // Create CSS for both light and dark themes with proper specificity
+        const customCSS = `
+            .sc-calendar {
+                ${cssVar('sc-bg-primary', colors.background)}
+                ${cssVar('sc-bg-secondary', colors.backgroundSecondary)}
+                ${cssVar('sc-bg-tertiary', colors.backgroundTertiary)}
+                ${cssVar('sc-text-primary', colors.text)}
+                ${cssVar('sc-text-secondary', colors.textSecondary)}
+                ${cssVar('sc-text-muted', colors.textMuted)}
+                ${cssVar('sc-border-color', colors.border)}
+                ${cssVar('sc-border-light', colors.borderLight)}
+                ${cssVar('sc-accent-color', colors.accent)}
+                ${cssVar('sc-accent-hover', colors.accentHover)}
+                ${cssVar('sc-today-bg', colors.todayBg)}
+                ${cssVar('sc-today-text', colors.todayText)}
+                ${cssVar('sc-hover-bg', colors.hoverBg)}
+            }
+
+            ${colors.dark ? `
+                [data-theme="dark"] .sc-calendar {
+                    ${cssVar('sc-bg-primary', colors.dark.background)}
+                    ${cssVar('sc-bg-secondary', colors.dark.backgroundSecondary)}
+                    ${cssVar('sc-bg-tertiary', colors.dark.backgroundTertiary)}
+                    ${cssVar('sc-text-primary', colors.dark.text)}
+                    ${cssVar('sc-text-secondary', colors.dark.textSecondary)}
+                    ${cssVar('sc-text-muted', colors.dark.textMuted)}
+                    ${cssVar('sc-border-color', colors.dark.border)}
+                    ${cssVar('sc-border-light', colors.dark.borderLight)}
+                    ${cssVar('sc-accent-color', colors.dark.accent)}
+                    ${cssVar('sc-accent-hover', colors.dark.accentHover)}
+                    ${cssVar('sc-today-bg', colors.dark.todayBg)}
+                    ${cssVar('sc-today-text', colors.dark.todayText)}
+                    ${cssVar('sc-hover-bg', colors.dark.hoverBg)}
+                }
+            ` : ''}
+        `;
+
+        // Add or update custom colors style tag
+        let styleTag = document.getElementById('sc-custom-colors');
+        if (!styleTag) {
+            styleTag = document.createElement('style');
+            styleTag.id = 'sc-custom-colors';
+            document.head.appendChild(styleTag);
+        }
+        styleTag.textContent = customCSS;
     }
     
     getCalendarTemplate() {
