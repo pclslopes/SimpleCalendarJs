@@ -131,6 +131,11 @@
     justify-self: start;
 }
 
+.sc-title-container {
+    position: relative;
+    justify-self: center;
+}
+
 .sc-title {
     margin: 0;
     font-size: 1.25rem;
@@ -138,7 +143,92 @@
     color: var(--sc-text-primary);
     white-space: nowrap;
     text-align: center;
-    justify-self: center;
+    user-select: none;
+}
+
+.sc-title-month,
+.sc-title-year {
+    cursor: pointer;
+    padding: 2px 4px;
+    border-radius: 3px;
+    transition: background-color 0.2s ease;
+}
+
+.sc-title-month:hover,
+.sc-title-year:hover {
+    color: var(--sc-event-color, #4c6f94);
+}
+
+.sc-month-dropdown {
+    position: absolute;
+    top: 100%;
+    left: 50%;
+    transform: translateX(-50%);
+    background: var(--sc-bg-primary);
+    border: 1px solid var(--sc-border-color);
+    border-radius: 4px;
+    z-index: 1000;
+    min-width: 120px;
+    box-shadow: var(--sc-shadow-enabled);
+    max-height: 240px;
+    overflow-y: auto;
+}
+
+.sc-month-option {
+    padding: 4px 8px;
+    font-size: 0.75rem;
+    color: var(--sc-text-primary);
+    cursor: pointer;
+    transition: background-color 0.2s ease;
+}
+
+.sc-month-option:hover {
+    background: var(--sc-bg-tertiary);
+}
+
+.sc-month-option.sc-current {
+    background: var(--sc-event-color, #4c6f94);
+    color: white;
+}
+
+.sc-month-option.sc-current:hover {
+    background: color-mix(in srgb, var(--sc-event-color, #4c6f94) 85%, black);
+}
+
+.sc-year-dropdown {
+    position: absolute;
+    top: 100%;
+    right: -20px;
+    background: var(--sc-bg-primary);
+    border: 1px solid var(--sc-border-color);
+    border-radius: 4px;
+    z-index: 1000;
+    min-width: 100px;
+    box-shadow: var(--sc-shadow-enabled);
+    max-height: 240px;
+    overflow-y: auto;
+}
+
+.sc-year-option {
+    padding: 4px 8px;
+    font-size: 0.75rem;
+    color: var(--sc-text-primary);
+    cursor: pointer;
+    transition: background-color 0.2s ease;
+    text-align: center;
+}
+
+.sc-year-option:hover {
+    background: var(--sc-bg-tertiary);
+}
+
+.sc-year-option.sc-current {
+    background: var(--sc-event-color, #4c6f94);
+    color: white;
+}
+
+.sc-year-option.sc-current:hover {
+    background: color-mix(in srgb, var(--sc-event-color, #4c6f94) 85%, black);
 }
 
 .sc-btn {
@@ -1109,10 +1199,13 @@
         justify-self: center;
     }
     
-    .sc-title {
+    .sc-title-container {
         grid-row: 2;
-        font-size: 1.125rem;
         justify-self: center;
+    }
+    
+    .sc-title {
+        font-size: 1.125rem;
     }
     
     .sc-nav {
@@ -1406,6 +1499,13 @@
 .sc-borders-both .sc-day-header {
     border-right: 1px solid var(--sc-border-color);
     border-bottom: 1px solid var(--sc-border-color);
+    /*border-left: 1px solid var(--sc-border-color);*/
+}
+
+.sc-borders-both .sc-time-column-header:first-child,
+.sc-borders-both .sc-day-header:first-child,
+.sc-borders-vertical .sc-time-column-header:first-child,
+.sc-borders-vertical .sc-day-header:first-child {
     border-left: 1px solid var(--sc-border-color);
 }
 
@@ -1463,7 +1563,14 @@
 /* Always show hour and half-hour lines in day view time slots */
 .sc-day-view:not(.sc-fullday) .sc-time-slot {
     border-bottom: 1px solid var(--sc-border-color) !important;
+    
 }
+
+.sc-borders-both .sc-day-view:not(.sc-fullday) .sc-time-slot, 
+.sc-borders-vertical .sc-day-view:not(.sc-fullday) .sc-time-slot {
+    border-left: 1px solid var(--sc-border-color) !important;
+}
+
 
 .sc-day-view:not(.sc-fullday) .sc-day-column {
     border-bottom: 1px solid var(--sc-border-color) !important;

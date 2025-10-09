@@ -156,7 +156,19 @@ class SimpleCalendarJs {
                         <button class="sc-btn sc-prev">←</button>
                         <button class="sc-btn sc-next">→</button>
                     </div>
-                    <h2 class="sc-title"></h2>
+                    <div class="sc-title-container">
+                        <h2 class="sc-title">
+                            <span class="sc-title-month"></span>
+                            <span class="sc-title-year"></span>
+                        </h2>
+                        <div class="sc-month-dropdown" style="display: none;">
+                            ${this.options.months.map((month, index) => 
+                                `<div class="sc-month-option" data-month="${index}">${month}</div>`
+                            ).join('')}
+                        </div>
+                        <div class="sc-year-dropdown" style="display: none;">
+                        </div>
+                    </div>
                     <div class="sc-view-switcher">
                         <button class="sc-btn sc-view-btn ${this.view === 'month' ? 'sc-active' : ''}" data-view="month">${this.options.labels.month}</button>
                         <button class="sc-btn sc-view-btn ${this.view === 'week' ? 'sc-active' : ''}" data-view="week">${this.options.labels.week}</button>
@@ -189,6 +201,88 @@ class SimpleCalendarJs {
         this.container.addEventListener('click', (e) => {
             this.handleCalendarClick(e);
         });
+
+
+        // Click outside to close dropdowns (only bind once)
+        if (!this.outsideClickBound) {
+            document.addEventListener('click', (e) => {
+                if (!e.target.closest('.sc-title-container')) {
+                    this.hideMonthDropdown();
+                    this.hideYearDropdown();
+                }
+            });
+            this.outsideClickBound = true;
+        }
+    }
+
+    bindMonthViewDropdowns() {
+        // Only bind if we're in month view and elements exist
+        if (this.view !== 'month') return;
+        
+        console.log('Attempting to bind dropdown events...');
+        
+        const titleMonth = this.container.querySelector('.sc-title-month');
+        const titleYear = this.container.querySelector('.sc-title-year');
+        
+        console.log('titleMonth:', titleMonth);
+        console.log('titleYear:', titleYear);
+        
+        // Remove old event listeners by cloning elements (removes all listeners)
+        if (titleMonth) {
+            console.log('Binding month click');
+            const newTitleMonth = titleMonth.cloneNode(true);
+            titleMonth.parentNode.replaceChild(newTitleMonth, titleMonth);
+            newTitleMonth.addEventListener('click', (e) => {
+                console.log('Month clicked!');
+                e.stopPropagation();
+                this.hideYearDropdown();
+                this.toggleMonthDropdown();
+            });
+        }
+
+        if (titleYear) {
+            console.log('Binding year click');
+            const newTitleYear = titleYear.cloneNode(true);
+            titleYear.parentNode.replaceChild(newTitleYear, titleYear);
+            newTitleYear.addEventListener('click', (e) => {
+                console.log('Year clicked!');
+                e.stopPropagation();
+                this.hideMonthDropdown();
+                this.toggleYearDropdown();
+            });
+        }
+
+        // Generate year options first
+        this.generateYearOptions();
+        
+        // Use event delegation for dropdown options to avoid rebinding issues
+        // Remove any existing dropdown click handler
+        if (this.dropdownOptionsHandler) {
+            this.container.removeEventListener('click', this.dropdownOptionsHandler);
+        }
+        
+        // Create new dropdown options handler
+        this.dropdownOptionsHandler = (e) => {
+            if (e.target.classList.contains('sc-month-option')) {
+                console.log('Month option clicked:', e.target.getAttribute('data-month'));
+                const monthIndex = parseInt(e.target.getAttribute('data-month'));
+                this.setMonth(monthIndex);
+                this.hideMonthDropdown();
+            } else if (e.target.classList.contains('sc-year-option')) {
+                console.log('Year option clicked:', e.target.getAttribute('data-year'));
+                const year = parseInt(e.target.getAttribute('data-year'));
+                this.setYear(year);
+                this.hideYearDropdown();
+            }
+        };
+        
+        this.container.addEventListener('click', this.dropdownOptionsHandler);
+        
+        const monthOptions = this.container.querySelectorAll('.sc-month-option');
+        const yearOptions = this.container.querySelectorAll('.sc-year-option');
+        
+        console.log('monthOptions:', monthOptions.length);
+        console.log('yearOptions:', yearOptions.length);
     }
     
     calculatePreciseTime(dayElement, originalEvent) {
@@ -217,6 +311,16 @@ class SimpleCalendarJs {
     }
     
     handleCalendarClick(e) {
+        // Skip if this is a dropdown-related click
+        if (e.target.classList.contains('sc-title-month') || 
+            e.target.classList.contains('sc-title-year') ||
+            e.target.classList.contains('sc-month-option') ||
+            e.target.classList.contains('sc-year-option') ||
+            e.target.closest('.sc-month-dropdown') ||
+            e.target.closest('.sc-year-dropdown')) {
+            return;
+        }
+        
         // Handle event clicks
         const eventElement = e.target.closest('[data-event-id]');
         if (eventElement) {
@@ -298,6 +402,154 @@ class SimpleCalendarJs {
         this.render();
         this.triggerChangeState();
     }
+
+    toggleMonthDropdown() {
+        if (this.view !== 'month') return; // Only show dropdown in month view
+        
+        const dropdown = this.container.querySelector('.sc-month-dropdown');
+        
+        if (dropdown) {
+            const isVisible = dropdown.style.display !== 'none';
+            
+            if (isVisible) {
+                this.hideMonthDropdown();
+            } else {
+                // Highlight current month and show dropdown
+                this.updateMonthDropdownSelection();
+                dropdown.style.display = 'block';
+                this.scrollToActiveMonth();
+            }
+        }
+    }
+
+    hideMonthDropdown() {
+        const dropdown = this.container.querySelector('.sc-month-dropdown');
+        if (dropdown) {
+            dropdown.style.display = 'none';
+        }
+    }
+
+    updateMonthDropdownSelection() {
+        const options = this.container.querySelectorAll('.sc-month-option');
+        const currentMonth = this.currentDate.getMonth();
+        
+        options.forEach((option, index) => {
+            option.classList.remove('sc-current');
+            if (index === currentMonth) {
+                option.classList.add('sc-current');
+            }
+        });
+    }
+
+    toggleYearDropdown() {
+        if (this.view !== 'month') return; // Only show dropdown in month view
+        
+        const dropdown = this.container.querySelector('.sc-year-dropdown');
+        
+        if (dropdown) {
+            const isVisible = dropdown.style.display !== 'none';
+            
+            if (isVisible) {
+                this.hideYearDropdown();
+            } else {
+                // Generate year options and show dropdown
+                this.generateYearOptions();
+                this.updateYearDropdownSelection();
+                dropdown.style.display = 'block';
+                this.scrollToActiveYear();
+            }
+        }
+    }
+
+    hideYearDropdown() {
+        const dropdown = this.container.querySelector('.sc-year-dropdown');
+        if (dropdown) {
+            dropdown.style.display = 'none';
+        }
+    }
+
+    generateYearOptions() {
+        const dropdown = this.container.querySelector('.sc-year-dropdown');
+        const currentYear = this.currentDate.getFullYear();
+        const startYear = currentYear - 10;
+        const endYear = currentYear + 10;
+        
+        if (dropdown) {
+            let html = '';
+            for (let year = startYear; year <= endYear; year++) {
+                html += `<div class="sc-year-option" data-year="${year}">${year}</div>`;
+            }
+            dropdown.innerHTML = html;
+        }
+    }
+
+    updateYearDropdownSelection() {
+        const options = this.container.querySelectorAll('.sc-year-option');
+        const currentYear = this.currentDate.getFullYear();
+        
+        options.forEach((option) => {
+            option.classList.remove('sc-current');
+            if (parseInt(option.getAttribute('data-year')) === currentYear) {
+                option.classList.add('sc-current');
+            }
+        });
+    }
+
+    setYear(year) {
+        this.currentDate.setFullYear(year);
+        this.render();
+        this.triggerChangeState();
+    }
+
+    scrollToActiveMonth() {
+        const dropdown = this.container.querySelector('.sc-month-dropdown');
+        const activeOption = dropdown?.querySelector('.sc-month-option.sc-current');
+        
+        if (dropdown && activeOption) {
+            // Use setTimeout to ensure the dropdown is visible before scrolling
+            setTimeout(() => {
+                const dropdownRect = dropdown.getBoundingClientRect();
+                const optionRect = activeOption.getBoundingClientRect();
+                const dropdownScrollTop = dropdown.scrollTop;
+                
+                // Calculate the position to center the active option in the dropdown
+                const optionOffsetTop = activeOption.offsetTop;
+                const dropdownHeight = dropdown.clientHeight;
+                const optionHeight = activeOption.offsetHeight;
+                const targetScrollTop = optionOffsetTop - (dropdownHeight / 2) + (optionHeight / 2);
+                
+                dropdown.scrollTop = targetScrollTop;
+            }, 0);
+        }
+    }
+
+    scrollToActiveYear() {
+        const dropdown = this.container.querySelector('.sc-year-dropdown');
+        const activeOption = dropdown?.querySelector('.sc-year-option.sc-current');
+        
+        if (dropdown && activeOption) {
+            // Use setTimeout to ensure the dropdown is visible before scrolling
+            setTimeout(() => {
+                const dropdownRect = dropdown.getBoundingClientRect();
+                const optionRect = activeOption.getBoundingClientRect();
+                const dropdownScrollTop = dropdown.scrollTop;
+                
+                // Calculate the position to center the active option in the dropdown
+                const optionOffsetTop = activeOption.offsetTop;
+                const dropdownHeight = dropdown.clientHeight;
+                const optionHeight = activeOption.offsetHeight;
+                const targetScrollTop = optionOffsetTop - (dropdownHeight / 2) + (optionHeight / 2);
+                
+                dropdown.scrollTop = targetScrollTop;
+            }, 0);
+        }
+    }
+
+    setMonth(monthIndex) {
+        this.currentDate.setMonth(monthIndex);
+        this.render();
+        this.triggerChangeState();
+    }
     
     setView(view) {
         this.view = view;
@@ -310,6 +562,8 @@ class SimpleCalendarJs {
         // Note: We don't clear the smart cache when changing views
         // The smart cache will automatically fetch only missing ranges
         
+        this.hideMonthDropdown(); // Hide dropdowns when changing views
+        this.hideYearDropdown();
         this.render();
         this.triggerChangeState();
     }
@@ -317,14 +571,26 @@ class SimpleCalendarJs {
     render() {
         this.updateTitle();
         this.renderView();
+        // Bind dropdown events after everything is updated
+        if (this.view === 'month') {
+            this.bindMonthViewDropdowns();
+        }
     }
     
     updateTitle() {
         const title = this.container.querySelector('.sc-title');
+        const titleMonth = this.container.querySelector('.sc-title-month');
+        const titleYear = this.container.querySelector('.sc-title-year');
         
         switch (this.view) {
             case 'month':
-                title.textContent = `${this.options.months[this.currentDate.getMonth()]} ${this.currentDate.getFullYear()}`;
+                if (titleMonth && titleYear) {
+                    titleMonth.textContent = this.options.months[this.currentDate.getMonth()];
+                    titleYear.textContent = this.currentDate.getFullYear();
+                } else {
+                    // If spans don't exist, create them
+                    title.innerHTML = `<span class="sc-title-month">${this.options.months[this.currentDate.getMonth()]}</span> <span class="sc-title-year">${this.currentDate.getFullYear()}</span>`;
+                }
                 break;
             case 'week':
                 const weekStart = this.getWeekStart(this.currentDate);
