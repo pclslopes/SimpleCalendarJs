@@ -10,11 +10,29 @@
 
 /* Simple Calendar JS CSS - All classes prefixed with 'sc-' */
 
+/* CSS Custom Properties for theming - can be overridden by parent frameworks */
 .sc-calendar {
-    font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, sans-serif;
-    background: #ffffff;
-    border-radius: 8px;
-    box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+    --sc-bg-primary: #ffffff;
+    --sc-bg-secondary: #f8f9fa;
+    --sc-bg-tertiary: #e9ecef;
+    --sc-text-primary: #212529;
+    --sc-text-secondary: #6c757d;
+    --sc-text-muted: #adb5bd;
+    --sc-border-color: #e9ecef;
+    --sc-border-light: #dee2e6;
+    --sc-accent-color: #4c6f94;
+    --sc-accent-hover: #0056b3;
+    --sc-today-bg: #e3f2fd;
+    --sc-today-text: #dc3545;
+    --sc-hover-bg: #f8f9fa;
+    --sc-shadow: none;
+    --sc-shadow-enabled: 0 2px 10px rgba(0, 0, 0, 0.1);
+    
+    font-family: inherit;
+    background: var(--sc-bg-primary);
+    color: var(--sc-text-primary);
+    /*border-radius: 8px;*/
+    box-shadow: var(--sc-shadow);
     overflow: hidden;
     width: 100%;
     max-width: 100%;
@@ -22,15 +40,88 @@
     flex-direction: column;
 }
 
+/* Shadow option - can be enabled by setting --sc-shadow to --sc-shadow-enabled */
+.sc-calendar.sc-shadow {
+    --sc-shadow: var(--sc-shadow-enabled);
+}
+
+/* Dark theme adaptation - responds to both system preference and manual theme toggle */
+@media (prefers-color-scheme: dark) {
+    .sc-calendar {
+        --sc-bg-primary: #1a1a1a;
+        --sc-bg-secondary: #2d2d2d;
+        --sc-bg-tertiary: #3a3a3a;
+        --sc-text-primary: #ffffff;
+        --sc-text-secondary: #b0b0b0;
+        --sc-text-muted: #888888;
+        --sc-border-color: #444444;
+        --sc-border-light: #555555;
+        --sc-accent-color: #4a90e2;
+        --sc-accent-hover: #357abd;
+        --sc-today-bg: #1a2f4a;
+        --sc-today-text: #ff6b6b;
+        --sc-hover-bg: #2d2d2d;
+        --sc-shadow-enabled: 0 2px 10px rgba(0, 0, 0, 0.5);
+    }
+}
+
+/* Manual dark theme via data-theme attribute */
+[data-theme="dark"] .sc-calendar {
+    --sc-bg-primary: #1a1a1a;
+    --sc-bg-secondary: #2d2d2d;
+    --sc-bg-tertiary: #3a3a3a;
+    --sc-text-primary: #ffffff;
+    --sc-text-secondary: #b0b0b0;
+    --sc-text-muted: #888888;
+    --sc-border-color: #444444;
+    --sc-border-light: #555555;
+    --sc-accent-color: #4a90e2;
+    --sc-accent-hover: #357abd;
+    --sc-today-bg: #1a2f4a;
+    --sc-today-text: #ff6b6b;
+    --sc-hover-bg: #2d2d2d;
+    --sc-shadow-enabled: 0 2px 10px rgba(0, 0, 0, 0.5);
+}
+
+/* Ensure light theme is explicit when data-theme="light" */
+[data-theme="light"] .sc-calendar {
+    --sc-bg-primary: #ffffff;
+    --sc-bg-secondary: #f8f9fa;
+    --sc-bg-tertiary: #e9ecef;
+    --sc-text-primary: #212529;
+    --sc-text-secondary: #6c757d;
+    --sc-text-muted: #adb5bd;
+    --sc-border-color: #e9ecef;
+    --sc-border-light: #dee2e6;
+    --sc-accent-color: #4c6f94;
+    --sc-accent-hover: #0056b3;
+    --sc-today-bg: #e3f2fd;
+    --sc-today-text: #dc3545;
+    --sc-hover-bg: #f8f9fa;
+    --sc-shadow-enabled: 0 2px 10px rgba(0, 0, 0, 0.1);
+}
+
+/* Framework integration - inherit from parent if CSS custom properties are set */
+.sc-calendar {
+    background: var(--calendar-bg, var(--sc-bg-primary));
+    color: var(--calendar-text, var(--sc-text-primary));
+    height: 100%;
+}
+
 /* Header Styles */
 .sc-header {
-    background: #f8f9fa;
-    border-bottom: 1px solid #e9ecef;
+    background: transparent;
     padding: 16px;
     display: grid;
     grid-template-columns: 1fr auto 1fr;
     align-items: center;
     gap: 12px;
+}
+
+/* Header bottom border - only when horizontal borders are enabled */
+.sc-borders-both .sc-header,
+.sc-borders-horizontal .sc-header {
+    border-bottom: 1px solid var(--sc-border-color);
 }
 
 .sc-nav {
@@ -44,18 +135,19 @@
     margin: 0;
     font-size: 1.25rem;
     font-weight: 600;
-    color: #212529;
+    color: var(--sc-text-primary);
     white-space: nowrap;
     text-align: center;
     justify-self: center;
 }
 
 .sc-btn {
-    background: #ffffff;
-    border: 1px solid #dee2e6;
+    background: transparent;
+    border: 1px solid var(--sc-border-light);
     border-radius: 4px;
     padding: 8px 12px;
     cursor: pointer;
+    color: var(--sc-text-primary);
     font-size: 0.875rem;
     font-weight: 500;
     transition: all 0.2s ease;
@@ -71,18 +163,18 @@
     font-size: 1.2rem;
     padding: 8px;
     min-width: 32px;
-    color: #212529;
+    color: var(--sc-text-primary);
     font-weight: bold;
 }
 
 .sc-btn:hover {
-    background: #e9ecef;
+    background: var(--sc-bg-tertiary);
     border-color: #adb5bd;
 }
 
 .sc-nav .sc-btn:hover {
-    background: rgba(108, 117, 125, 0.1);
-    color: #495057;
+    background: var(--sc-bg-tertiary);
+    color: var(--sc-text-primary);
 }
 
 .sc-btn:active {
@@ -90,7 +182,7 @@
 }
 
 .sc-nav .sc-btn:active {
-    background: rgba(108, 117, 125, 0.2);
+    background: var(--sc-bg-tertiary);
 }
 
 .sc-view-switcher {
@@ -100,20 +192,21 @@
 }
 
 .sc-view-btn.sc-active {
-    background: #4c6f94;
-    color: #ffffff;
-    border-color: #4c6f94;
+    background: var(--sc-event-color, #4c6f94);
+    color: white;
+    border-color: var(--sc-event-color, #4c6f94);
 }
 
 .sc-view-btn.sc-active:hover {
-    background: #0056b3;
-    border-color: #0056b3;
+    background: color-mix(in srgb, var(--sc-event-color, #4c6f94) 85%, black);
+    border-color: color-mix(in srgb, var(--sc-event-color, #4c6f94) 85%, black);
 }
 
 /* Content Styles */
 .sc-content {
     flex: 1;
-    min-height: 520px;
+    /*min-height: 520px;*/
+    height: 100%;
     display: flex;
     flex-direction: column;
 }
@@ -121,6 +214,7 @@
 .sc-view-container {
     flex: 1;
     overflow: hidden;
+    height: 100%;
 }
 
 /* Month View Styles */
@@ -133,8 +227,7 @@
 .sc-weekdays {
     display: grid;
     grid-template-columns: repeat(7, 1fr);
-    background: #f8f9fa;
-    border-bottom: 1px solid #e9ecef;
+    background: var(--sc-bg-secondary);
 }
 
 .sc-weekday {
@@ -142,18 +235,29 @@
     text-align: center;
     font-weight: 600;
     font-size: 0.875rem;
-    color: #6c757d;
-    border-right: 1px solid #e9ecef;
+    color: var(--sc-text-secondary);
 }
 
-.sc-weekday:last-child {
+.sc-borders-both .sc-month-view .sc-weekdays,
+.sc-borders-vertical .sc-month-view .sc-weekdays {
+    border-left: 1px solid var(--sc-border-color);
+    border-right: 1px solid var(--sc-border-color);
+}
+
+.sc-borders-both .sc-month-view .sc-weekday,
+.sc-borders-vertical .sc-month-view .sc-weekday {
+    border-right: 1px solid var(--sc-border-color);
+}
+
+.sc-borders-both .sc-month-view .sc-weekday:nth-child(7n),
+.sc-borders-vertical .sc-month-view .sc-weekday:nth-child(7n) {
     border-right: none;
 }
 
 .sc-days-grid {
     display: grid;
     grid-template-columns: repeat(7, 1fr);
-    grid-template-rows: repeat(6, minmax(80px, 1fr));
+    grid-template-rows: repeat(6, 1fr);
     flex: 1;
     overflow: visible;
     /*min-height: 480px;*/
@@ -168,7 +272,7 @@
 .sc-month-view.sc-fullday .sc-day {
     display: flex;
     flex-direction: column;
-    min-height: 60px;
+    /*min-height: 60px;*/
     /*padding: 4px;*/
     position: relative;
 }
@@ -183,7 +287,7 @@
 }
 
 .sc-day:hover {
-    background: #f8f9fa;
+    background: var(--sc-hover-bg);
 }
 
 .sc-day-number {
@@ -195,15 +299,15 @@
 }
 
 .sc-day.sc-other-month .sc-day-number {
-    color: #adb5bd;
+    color: var(--sc-text-muted);
 }
 
 .sc-day.sc-today {
-    background: #e3f2fd;
+    background: var(--sc-today-bg);
 }
 
 .sc-day.sc-today .sc-day-number {
-    color: #dc3545;
+    color: var(--sc-today-text);
     font-weight: 600;
 }
 
@@ -232,25 +336,77 @@
     font-size: 0.7rem;
     font-weight: 600;
     line-height: 1.2;
-    background: #e9ecef;
-    color: #495057;
+    background: color-mix(in srgb, var(--sc-event-color, #4c6f94) 15%, var(--sc-bg-tertiary));
+    color: color-mix(in srgb, var(--sc-event-color, #4c6f94) 80%, black);
     padding: 2px 6px;
     border-radius: 10px;
     display: inline-block;
     margin-top: 2px;
-    min-width: 16px;
+    /*min-width: 16px;*/
     text-align: center;
     box-sizing: border-box;
 }
 
+/* Light mode badge styling - ensure proper contrast */
+@media (prefers-color-scheme: light) {
+    .sc-event-count {
+        background: color-mix(in srgb, var(--sc-event-color, #4c6f94) 15%, var(--sc-bg-tertiary));
+        color: color-mix(in srgb, var(--sc-event-color, #4c6f94) 80%, black);
+    }
+}
+
+[data-theme="light"] .sc-event-count {
+    background: color-mix(in srgb, var(--sc-event-color, #4c6f94) 15%, var(--sc-bg-tertiary));
+    color: color-mix(in srgb, var(--sc-event-color, #4c6f94) 80%, black);
+}
+
+/* Dark mode badge styling - use event color but make it lighter */
+@media (prefers-color-scheme: dark) {
+    .sc-event-count {
+        background: color-mix(in srgb, var(--sc-event-color, #4c6f94) 20%, var(--sc-bg-tertiary));
+        color: color-mix(in srgb, var(--sc-event-color, #4c6f94) 30%, white);
+    }
+}
+
+[data-theme="dark"] .sc-event-count {
+    background: color-mix(in srgb, var(--sc-event-color, #4c6f94) 20%, var(--sc-bg-tertiary));
+    color: color-mix(in srgb, var(--sc-event-color, #4c6f94) 30%, white);
+}
+
 .sc-day-count-mode.sc-today .sc-event-count {
-    background: #007bff;
+    background: var(--sc-event-color, #4c6f94);
+    color: #ffffff;
+}
+
+/* Light mode today badge - ensure white text is visible */
+@media (prefers-color-scheme: light) {
+    .sc-day-count-mode.sc-today .sc-event-count {
+        background: var(--sc-event-color, #4c6f94);
+        color: #ffffff;
+    }
+}
+
+[data-theme="light"] .sc-day-count-mode.sc-today .sc-event-count {
+    background: var(--sc-event-color, #4c6f94);
+    color: #ffffff;
+}
+
+/* Dark mode today badge - same as light mode for today */
+@media (prefers-color-scheme: dark) {
+    .sc-day-count-mode.sc-today .sc-event-count {
+        background: var(--sc-event-color, #4c6f94);
+        color: #ffffff;
+    }
+}
+
+[data-theme="dark"] .sc-day-count-mode.sc-today .sc-event-count {
+    background: var(--sc-event-color, #4c6f94);
     color: #ffffff;
 }
 
 .sc-day-count-mode.sc-other-month .sc-event-count {
-    background: #f8f9fa;
-    color: #adb5bd;
+    background: var(--sc-bg-secondary);
+    color: var(--sc-text-muted);
 }
 
 .sc-day-events {
@@ -459,7 +615,7 @@
     height: 100%;
     overflow-y: auto;
     overflow-x: hidden;
-    max-height: calc(100vh - 200px);
+    /*max-height: calc(100vh - 200px);*/
     display: grid;
     grid-template-columns: 80px repeat(7, 1fr);
     align-content: start;
@@ -475,18 +631,18 @@
     justify-content: center;
     text-align: center;
     padding: 12px 8px;
-    background: #f8f9fa;
+    background: var(--sc-bg-secondary);
     height: 60px;
     box-sizing: border-box;
 }
 
-.sc-day-header.sc-today {
-    background: #e3f2fd;
+.sc-week-view .sc-day-header.sc-today {
+    background: var(--sc-today-bg);
 }
 
 .sc-day-name {
     font-size: 0.75rem;
-    color: #6c757d;
+    color: var(--sc-text-secondary);
     font-weight: 500;
     margin-bottom: 2px;
 }
@@ -494,11 +650,11 @@
 .sc-day-header .sc-day-number {
     font-size: 1.25rem;
     font-weight: 600;
-    color: #212529;
+    color: var(--sc-text-primary);
 }
 
-.sc-day-header.sc-today .sc-day-number {
-    color: #dc3545;
+.sc-week-view .sc-day-header.sc-today .sc-day-number {
+    color: var(--sc-today-text);
     font-weight: 600;
 }
 
@@ -510,10 +666,10 @@
 }
 
 .sc-time-slot {
-    background: #f8f9fa;
+    background: var(--sc-bg-secondary);
     padding: 4px 8px 8px 8px;
     font-size: 0.75rem;
-    color: #6c757d;
+    color: var(--sc-text-secondary);
     text-align: center;
     display: flex;
     align-items: flex-start;
@@ -523,7 +679,7 @@
 /* Special time slots for before/after hours */
 .sc-time-slot:first-child,
 .sc-time-slot:last-child {
-    background: #e9ecef;
+    background: var(--sc-bg-tertiary);
     color: #495057;
     font-weight: 500;
     font-style: italic;
@@ -531,16 +687,16 @@
 
 .sc-day-column {
     cursor: pointer;
-    background: #ffffff;
+    background: var(--sc-bg-primary);
 }
 
 
-.sc-day-column.sc-today {
-    background: #f8fcff;
+.sc-week-view .sc-day-column.sc-today {
+    background: var(--sc-today-bg);
 }
 
 .sc-day-column:hover {
-    background: #f8f9fa;
+    background: var(--sc-hover-bg);
 }
 
 /* Half-hour dotted line in the middle of each hour cell */
@@ -620,7 +776,7 @@
 
 /* Fullday Week View - same structure as month view */
 .sc-week-view.sc-fullday {
-    height: 100%;
+    height: auto;
     display: flex;
     flex-direction: column;
 }
@@ -628,8 +784,7 @@
 .sc-week-view.sc-fullday .sc-weekdays {
     display: grid;
     grid-template-columns: repeat(7, 1fr);
-    background: #f8f9fa;
-    border-bottom: 1px solid #e9ecef;
+    background: var(--sc-bg-secondary);
 }
 
 .sc-week-view.sc-fullday .sc-weekday {
@@ -637,27 +792,44 @@
     text-align: center;
     font-weight: 600;
     font-size: 0.875rem;
-    color: #6c757d;
-    border-right: 1px solid #e9ecef;
+    color: var(--sc-text-secondary);
 }
 
-.sc-week-view.sc-fullday .sc-weekday:last-child {
-    border-right: none;
+/* Week view fullday weekday border controls - no container borders */
+
+/* Weekday bottom border only for horizontal mode */
+.sc-borders-horizontal .sc-week-view.sc-fullday .sc-weekdays {
+    border-bottom: 1px solid var(--sc-border-color);
+}
+
+.sc-borders-both .sc-week-view.sc-fullday .sc-weekday,
+.sc-borders-vertical .sc-week-view.sc-fullday .sc-weekday {
+    border-right: 1px solid var(--sc-border-color);
+}
+
+.sc-borders-both .sc-week-view.sc-fullday .sc-weekday:nth-child(7n),
+.sc-borders-vertical .sc-week-view.sc-fullday .sc-weekday:nth-child(7n) {
+    border-right: 1px solid var(--sc-border-color);
+}
+.sc-borders-both .sc-week-view.sc-fullday .sc-weekday:first-child,
+.sc-borders-vertical .sc-week-view.sc-fullday .sc-weekday:first-child {
+    border-left: 1px solid var(--sc-border-color);
 }
 
 .sc-week-view.sc-fullday .sc-days-grid {
     display: grid;
     grid-template-columns: repeat(7, 1fr);
-    grid-template-rows: auto;
+    grid-template-rows: 1fr;
     flex: 1;
     min-height: auto;
     overflow: visible;
+    /*border-left: 1px solid var(--sc-border-color);*/
 }
 
 .sc-week-view.sc-fullday .sc-day {
     display: flex;
     flex-direction: column;
-    min-height: 120px;
+    min-height: 80px;
     /*padding: 4px;*/
     position: relative;
     cursor: pointer;
@@ -666,7 +838,7 @@
 }
 
 .sc-week-view.sc-fullday .sc-day:hover {
-    background: #f8f9fa;
+    background: var(--sc-hover-bg);
 }
 
 .sc-week-view.sc-fullday .sc-day-number {
@@ -680,11 +852,11 @@
 }
 
 .sc-week-view.sc-fullday .sc-day.sc-today {
-    background: #e3f2fd;
+    background: var(--sc-today-bg);
 }
 
 .sc-week-view.sc-fullday .sc-day.sc-today .sc-day-number {
-    color: #dc3545;
+    color: var(--sc-today-text);
     font-weight: 600;
 }
 
@@ -804,8 +976,8 @@
     position: sticky;
     top: 0;
     z-index: 10;
-    background: #f8f9fa;
-    border-bottom: 1px solid #e9ecef;
+    background: var(--sc-bg-secondary);
+    border-bottom: 1px solid var(--sc-border-color);
     padding: 16px;
     text-align: center;
     flex-shrink: 0;
@@ -813,7 +985,7 @@
 
 .sc-day-view.sc-fullday .sc-day-name {
     font-size: 0.875rem;
-    color: #6c757d;
+    color: var(--sc-text-secondary);
     font-weight: 500;
     margin-bottom: 4px;
 }
@@ -821,11 +993,11 @@
 .sc-day-view.sc-fullday .sc-day-number {
     font-size: 1.5rem;
     font-weight: 600;
-    color: #212529;
+    color: var(--sc-text-primary);
 }
 
 .sc-day-view.sc-fullday .sc-day-header.sc-today .sc-day-number {
-    color: #dc3545;
+    color: var(--sc-today-text);
 }
 
 .sc-day-view.sc-fullday .sc-day-events {
@@ -1017,7 +1189,7 @@
     }
     
     .sc-day-header.sc-today .sc-day-number {
-        color: #dc3545;
+        color: var(--sc-today-text);
         font-weight: 600;
     }
     
@@ -1129,44 +1301,64 @@
     
 }
 
-/* Grid Border Options */
+/* Grid Border Options - only month view gets container borders */
+.sc-borders-both .sc-month-view .sc-days-grid {
+    border-left: 1px solid var(--sc-border-color);
+    border-bottom: 1px solid var(--sc-border-color);
+}
+
+.sc-borders-vertical .sc-month-view .sc-days-grid {
+    border-left: 1px solid var(--sc-border-color);
+    border-bottom: none;
+}
+
+.sc-borders-horizontal .sc-month-view .sc-days-grid {
+    border-left: none;
+    border-bottom: 1px solid var(--sc-border-color);
+}
+
+.sc-borders-none .sc-month-view .sc-days-grid {
+    border-left: none;
+    border-bottom: none;
+}
+
 .sc-borders-both .sc-day {
-    border-right: 1px solid #e9ecef;
-    border-bottom: 1px solid #e9ecef;
+    border-right: 1px solid var(--sc-border-color);
+    border-top: 1px solid var(--sc-border-color);
 }
 
 .sc-borders-vertical .sc-day {
-    border-right: 1px solid #e9ecef;
-    border-bottom: none;
+    border-right: 1px solid var(--sc-border-color);
+    border-top: none;
 }
 
 .sc-borders-horizontal .sc-day {
     border-right: none;
-    border-bottom: 1px solid #e9ecef;
+    border-top: 1px solid var(--sc-border-color);
 }
 
 .sc-borders-none .sc-day {
     border-right: none;
-    border-bottom: none;
+    border-top: none;
 }
 
 /* Week view time slots and day columns */
 .sc-borders-both .sc-time-slot,
 .sc-borders-both .sc-day-column {
-    border-right: 1px solid #e9ecef;
-    border-bottom: 1px solid #e9ecef;
+    border-right: 1px solid var(--sc-border-color);
+    border-bottom: 1px solid var(--sc-border-color);
 }
 
 .sc-borders-vertical .sc-time-slot,
 .sc-borders-vertical .sc-day-column {
-    border-right: 1px solid #e9ecef;
+    border-right: 1px solid var(--sc-border-color);
     border-bottom: none;
 }
 
 .sc-borders-horizontal .sc-time-slot,
 .sc-borders-horizontal .sc-day-column {
     border-right: none;
-    border-bottom: 1px solid #e9ecef;
+    border-bottom: 1px solid var(--sc-border-color);
 }
 
 .sc-borders-none .sc-time-slot,
@@ -1177,18 +1369,22 @@
 
 /* Week view fullday day cells */
 .sc-borders-both .sc-week-view.sc-fullday .sc-day {
-    border-right: 1px solid #e9ecef;
-    border-bottom: 1px solid #e9ecef;
+    border-right: 1px solid var(--sc-border-color);
+    border-bottom: 1px solid var(--sc-border-color);
+}
+
+.sc-borders-both .sc-week-view.sc-fullday .sc-day:first-child {
+    border-left: 1px solid var(--sc-border-color);
 }
 
 .sc-borders-vertical .sc-week-view.sc-fullday .sc-day {
-    border-right: 1px solid #e9ecef;
+    border-right: 1px solid var(--sc-border-color);
     border-bottom: none;
 }
 
 .sc-borders-horizontal .sc-week-view.sc-fullday .sc-day {
     border-right: none;
-    border-bottom: 1px solid #e9ecef;
+    border-bottom: 1px solid var(--sc-border-color);
 }
 
 .sc-borders-none .sc-week-view.sc-fullday .sc-day {
@@ -1199,20 +1395,21 @@
 /* Header borders */
 .sc-borders-both .sc-time-column-header,
 .sc-borders-both .sc-day-header {
-    border-right: 1px solid #e9ecef;
-    border-bottom: 1px solid #e9ecef;
+    border-right: 1px solid var(--sc-border-color);
+    border-bottom: 1px solid var(--sc-border-color);
+    border-left: 1px solid var(--sc-border-color);
 }
 
 .sc-borders-vertical .sc-time-column-header,
 .sc-borders-vertical .sc-day-header {
-    border-right: 1px solid #e9ecef;
+    border-right: 1px solid var(--sc-border-color);
     border-bottom: none;
 }
 
 .sc-borders-horizontal .sc-time-column-header,
 .sc-borders-horizontal .sc-day-header {
     border-right: none;
-    border-bottom: 1px solid #e9ecef;
+    border-bottom: 1px solid var(--sc-border-color);
 }
 
 .sc-borders-none .sc-time-column-header,
@@ -1221,10 +1418,27 @@
     border-bottom: none;
 }
 
+/* Week view header container borders - only for time-slot week view, not fullday */
+.sc-borders-both .sc-week-view:not(.sc-fullday) {
+    border-left: 1px solid var(--sc-border-color);
+    border-right: 1px solid var(--sc-border-color);
+}
+
+.sc-borders-vertical .sc-week-view:not(.sc-fullday) {
+    border-left: 1px solid var(--sc-border-color);
+    border-right: 1px solid var(--sc-border-color);
+}
+
+/* Remove right border from last header column to avoid double borders */
+.sc-borders-both .sc-day-header:nth-child(8n),
+.sc-borders-vertical .sc-day-header:nth-child(8n) {
+    border-right: none;
+}
+
 /* Half-hour lines */
 .sc-borders-both .sc-half-hour-line,
 .sc-borders-horizontal .sc-half-hour-line {
-    border-top: 1px dotted #e9ecef;
+    border-top: 1px dotted var(--sc-border-color);
 }
 
 .sc-borders-vertical .sc-half-hour-line,
@@ -1232,15 +1446,15 @@
     border-top: none;
 }
 
-/* Keep last column without right border */
-.sc-borders-both .sc-day:last-child,
-.sc-borders-vertical .sc-day:last-child,
-.sc-borders-both .sc-day-column:nth-child(8n),
-.sc-borders-vertical .sc-day-column:nth-child(8n),
-.sc-borders-both .sc-week-view.sc-fullday .sc-day:last-child,
-.sc-borders-vertical .sc-week-view.sc-fullday .sc-day:last-child,
-.sc-borders-both .sc-day-header:nth-child(8n),
-.sc-borders-vertical .sc-day-header:nth-child(8n) {
+/* Add right border to the grid container for complete border coverage */
+.sc-borders-both .sc-month-view .sc-days-grid,
+.sc-borders-vertical .sc-month-view .sc-days-grid {
+    border-right: 1px solid var(--sc-border-color);
+}
+
+/* Remove right border from last column cells to avoid double borders */
+.sc-borders-both .sc-day:nth-child(7n),
+.sc-borders-vertical .sc-day:nth-child(7n) {
     border-right: none;
 }
 
@@ -1280,9 +1494,7 @@
     border-bottom: 1px solid var(--sc-event-border-color);
 }
 
-.sc-event-borders .sc-day {
-  border-right: none;
-}
+/* Removed conflicting rule that was overriding grid borders */
 
 .sc-week-view .sc-event-week {
     border-right: none;

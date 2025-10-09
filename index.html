@@ -6,28 +6,66 @@
     <title>Simple Calendar JS - Demo</title>
     <link rel="stylesheet" href="css/SimpleCalendarJs.css">
     <style>
+        :root {
+            --bg-primary: #f5f5f5;
+            --bg-secondary: #ffffff;
+            --bg-tertiary: #ecf0f1;
+            --text-primary: #2c3e50;
+            --text-secondary: #ffffff;
+            --border-color: #bdc3c7;
+            --button-bg: #3498db;
+            --button-hover: #2980b9;
+            --header-bg: #2c3e50;
+        }
+
+        [data-theme="dark"] {
+            --bg-primary: #1a1a1a;
+            --bg-secondary: #2d2d2d;
+            --bg-tertiary: #3a3a3a;
+            --text-primary: #ffffff;
+            --text-secondary: #ffffff;
+            --border-color: #555555;
+            --button-bg: #4a90e2;
+            --button-hover: #357abd;
+            --header-bg: #1e1e1e;
+        }
+
+        html, body {
+            height: 100%;
+            margin: 0;
+            padding: 0;
+            overflow: hidden;
+        }
+
         body {
             font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
-            margin: 0;
-            padding: 20px;
-            background: #f5f5f5;
+            background: var(--bg-primary);
+            color: var(--text-primary);
             line-height: 1.6;
+            transition: background-color 0.3s ease, color 0.3s ease;
         }
         
-        /*.container {
-            max-width: 1200px;
-            margin: 0 auto;
-            background: white;
-            border-radius: 8px;
+        .container {
+            display: flex;
+            flex-direction: column;
+            height: 100vh;
+            max-height: 100vh;
             overflow: hidden;
-            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
-        }*/
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            padding: 10px;
+        }
         
         .demo-header {
-            background: #2c3e50;
-            color: white;
+            background: var(--header-bg);
+            color: var(--text-secondary);
             padding: 20px;
             text-align: center;
+            transition: background-color 0.3s ease;
+            flex-shrink: 0;
         }
         
         .demo-header h1 {
@@ -41,33 +79,51 @@
         }
         
         .demo-controls {
-            background: #ecf0f1;
+            background: var(--bg-tertiary);
             padding: 16px;
-            border-bottom: 1px solid #bdc3c7;
+            border-bottom: 1px solid var(--border-color);
             display: flex;
             flex-wrap: wrap;
             gap: 12px;
             align-items: center;
+            transition: background-color 0.3s ease, border-color 0.3s ease;
+            flex-shrink: 0;
         }
         
         .demo-controls label {
             font-weight: 500;
-            color: #2c3e50;
+            color: var(--text-primary);
         }
         
         .demo-controls button {
-            background: #3498db;
-            color: white;
+            background: var(--button-bg);
+            color: var(--text-secondary);
             border: none;
             padding: 8px 16px;
             border-radius: 4px;
             cursor: pointer;
             font-size: 14px;
-            transition: background 0.2s;
+            transition: background-color 0.2s;
         }
         
         .demo-controls button:hover {
-            background: #2980b9;
+            background: var(--button-hover);
+        }
+
+        .theme-switcher {
+            background: var(--button-bg);
+            color: var(--text-secondary);
+            border: none;
+            padding: 8px 16px;
+            border-radius: 4px;
+            cursor: pointer;
+            font-size: 14px;
+            transition: background-color 0.2s;
+            margin-left: auto;
+        }
+        
+        .theme-switcher:hover {
+            background: var(--button-hover);
         }
         
         .demo-controls input[type="checkbox"] {
@@ -75,16 +131,12 @@
         }
         
         #calendar-container {
-            height: 85vh; /* 85% of viewport height */
-            min-height: 600px;
-            max-height: 900px;
+            flex: 1;
+            min-height: 0;
+            overflow: hidden;
         }
         
         @media (max-width: 768px) {
-            body {
-                padding: 10px;
-            }
-            
             .demo-header h1 {
                 font-size: 1.5rem;
             }
@@ -96,12 +148,6 @@
             
             .demo-controls > * {
                 margin-bottom: 8px;
-            }
-            
-            #calendar-container {
-                height: 80vh; /* Slightly less on mobile */
-                min-height: 500px;
-                max-height: 700px;
             }
         }
     </style>
@@ -167,6 +213,13 @@
                 Show Navigation:
                 <input type="checkbox" id="showNavigationToggle" checked>
             </label>
+            
+            <label>
+                Calendar Shadow:
+                <input type="checkbox" id="shadowToggle">
+            </label>
+            
+            <button class="theme-switcher" id="themeToggle">🌙 Dark Mode</button>
         </div>
         
         <div id="calendar-container"></div>
@@ -395,6 +448,8 @@
         const showWeekButtonToggle = document.getElementById('showWeekButtonToggle');
         const showDayButtonToggle = document.getElementById('showDayButtonToggle');
         const showNavigationToggle = document.getElementById('showNavigationToggle');
+        const shadowToggle = document.getElementById('shadowToggle');
+        const themeToggle = document.getElementById('themeToggle');
 
         fulldayToggle.addEventListener('change', (e) => {
             calendar.setFulldayMode(e.target.checked);
@@ -471,6 +526,34 @@
         showNavigationToggle.addEventListener('change', (e) => {
             calendar.setShowNavigation(e.target.checked);
         });
+
+        shadowToggle.addEventListener('change', (e) => {
+            const calendarElement = document.querySelector('.sc-calendar');
+            if (e.target.checked) {
+                calendarElement.classList.add('sc-shadow');
+            } else {
+                calendarElement.classList.remove('sc-shadow');
+            }
+        });
+
+        // Theme switcher functionality
+        function toggleTheme() {
+            const currentTheme = document.documentElement.getAttribute('data-theme');
+            const newTheme = currentTheme === 'dark' ? 'light' : 'dark';
+            
+            document.documentElement.setAttribute('data-theme', newTheme);
+            themeToggle.textContent = newTheme === 'dark' ? '☀️ Light Mode' : '🌙 Dark Mode';
+            
+            // Save theme preference
+            localStorage.setItem('theme', newTheme);
+        }
+
+        // Load saved theme
+        const savedTheme = localStorage.getItem('theme') || 'light';
+        document.documentElement.setAttribute('data-theme', savedTheme);
+        themeToggle.textContent = savedTheme === 'dark' ? '☀️ Light Mode' : '🌙 Dark Mode';
+
+        themeToggle.addEventListener('click', toggleTheme);
 
         // Keyboard shortcuts
         document.addEventListener('keydown', (e) => {
