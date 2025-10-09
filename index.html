@@ -31,10 +31,8 @@
         }
 
         html, body {
-            height: 100%;
             margin: 0;
             padding: 0;
-            overflow: hidden;
         }
 
         body {
@@ -48,14 +46,7 @@
         .container {
             display: flex;
             flex-direction: column;
-            height: 100vh;
-            max-height: 100vh;
-            overflow: hidden;
-            position: fixed;
-            top: 0;
-            left: 0;
-            right: 0;
-            bottom: 0;
+            min-height: 100vh;
             padding: 10px;
         }
         
@@ -132,8 +123,7 @@
         
         #calendar-container {
             flex: 1;
-            min-height: 0;
-            overflow: hidden;
+            min-height: 600px;
         }
         
         @media (max-width: 768px) {
@@ -386,6 +376,11 @@
             date: new Date(),
             fulldayMode: false,
             eventBorders: true,
+            // Localization example - uncomment to test
+            weekdays: ['Domingo', 'Segunda', 'Terça', 'Quarta', 'Quinta', 'Sexta', 'Sábado'],
+            months: ['Janeiro', 'Fevereiro', 'Março', 'Abril', 'Maio', 'Junho', 'Julho', 'Agosto', 'Setembro', 'Outubro', 'Novembro', 'Dezembro'],
+            showWeekdayChars: 3, // Show only first 3 characters
+            labels: { month: 'Mês', week: 'Semana', day: 'Dia', events: 'eventos', event: 'evento', before: 'Antes das', after: 'Depois das' }, // UI labels
             events: function(dateRange) {
                 // This callback is called once per view with a date range object
                 // dateRange contains: { startDate, endDate }
@@ -548,7 +543,7 @@
             localStorage.setItem('theme', newTheme);
         }
 
-        // Load saved theme
+        // Load saved domingo
         const savedTheme = localStorage.getItem('theme') || 'light';
         document.documentElement.setAttribute('data-theme', savedTheme);
         themeToggle.textContent = savedTheme === 'dark' ? '☀️ Light Mode' : '🌙 Dark Mode';

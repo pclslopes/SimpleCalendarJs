@@ -30,6 +30,11 @@ class SimpleCalendarJs {
             showWeekButton: true, // true/false - show week view button
             showDayButton: true, // true/false - show day view button
             showNavigation: true, // true/false - show navigation buttons (prev/next)
+            // Localization options
+            weekdays: ['Sunday', 'Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday'],
+            months: ['January', 'February', 'March', 'April', 'May', 'June', 'July', 'August', 'September', 'October', 'November', 'December'],
+            showWeekdayChars: null, // null = full weekday names, number = show first N characters
+            labels: { month: 'Month', week: 'Week', day: 'Day', events: 'events', event: 'event', before: 'Before', after: 'After' }, // UI labels
             ...options
         };
         
@@ -41,12 +46,6 @@ class SimpleCalendarJs {
         this.fetchedRanges = []; // Array of {startDate, endDate, events} objects
         this.allCachedEvents = []; // All events from all fetched ranges
         
-        this.weekdays = ['Sunday', 'Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday'];
-        this.weekdaysShort = ['Sun', 'Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat'];
-        this.months = [
-            'January', 'February', 'March', 'April', 'May', 'June',
-            'July', 'August', 'September', 'October', 'November', 'December'
-        ];
         
         this.init();
     }
@@ -60,6 +59,14 @@ class SimpleCalendarJs {
         this.applyNavigationVisibility();
         this.bindEvents();
         this.render();
+    }
+    
+    getWeekdayDisplay(dayIndex) {
+        const weekday = this.options.weekdays[dayIndex];
+        if (this.options.showWeekdayChars === null) {
+            return weekday;
+        }
+        return weekday.substring(0, this.options.showWeekdayChars);
     }
     
     triggerChangeState() {
@@ -151,9 +158,9 @@ class SimpleCalendarJs {
                     </div>
                     <h2 class="sc-title"></h2>
                     <div class="sc-view-switcher">
-                        <button class="sc-btn sc-view-btn ${this.view === 'month' ? 'sc-active' : ''}" data-view="month">Month</button>
-                        <button class="sc-btn sc-view-btn ${this.view === 'week' ? 'sc-active' : ''}" data-view="week">Week</button>
-                        <button class="sc-btn sc-view-btn ${this.view === 'day' ? 'sc-active' : ''}" data-view="day">Day</button>
+                        <button class="sc-btn sc-view-btn ${this.view === 'month' ? 'sc-active' : ''}" data-view="month">${this.options.labels.month}</button>
+                        <button class="sc-btn sc-view-btn ${this.view === 'week' ? 'sc-active' : ''}" data-view="week">${this.options.labels.week}</button>
+                        <button class="sc-btn sc-view-btn ${this.view === 'day' ? 'sc-active' : ''}" data-view="day">${this.options.labels.day}</button>
                     </div>
                 </div>
                 <div class="sc-content">
@@ -317,16 +324,16 @@ class SimpleCalendarJs {
         
         switch (this.view) {
             case 'month':
-                title.textContent = `${this.months[this.currentDate.getMonth()]} ${this.currentDate.getFullYear()}`;
+                title.textContent = `${this.options.months[this.currentDate.getMonth()]} ${this.currentDate.getFullYear()}`;
                 break;
             case 'week':
                 const weekStart = this.getWeekStart(this.currentDate);
                 const weekEnd = new Date(weekStart);
                 weekEnd.setDate(weekEnd.getDate() + 6);
-                title.textContent = `${this.months[weekStart.getMonth()]} ${weekStart.getDate()} - ${this.months[weekEnd.getMonth()]} ${weekEnd.getDate()}, ${weekStart.getFullYear()}`;
+                title.textContent = `${this.options.months[weekStart.getMonth()]} ${weekStart.getDate()} - ${this.options.months[weekEnd.getMonth()]} ${weekEnd.getDate()}, ${weekStart.getFullYear()}`;
                 break;
             case 'day':
-                title.textContent = `${this.weekdays[this.currentDate.getDay()]}, ${this.months[this.currentDate.getMonth()]} ${this.currentDate.getDate()}, ${this.currentDate.getFullYear()}`;
+                title.textContent = `${this.options.weekdays[this.currentDate.getDay()]}, ${this.options.months[this.currentDate.getMonth()]} ${this.currentDate.getDate()}, ${this.currentDate.getFullYear()}`;
                 break;
         }
     }
@@ -358,7 +365,7 @@ class SimpleCalendarJs {
         let html = `
             <div class="sc-month-view ${this.fulldayMode ? 'sc-fullday' : ''}">
                 <div class="sc-weekdays">
-                    ${this.weekdaysShort.map(day => `<div class="sc-weekday">${day}</div>`).join('')}
+                    ${this.options.weekdays.map((day, index) => `<div class="sc-weekday">${this.getWeekdayDisplay(index)}</div>`).join('')}
                 </div>
                 <div class="sc-days-grid">
         `;
@@ -394,8 +401,8 @@ class SimpleCalendarJs {
                 } else {
                     const eventCount = dayEvents.length;
                     const eventCountText = eventCount === 0 ? '' : 
-                                         eventCount === 1 ? '1 event' : 
-                                         `${eventCount} events`;
+                                         eventCount === 1 ? `1 ${this.options.labels.event}` : 
+                                         `${eventCount} ${this.options.labels.events}`;
                     html += `
                         <div class="sc-day sc-day-count-mode ${isCurrentMonth ? 'sc-current-month' : 'sc-other-month'} ${isToday ? 'sc-today' : ''}" data-date="${currentDay.toISOString()}">
                             <div class="sc-day-content">
@@ -437,7 +444,7 @@ class SimpleCalendarJs {
                 <div class="sc-time-column-header"></div>
                 ${weekDays.map(day => `
                     <div class="sc-day-header ${this.isToday(day) ? 'sc-today' : ''}">
-                        <div class="sc-day-name">${this.weekdaysShort[day.getDay()]}</div>
+                        <div class="sc-day-name">${this.getWeekdayDisplay(day.getDay())}</div>
                         <div class="sc-day-number">${day.getDate()}</div>
                     </div>
                 `).join('')}
@@ -469,7 +476,7 @@ class SimpleCalendarJs {
         let html = `
             <div class="sc-week-view sc-fullday">
                 <div class="sc-weekdays">
-                    ${weekDays.map(day => `<div class="sc-weekday">${this.weekdaysShort[day.getDay()]}</div>`).join('')}
+                    ${weekDays.map(day => `<div class="sc-weekday">${this.getWeekdayDisplay(day.getDay())}</div>`).join('')}
                 </div>
                 <div class="sc-days-grid">
                     ${weekDays.map(day => {
@@ -510,7 +517,7 @@ class SimpleCalendarJs {
             return `
                 <div class="sc-day-view sc-fullday">
                     <div class="sc-day-header ${this.isToday(currentDay) ? 'sc-today' : ''}">
-                        <div class="sc-day-name">${this.weekdays[currentDay.getDay()]}</div>
+                        <div class="sc-day-name">${this.options.weekdays[currentDay.getDay()]}</div>
                         <div class="sc-day-number">${currentDay.getDate()}</div>
                     </div>
                     <div class="sc-day-events" data-date="${currentDay.toISOString()}">
@@ -535,7 +542,7 @@ class SimpleCalendarJs {
             <div class="sc-day-view">
                 <div class="sc-time-column-header"></div>
                 <div class="sc-day-header ${this.isToday(currentDay) ? 'sc-today' : ''}">
-                    <div class="sc-day-name">${this.weekdays[currentDay.getDay()]}</div>
+                    <div class="sc-day-name">${this.options.weekdays[currentDay.getDay()]}</div>
                     <div class="sc-day-number">${currentDay.getDate()}</div>
                 </div>
                 ${timeSlots.map(time => {
@@ -566,7 +573,7 @@ class SimpleCalendarJs {
         // Add 'before 6:00 AM' slot
         const beforeTime = new Date();
         beforeTime.setHours(start, 0, 0, 0);
-        slots.push(`Before ${this.formatTime(beforeTime)}`);
+        slots.push(`${this.options.labels.before} ${this.formatTime(beforeTime)}`);
         
         // Add regular hour slots
         for (let hour = start; hour <= end; hour++) {
@@ -578,7 +585,7 @@ class SimpleCalendarJs {
         // Add 'after 10:00 PM' slot
         const afterTime = new Date();
         afterTime.setHours(end, 0, 0, 0);
-        slots.push(`After ${this.formatTime(afterTime)}`);
+        slots.push(`${this.options.labels.after} ${this.formatTime(afterTime)}`);
         
         return slots;
     }
@@ -789,11 +796,11 @@ class SimpleCalendarJs {
             const endHour = this.options.endHour;
             
             // Handle special time slots
-            if (timeSlot.startsWith('Before')) {
+            if (timeSlot.startsWith(this.options.labels.before)) {
                 return eventHour < startHour;
             }
             
-            if (timeSlot.startsWith('After')) {
+            if (timeSlot.startsWith(this.options.labels.after)) {
                 return eventHour > endHour;
             }
             
