@@ -1728,3 +1728,8 @@ class SimpleCalendarJs {
         }
     }
 }
+
+// Global export for browser usage
+if (typeof window !== 'undefined') {
+    window.SimpleCalendarJs = SimpleCalendarJs;
+}
