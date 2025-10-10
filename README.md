@@ -16,13 +16,19 @@ A pure JavaScript calendar component with no dependencies. Features responsive d
 - **Internationalization** - Full localization support for weekdays, months, and UI labels
 - **Month/Year Dropdowns** - Quick navigation with clickable month and year selectors
 - **Color Customization** - Comprehensive theming system with light/dark mode support
+- **Enhanced Theme Detection** - Automatic theme detection for Next.js, Tailwind CSS, and other frameworks
 - **Theme Integration** - Built-in dark theme with automatic color adaptation
 - **Enhanced Navigation** - Transparent navigation buttons with theme-aware hover effects
 - **Always-Visible Time Lines** - Hour and half-hour lines remain visible regardless of grid settings
+- **Header Visibility Control** - Show/hide month, year, navigation, and view buttons independently
+- **Smart Container Optimization** - Automatic layout optimization for small calendar containers
+- **Improved Text Overflow** - Enhanced ellipsis behavior for event text in constrained spaces
+- **Clean Interaction Design** - Removed distracting hover effects for professional appearance
 - **CSS Prefix** - All classes prefixed with 'sc-' to avoid conflicts
 - **Template Strings** - Clean HTML generation using template literals
 - **Event Support** - Add, remove, and display events
 - **Keyboard Navigation** - Arrow keys, T (today), M/W/D (views)
+- **Memory Management** - Proper cleanup with destroy() method for SPAs
 
 ## Quick Start
 
@@ -73,6 +79,9 @@ const calendar = new SimpleCalendarJs('#calendar', {
     showWeekButton: true,             // true/false - show week view button
     showDayButton: true,              // true/false - show day view button
     showNavigation: true,             // true/false - show navigation buttons (prev/next)
+    showTitle: true,                  // true/false - show entire title container (month/year)
+    showMonth: true,                  // true/false - show month in title (when showTitle is true)
+    showYear: true,                   // true/false - show year in title (when showTitle is true)
     
     // Localization Options
     weekdays: ['Sunday', 'Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday'],
@@ -286,8 +295,38 @@ colors: {
 | `todayText` | Today's date text | `#dc3545` | `#ff6b6b` |
 | `hoverBg` | Hover backgrounds | `#f8f9fa` | `#2d2d2d` |
 
-### Theme Integration
-The calendar automatically detects `data-theme="dark"` on parent elements and applies dark colors accordingly. Perfect for integration with existing website theme systems.
+### Enhanced Theme Detection
+The calendar features intelligent theme detection covering popular frameworks and systems:
+
+**Automatic Detection Priority:**
+1. **data-theme attribute** - `data-theme="dark"` (original system)
+2. **Class-based themes** - `.dark` or `.light` classes on `html` or `body` (Next.js, Tailwind CSS)
+3. **CSS custom properties** - `--theme` variable
+4. **Alternative attributes** - `theme` attribute
+5. **System preference** - `prefers-color-scheme: dark`
+
+**Framework Compatibility:**
+- **Next.js** with `next-themes` - Automatically detects `.dark` class
+- **Tailwind CSS** - Supports Tailwind's dark mode classes
+- **Custom systems** - Flexible detection for various theme implementations
+- **Real-time updates** - Theme changes are detected and applied automatically
+
+**Example Usage:**
+```javascript
+// Works automatically with Next.js themes
+const calendar = new SimpleCalendarJs('#calendar', {
+    // No manual theme configuration needed
+});
+
+// Manual override still available
+document.documentElement.setAttribute('data-theme', 'dark');
+```
+
+**Memory Management:**
+The calendar includes proper cleanup with a `destroy()` method for Single Page Applications:
+```javascript
+calendar.destroy(); // Cleans up theme observers and event listeners
+```
 
 ## Event Format
 
@@ -414,11 +453,17 @@ calendar.setShowMonthButton(true);            // Show/hide month view button
 calendar.setShowWeekButton(true);             // Show/hide week view button
 calendar.setShowDayButton(true);              // Show/hide day view button
 calendar.setShowNavigation(true);             // Show/hide navigation buttons
+calendar.setShowTitle(true);                  // Show/hide entire title container
+calendar.setShowMonth(true);                  // Show/hide month in title
+calendar.setShowYear(true);                   // Show/hide year in title
 calendar.setViewButtonsVisibility(           // Set multiple button visibility at once
     true,  // month button
     true,  // week button
     false  // day button
 );
+
+// Memory management
+calendar.destroy();                           // Clean up observers and event listeners
 ```
 
 ## CSS Classes
@@ -568,6 +613,38 @@ In month view with `fulldayMode: false`, event counts are displayed as styled ba
 - Today's badge uses full event color saturation for emphasis
 - Seamlessly integrates with custom color schemes
 
+## Small Container Optimization
+
+The calendar automatically optimizes its layout for small containers and constrained spaces:
+
+### **Container Detection**
+- **Automatic optimization** for calendars with height ≤ 500px
+- **Responsive text sizing** based on container dimensions
+- **Smart padding reduction** in tight spaces
+
+### **Layout Improvements**
+- **Flex/Grid overflow prevention** - Uses `min-height: 0` to allow proper content shrinking
+- **Container hierarchy fixes** - Ensures all nested containers respect parent boundaries
+- **Text ellipsis enhancement** - More aggressive text truncation in small spaces
+
+### **Event Text Optimization**
+- **Fullday mode fixes** - Event text properly constrained within event boundaries
+- **Padding-aware sizing** - Text width accounts for container padding
+- **Responsive font sizes** - Smaller fonts in compact containers
+- **Enhanced ellipsis** - Earlier text truncation for better readability
+
+### **Cross-View Consistency**
+- **Month view** - Days shrink to fit container height
+- **Week view** - Time slots and fullday events scale appropriately
+- **Day view** - All elements respect container constraints
+
+Example usage in small spaces:
+```html
+<div style="height: 400px; width: 300px;">
+    <div id="small-calendar"></div>
+</div>
+```
+
 ## Enhanced Styling Features
 
 ### Navigation Button Styling
@@ -584,6 +661,12 @@ In month view with `fulldayMode: false`, event counts are displayed as styled ba
 - **Always Visible**: Hour and half-hour lines remain visible regardless of grid border settings
 - **Proper Hierarchy**: Uses `!important` declarations to ensure visibility
 - **Theme Integration**: Line colors adapt to current theme automatically
+
+### Clean Interaction Design
+- **Removed Hover Effects**: Day cells and time slots no longer show distracting hover backgrounds
+- **Professional Appearance**: Cleaner, more focused user interface
+- **Preserved Functionality**: All click interactions and cursor pointers remain intact
+- **Better Visual Hierarchy**: User attention stays on important content like events and dates
 
 ### Today Highlighting
 - **Enhanced Contrast**: Today's background is darker in dark mode for better visibility

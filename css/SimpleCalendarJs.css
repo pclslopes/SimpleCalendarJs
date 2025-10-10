@@ -1,5 +1,5 @@
 /**
- * SimpleCalendarJs v2.0.2
+ * SimpleCalendarJs v2.0.3
  * A clean, modern, and feature-rich JavaScript calendar component with zero dependencies
  * 
  * @author Pedro Lopes <simplecalendarjs@gmail.com>
@@ -67,6 +67,26 @@
 
 /* Manual dark theme via data-theme attribute */
 [data-theme="dark"] .sc-calendar {
+    --sc-bg-primary: #1a1a1a;
+    --sc-bg-secondary: #2d2d2d;
+    --sc-bg-tertiary: #3a3a3a;
+    --sc-text-primary: #ffffff;
+    --sc-text-secondary: #b0b0b0;
+    --sc-text-muted: #888888;
+    --sc-border-color: #444444;
+    --sc-border-light: #555555;
+    --sc-accent-color: #4a90e2;
+    --sc-accent-hover: #357abd;
+    --sc-today-bg: #1a2f4a;
+    --sc-today-text: #ff6b6b;
+    --sc-hover-bg: #2d2d2d;
+    --sc-shadow-enabled: 0 2px 10px rgba(0, 0, 0, 0.5);
+}
+
+/* Enhanced theme detection - class-based themes (Next.js, Tailwind, etc.) */
+.dark .sc-calendar,
+html.dark .sc-calendar,
+body.dark .sc-calendar {
     --sc-bg-primary: #1a1a1a;
     --sc-bg-secondary: #2d2d2d;
     --sc-bg-tertiary: #3a3a3a;
@@ -299,12 +319,13 @@
     height: 100%;
     display: flex;
     flex-direction: column;
+    overflow: hidden;
 }
 
 .sc-view-container {
     flex: 1;
     overflow: hidden;
-    height: 100%;
+    min-height: 0;
 }
 
 /* Month View Styles */
@@ -312,6 +333,7 @@
     height: 100%;
     display: flex;
     flex-direction: column;
+    min-height: 0;
 }
 
 .sc-weekdays {
@@ -351,6 +373,7 @@
     flex: 1;
     overflow: visible;
     /*min-height: 480px;*/
+    min-height: 0;
 }
 
 /* Allow cells to grow vertically in month fullday mode */
@@ -370,15 +393,13 @@
 .sc-day {
     display: flex;
     flex-direction: column;
-    min-height: 80px;
+    min-height: 0;
     cursor: pointer;
     transition: background-color 0.2s ease;
     overflow: visible;
 }
 
-.sc-day:hover {
-    background: var(--sc-hover-bg);
-}
+/* Removed hover background for better UX */
 
 .sc-day-number {
     text-align: center;
@@ -458,7 +479,10 @@
     }
 }
 
-[data-theme="dark"] .sc-event-count {
+[data-theme="dark"] .sc-event-count,
+.dark .sc-event-count,
+html.dark .sc-event-count,
+body.dark .sc-event-count {
     background: color-mix(in srgb, var(--sc-event-color, #4c6f94) 20%, var(--sc-bg-tertiary));
     color: color-mix(in srgb, var(--sc-event-color, #4c6f94) 30%, white);
 }
@@ -489,7 +513,10 @@
     }
 }
 
-[data-theme="dark"] .sc-day-count-mode.sc-today .sc-event-count {
+[data-theme="dark"] .sc-day-count-mode.sc-today .sc-event-count,
+.dark .sc-day-count-mode.sc-today .sc-event-count,
+html.dark .sc-day-count-mode.sc-today .sc-event-count,
+body.dark .sc-day-count-mode.sc-today .sc-event-count {
     background: var(--sc-event-color, #4c6f94);
     color: #ffffff;
 }
@@ -538,7 +565,9 @@
     height: 18px;
     margin: 1px 4px;
     min-width: 0;
+    max-width: 100%;
     display: block;
+    box-sizing: border-box;
 }
 /* Month view fullday mode - event container (responsive) */
 .sc-month-view.sc-fullday .sc-event-month {
@@ -558,9 +587,13 @@
     overflow: hidden;
     text-overflow: ellipsis;
     white-space: nowrap;
-    position:absolute;
+    position: absolute;
     display: block;
-    width: 100%;
+    width: calc(100% - 12px);
+    max-width: calc(100% - 12px);
+    box-sizing: border-box;
+    left: 6px;
+    right: 6px;
 }
 
 /* Month View Multi-day Event Styles */
@@ -708,7 +741,9 @@
     /*max-height: calc(100vh - 200px);*/
     display: grid;
     grid-template-columns: 80px repeat(7, 1fr);
-    align-content: start;
+    grid-template-rows: auto 1fr;
+    align-content: stretch;
+    min-height: 0;
 }
 
 .sc-time-column-header,
@@ -785,9 +820,7 @@
     background: var(--sc-today-bg);
 }
 
-.sc-day-column:hover {
-    background: var(--sc-hover-bg);
-}
+/* Removed hover background for better UX */
 
 /* Half-hour dotted line in the middle of each hour cell */
 .sc-half-hour-line {
@@ -927,9 +960,7 @@
     overflow: visible;
 }
 
-.sc-week-view.sc-fullday .sc-day:hover {
-    background: var(--sc-hover-bg);
-}
+/* Removed hover background for better UX */
 
 .sc-week-view.sc-fullday .sc-day-number {
     text-align: center;
@@ -970,7 +1001,11 @@
     white-space: nowrap;
     position: absolute;
     display: block;
-    width: 100%;
+    width: calc(100% - 12px);
+    max-width: calc(100% - 12px);
+    box-sizing: border-box;
+    left: 6px;
+    right: 6px;
 }
 
 /* Week view fullday mode multi-day events - seamless connections */
@@ -1051,7 +1086,9 @@
     max-height: calc(100vh - 200px);
     display: grid;
     grid-template-columns: 80px 1fr;
-    align-content: start;
+    grid-template-rows: auto 1fr;
+    align-content: stretch;
+    min-height: 0;
 }
 
 /* Fullday Day View */
@@ -1182,7 +1219,11 @@
     white-space: nowrap;
     position: absolute;
     display: block;
-    width: 100%;
+    width: calc(100% - 12px);
+    max-width: calc(100% - 12px);
+    box-sizing: border-box;
+    left: 6px;
+    right: 6px;
 }
 
 /* Responsive Design */
@@ -1215,8 +1256,8 @@
     
     
     .sc-days-grid {
-        min-height: 360px;
-        grid-template-rows: repeat(6, minmax(60px, 1fr));
+        min-height: 0;
+        grid-template-rows: repeat(6, 1fr);
     }
     
     .sc-day-number {
@@ -1237,6 +1278,10 @@
         font-size: 0.6rem;
         padding: 1px 3px;
         height: 14px;
+        max-width: calc(100% - 8px);
+        overflow: hidden;
+        text-overflow: ellipsis;
+        white-space: nowrap;
     }
     
     
@@ -1333,8 +1378,8 @@
     }
     
     .sc-days-grid {
-        min-height: 300px;
-        grid-template-rows: repeat(6, minmax(50px, 1fr));
+        min-height: 0;
+        grid-template-rows: repeat(6, 1fr);
     }
     
     .sc-day-count-mode .sc-day-number {
@@ -1392,6 +1437,63 @@
         min-height: 14px;
     }
     
+}
+
+/* Improved text overflow for small calendar containers */
+.sc-calendar[style*="height"] .sc-event-month,
+.sc-calendar[style*="height"] .sc-event-week,
+.sc-calendar[style*="height"] .sc-event-day,
+.sc-calendar[style*="height"] .sc-event-text {
+    max-width: calc(100% - 12px);
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+    word-break: break-word;
+}
+
+/* For small calendar containers (height <= 500px), make text ellipsis more aggressive */
+.sc-calendar[style*="height: 420px"],
+.sc-calendar[style*="height: 380px"],
+.sc-calendar[style*="height: 350px"] {
+    --sc-event-text-max-width: calc(100% - 8px);
+}
+
+.sc-calendar[style*="height: 420px"] .sc-event-month,
+.sc-calendar[style*="height: 420px"] .sc-event-week,
+.sc-calendar[style*="height: 420px"] .sc-event-day,
+.sc-calendar[style*="height: 420px"] .sc-event-text,
+.sc-calendar[style*="height: 380px"] .sc-event-month,
+.sc-calendar[style*="height: 380px"] .sc-event-week,
+.sc-calendar[style*="height: 380px"] .sc-event-day,
+.sc-calendar[style*="height: 380px"] .sc-event-text,
+.sc-calendar[style*="height: 350px"] .sc-event-month,
+.sc-calendar[style*="height: 350px"] .sc-event-week,
+.sc-calendar[style*="height: 350px"] .sc-event-day,
+.sc-calendar[style*="height: 350px"] .sc-event-text {
+    max-width: calc(100% - 8px);
+    padding-left: 3px;
+    padding-right: 3px;
+}
+
+/* Small container fullday mode text fixes */
+.sc-calendar[style*="height: 420px"].sc-fullday .sc-event-text,
+.sc-calendar[style*="height: 380px"].sc-fullday .sc-event-text,
+.sc-calendar[style*="height: 350px"].sc-fullday .sc-event-text {
+    width: calc(100% - 8px);
+    max-width: calc(100% - 8px);
+    left: 4px;
+    right: 4px;
+    font-size: 0.65rem;
+}
+
+.sc-calendar[style*="height: 420px"] .sc-fullday .sc-event-text,
+.sc-calendar[style*="height: 380px"] .sc-fullday .sc-event-text,
+.sc-calendar[style*="height: 350px"] .sc-fullday .sc-event-text {
+    width: calc(100% - 8px);
+    max-width: calc(100% - 8px);
+    left: 4px;
+    right: 4px;
+    font-size: 0.65rem;
 }
 
 /* Grid Border Options - only month view gets container borders */

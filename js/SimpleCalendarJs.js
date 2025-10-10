@@ -1,5 +1,5 @@
 /**
- * SimpleCalendarJs v2.0.2
+ * SimpleCalendarJs v2.0.3
  * A clean, modern, and feature-rich JavaScript calendar component with zero dependencies
  * 
  * @author Pedro Lopes <simplecalendarjs@gmail.com>
@@ -68,6 +68,9 @@ class SimpleCalendarJs {
             showWeekButton: true, // true/false - show week view button
             showDayButton: true, // true/false - show day view button
             showNavigation: true, // true/false - show navigation buttons (prev/next)
+            showTitle: true, // true/false - show month/year title
+            showMonth: true, // true/false - show month in title (when showTitle is true)
+            showYear: true, // true/false - show year in title (when showTitle is true)
             // Localization options
             weekdays: ['Sunday', 'Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday'],
             months: ['January', 'February', 'March', 'April', 'May', 'June', 'July', 'August', 'September', 'October', 'November', 'December'],
@@ -88,8 +91,114 @@ class SimpleCalendarJs {
         this.fetchedRanges = []; // Array of {startDate, endDate, events} objects
         this.allCachedEvents = []; // All events from all fetched ranges
         
+        // Initialize theme detection
+        this.setupThemeDetection();
         
         this.init();
+    }
+    
+    /**
+     * Enhanced theme detection covering popular frameworks
+     */
+    detectTheme() {
+        // Priority 1: Explicit data-theme attribute (current system)
+        const dataTheme = document.documentElement.dataset.theme;
+        if (dataTheme) return dataTheme;
+        
+        // Priority 2: Common class-based themes (Next.js, Tailwind, etc.)
+        if (document.documentElement.classList.contains('dark')) return 'dark';
+        if (document.documentElement.classList.contains('light')) return 'light';
+        if (document.body.classList.contains('dark')) return 'dark';
+        if (document.body.classList.contains('light')) return 'light';
+        
+        // Priority 3: CSS custom property detection
+        const computedTheme = getComputedStyle(document.documentElement).getPropertyValue('--theme');
+        if (computedTheme) return computedTheme.trim();
+        
+        // Priority 4: Alternative data attributes
+        const themeAttr = document.documentElement.getAttribute('theme');
+        if (themeAttr) return themeAttr;
+        
+        // Priority 5: Body data-theme
+        const bodyTheme = document.body.dataset.theme;
+        if (bodyTheme) return bodyTheme;
+        
+        // Priority 6: System preference
+        if (window.matchMedia && window.matchMedia('(prefers-color-scheme: dark)').matches) {
+            return 'dark';
+        }
+        
+        // Default: light theme
+        return 'light';
+    }
+    
+    /**
+     * Apply detected theme to calendar container
+     */
+    applyDetectedTheme() {
+        const detectedTheme = this.detectTheme();
+        const calendar = this.container.querySelector('.sc-calendar');
+        
+        if (calendar) {
+            // Remove existing theme attributes
+            calendar.removeAttribute('data-theme');
+            
+            // Apply detected theme
+            calendar.setAttribute('data-theme', detectedTheme);
+        }
+    }
+    
+    /**
+     * Set up theme detection and monitoring
+     */
+    setupThemeDetection() {
+        // Apply initial theme
+        this.applyDetectedTheme();
+        
+        // Monitor for theme changes using MutationObserver
+        if (typeof MutationObserver !== 'undefined') {
+            this.themeObserver = new MutationObserver((mutations) => {
+                let themeChanged = false;
+                
+                mutations.forEach((mutation) => {
+                    if (mutation.type === 'attributes') {
+                        const target = mutation.target;
+                        const attrName = mutation.attributeName;
+                        
+                        // Check for theme-related attribute changes
+                        if (attrName === 'data-theme' || 
+                            attrName === 'theme' ||
+                            attrName === 'class') {
+                            themeChanged = true;
+                        }
+                    }
+                });
+                
+                if (themeChanged) {
+                    this.applyDetectedTheme();
+                }
+            });
+            
+            // Observe theme changes on html and body elements
+            this.themeObserver.observe(document.documentElement, {
+                attributes: true,
+                attributeFilter: ['data-theme', 'theme', 'class']
+            });
+            
+            this.themeObserver.observe(document.body, {
+                attributes: true,
+                attributeFilter: ['data-theme', 'theme', 'class']
+            });
+        }
+        
+        // Listen for system theme changes
+        if (window.matchMedia) {
+            this.systemThemeListener = (e) => {
+                this.applyDetectedTheme();
+            };
+            
+            window.matchMedia('(prefers-color-scheme: dark)').addEventListener('change', this.systemThemeListener);
+        }
     }
     
     mergeColors(defaultColors, userColors) {
@@ -122,7 +231,10 @@ class SimpleCalendarJs {
         this.applyEventColor();
         this.applyViewButtonVisibility();
         this.applyNavigationVisibility();
+        this.applyTitleVisibility();
+        this.applyHeaderVisibility();
         this.applyCustomColors();
+        this.applyDetectedTheme(); // Apply theme after calendar is rendered
         this.bindEvents();
         this.render();
     }
@@ -205,6 +317,8 @@ class SimpleCalendarJs {
             const hasVisibleButtons = this.options.showMonthButton || this.options.showWeekButton || this.options.showDayButton;
             viewSwitcher.style.display = hasVisibleButtons ? 'flex' : 'none';
         }
+        
+        this.applyHeaderVisibility();
     }
     
     applyNavigationVisibility() {
@@ -212,6 +326,57 @@ class SimpleCalendarJs {
         if (navContainer) {
             navContainer.style.visibility = this.options.showNavigation ? 'visible' : 'hidden';
         }
+        
+        this.applyHeaderVisibility();
+    }
+    
+    applyTitleVisibility() {
+        const titleContainer = this.container.querySelector('.sc-title-container');
+        const titleMonth = this.container.querySelector('.sc-title-month');
+        const titleYear = this.container.querySelector('.sc-title-year');
+        
+        // Hide/show entire title container
+        if (titleContainer) {
+            titleContainer.style.display = this.options.showTitle ? 'block' : 'none';
+        }
+        
+        // Hide/show individual month/year elements when title is visible
+        if (this.options.showTitle) {
+            if (titleMonth) {
+                titleMonth.style.display = this.options.showMonth ? 'inline' : 'none';
+            }
+            if (titleYear) {
+                titleYear.style.display = this.options.showYear ? 'inline' : 'none';
+            }
+            
+            // Handle spacing when only one element is visible
+            const title = this.container.querySelector('.sc-title');
+            if (title && this.options.showMonth && this.options.showYear) {
+                // Both visible - ensure there's a space between them
+                if (titleMonth && titleYear) {
+                    titleMonth.style.marginRight = '0.5em';
+                }
+            } else if (title) {
+                // Only one visible - remove margin
+                if (titleMonth) titleMonth.style.marginRight = '0';
+            }
+        }
+        
+        this.applyHeaderVisibility();
+    }
+    
+    applyHeaderVisibility() {
+        const header = this.container.querySelector('.sc-header');
+        if (!header) return;
+        
+        // Check if any header elements should be visible
+        const hasVisibleNavigation = this.options.showNavigation;
+        const hasVisibleTitle = this.options.showTitle && (this.options.showMonth || this.options.showYear);
+        const hasVisibleViewButtons = this.options.showMonthButton || this.options.showWeekButton || this.options.showDayButton;
+        
+        const shouldShowHeader = hasVisibleNavigation || hasVisibleTitle || hasVisibleViewButtons;
+        
+        header.style.display = shouldShowHeader ? 'grid' : 'none';
     }
 
     applyCustomColors() {
@@ -1429,6 +1594,28 @@ class SimpleCalendarJs {
         this.applyNavigationVisibility();
     }
     
+    setShowTitle(show) {
+        this.options.showTitle = show;
+        this.applyTitleVisibility();
+    }
+    
+    setShowMonth(show) {
+        this.options.showMonth = show;
+        this.applyTitleVisibility();
+    }
+    
+    setShowYear(show) {
+        this.options.showYear = show;
+        this.applyTitleVisibility();
+    }
+    
+    setTitleVisibility(showTitle, showMonth = true, showYear = true) {
+        this.options.showTitle = showTitle;
+        this.options.showMonth = showMonth;
+        this.options.showYear = showYear;
+        this.applyTitleVisibility();
+    }
+    
     setDefaultEventColor(color) {
         this.options.defaultEventColor = color;
         this.applyEventColor();
@@ -1517,5 +1704,27 @@ class SimpleCalendarJs {
             .map(([property, value]) => `${property}: ${value}`)
             .join('; ');
         return styleString ? `style="${styleString}"` : '';
+    }
+    
+    /**
+     * Destroy the calendar and clean up observers
+     */
+    destroy() {
+        // Clean up theme observers
+        if (this.themeObserver) {
+            this.themeObserver.disconnect();
+            this.themeObserver = null;
+        }
+        
+        // Clean up system theme listener
+        if (this.systemThemeListener && window.matchMedia) {
+            window.matchMedia('(prefers-color-scheme: dark)').removeEventListener('change', this.systemThemeListener);
+            this.systemThemeListener = null;
+        }
+        
+        // Clear the container
+        if (this.container) {
+            this.container.innerHTML = '';
+        }
     }
 }
