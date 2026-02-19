@@ -1,850 +1,1243 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Simple Calendar JS - Demo</title>
-    <link rel="stylesheet" href="css/SimpleCalendarJs.css">
-    <style>
-        :root {
-            --bg-primary: #f5f5f5;
-            --bg-secondary: #ffffff;
-            --bg-tertiary: #ecf0f1;
-            --text-primary: #2c3e50;
-            --text-secondary: #ffffff;
-            --border-color: #bdc3c7;
-            --button-bg: #3498db;
-            --button-hover: #2980b9;
-            --header-bg: #2c3e50;
-        }
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>SimpleCalendarJs — Demo</title>
+  <link rel="stylesheet" href="css/simple-calendar-js.css" />
+  <style>
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
 
-        [data-theme="dark"] {
-            --bg-primary: #1a1a1a;
-            --bg-secondary: #2d2d2d;
-            --bg-tertiary: #3a3a3a;
-            --text-primary: #ffffff;
-            --text-secondary: #ffffff;
-            --border-color: #555555;
-            --button-bg: #4a90e2;
-            --button-hover: #357abd;
-            --header-bg: #1e1e1e;
-        }
+    body {
+      font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', system-ui, sans-serif;
+      background: #f1f5f9;
+      color: #1e293b;
+      min-height: 100vh;
+      display: flex;
+      flex-direction: column;
+    }
 
-        html, body {
-            margin: 0;
-            padding: 0;
-        }
+    /* ---- Top bar ---- */
+    .page-header {
+      background: #fff;
+      border-bottom: 1px solid #e2e8f0;
+      padding: 0 24px;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      height: 56px;
+      flex-shrink: 0;
+      gap: 12px;
+    }
 
-        body {
-            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
-            background: var(--bg-primary);
-            color: var(--text-primary);
-            line-height: 1.6;
-            transition: background-color 0.3s ease, color 0.3s ease;
-        }
-        
-        .container {
-            display: flex;
-            flex-direction: column;
-            min-height: 100vh;
-            padding: 10px;
-        }
-        
-        .demo-header {
-            background: var(--header-bg);
-            color: var(--text-secondary);
-            padding: 20px;
-            text-align: center;
-            transition: background-color 0.3s ease;
-            flex-shrink: 0;
-        }
-        
-        .demo-header h1 {
-            margin: 0 0 10px 0;
-            font-size: 2rem;
-        }
-        
-        .demo-header p {
-            margin: 0;
-            opacity: 0.9;
-        }
-        
-        .demo-controls {
-            background: var(--bg-tertiary);
-            padding: 16px;
-            border-bottom: 1px solid var(--border-color);
-            display: flex;
-            flex-wrap: wrap;
-            gap: 12px;
-            align-items: center;
-            transition: background-color 0.3s ease, border-color 0.3s ease;
-            flex-shrink: 0;
-        }
-        
-        .demo-controls label {
-            font-weight: 500;
-            color: var(--text-primary);
-        }
-        
-        .demo-controls button {
-            background: var(--button-bg);
-            color: var(--text-secondary);
-            border: none;
-            padding: 8px 16px;
-            border-radius: 4px;
-            cursor: pointer;
-            font-size: 14px;
-            transition: background-color 0.2s;
-        }
-        
-        .demo-controls button:hover {
-            background: var(--button-hover);
-        }
+    .page-header h1 {
+      font-size: 16px;
+      font-weight: 700;
+      letter-spacing: -0.01em;
+      color: #0f172a;
+    }
 
-        .theme-switcher {
-            background: var(--button-bg);
-            color: var(--text-secondary);
-            border: none;
-            padding: 8px 16px;
-            border-radius: 4px;
-            cursor: pointer;
-            font-size: 14px;
-            transition: background-color 0.2s;
-            margin-left: auto;
-        }
-        
-        .theme-switcher:hover {
-            background: var(--button-hover);
-        }
-        
-        .demo-controls input[type="checkbox"] {
-            margin-left: 8px;
-        }
-        
-        #calendar-container {
-            flex: 1;
-            min-height: 600px;
-        }
-        
-        .small-calendars-section {
-            margin-top: 40px;
-            padding: 20px;
-            background: var(--bg-tertiary);
-            border-radius: 8px;
-            border: 1px solid var(--border-color);
-            transition: background-color 0.3s ease, border-color 0.3s ease;
-        }
-        
-        .small-calendars-section h2 {
-            margin: 0 0 10px 0;
-            color: var(--text-primary);
-            font-size: 1.5rem;
-        }
-        
-        .small-calendars-section p {
-            margin: 0 0 20px 0;
-            color: var(--text-secondary);
-            font-size: 0.95rem;
-        }
-        
-        .small-calendars-grid {
-            display: grid;
-            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
-            gap: 20px;
-        }
-        
-        .small-calendar-container {
-            background: var(--bg-secondary);
-            border-radius: 6px;
-            padding: 15px;
-            border: 1px solid var(--border-color);
-            transition: background-color 0.3s ease, border-color 0.3s ease;
-        }
-        
-        .small-calendar-container h3 {
-            margin: 0 0 10px 0;
-            font-size: 1.1rem;
-            color: var(--text-primary);
-            text-align: center;
-        }
-        
-        .small-calendar-container .sc-calendar {
-            height: 420px;
-            font-size: 0.85rem;
-        }
-        
-        
-        
-        .small-calendar-note {
-            margin: 10px 0 0 0;
-            font-size: 0.8rem;
-            color: var(--text-muted);
-            text-align: center;
-            font-style: italic;
-        }
-        
-        @media (max-width: 768px) {
-            .demo-header h1 {
-                font-size: 1.5rem;
-            }
-            
-            .demo-controls {
-                flex-direction: column;
-                align-items: stretch;
-            }
-            
-            .demo-controls > * {
-                margin-bottom: 8px;
-            }
-            
-            .small-calendars-grid {
-                grid-template-columns: 1fr;
-                gap: 15px;
-            }
-            
-            .small-calendar-container .sc-calendar {
-                height: 380px;
-                font-size: 0.8rem;
-            }
-            
-            /* Even more compact on mobile */
-            .small-calendar-container .sc-days-grid {
-                grid-template-rows: repeat(6, minmax(28px, 1fr)) !important;
-            }
-            
-            .small-calendar-container .sc-day {
-                min-height: 28px !important;
-            }
-            
-            .small-calendars-section {
-                margin-top: 30px;
-                padding: 15px;
-            }
-        }
-    </style>
+    .page-header span {
+      font-size: 12px;
+      background: #4f46e5;
+      color: #fff;
+      padding: 2px 8px;
+      border-radius: 99px;
+      font-weight: 600;
+      letter-spacing: 0.02em;
+    }
+
+    .header-controls {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+    }
+
+    /* ---- Theme toggle ---- */
+    .theme-toggle {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      user-select: none;
+    }
+
+    .theme-icon {
+      font-size: 15px;
+      line-height: 1;
+      transition: opacity 200ms, color 200ms;
+    }
+
+    .sun-icon  { opacity: 1;   color: #f59e0b; }
+    .moon-icon { opacity: 0.3; color: #94a3b8; }
+
+    body.dark-page .sun-icon  { opacity: 0.3; color: #64748b; }
+    body.dark-page .moon-icon { opacity: 1;   color: #e2e8f0; }
+
+    .toggle-track {
+      width: 40px;
+      height: 22px;
+      background: #e2e8f0;
+      border-radius: 11px;
+      position: relative;
+      transition: background 200ms ease;
+      cursor: pointer;
+      border: none;
+      outline: none;
+      padding: 0;
+    }
+
+    .toggle-track.on { background: #4f46e5; }
+
+    .toggle-thumb {
+      width: 16px;
+      height: 16px;
+      background: #fff;
+      border-radius: 50%;
+      position: absolute;
+      top: 3px;
+      left: 3px;
+      transition: transform 200ms ease;
+      box-shadow: 0 1px 3px rgba(0,0,0,.2);
+      pointer-events: none;
+    }
+
+    .toggle-track.on .toggle-thumb { transform: translateX(18px); }
+
+    /* ---- Main two-column layout ---- */
+    .page-layout {
+      flex: 1;
+      display: flex;
+      flex-direction: row;
+      gap: 0;
+      overflow: hidden;
+    }
+
+    /* ---- Options sidebar ---- */
+    .options-panel {
+      width: 240px;
+      flex-shrink: 0;
+      background: #fff;
+      border-left: 1px solid #e2e8f0;
+      display: flex;
+      flex-direction: column;
+      overflow-y: auto;
+    }
+
+    .options-panel-header {
+      padding: 16px 16px 10px;
+      font-size: 11px;
+      font-weight: 700;
+      text-transform: uppercase;
+      letter-spacing: 0.08em;
+      color: #94a3b8;
+      border-bottom: 1px solid #f1f5f9;
+    }
+
+    .option-group {
+      padding: 14px 16px;
+      border-bottom: 1px solid #f1f5f9;
+    }
+
+    .option-label {
+      display: block;
+      font-size: 12px;
+      font-weight: 600;
+      color: #475569;
+      margin-bottom: 8px;
+      letter-spacing: -0.01em;
+    }
+
+    /* Segmented control */
+    .seg-control {
+      display: flex;
+      border: 1px solid #e2e8f0;
+      border-radius: 6px;
+      overflow: hidden;
+    }
+
+    .seg-btn {
+      flex: 1;
+      background: none;
+      border: none;
+      border-right: 1px solid #e2e8f0;
+      padding: 5px 6px;
+      font-size: 12px;
+      font-family: inherit;
+      font-weight: 500;
+      color: #64748b;
+      cursor: pointer;
+      transition: background 150ms, color 150ms;
+      white-space: nowrap;
+    }
+
+    .seg-btn:last-child { border-right: none; }
+    .seg-btn:hover { background: #f8fafc; color: #0f172a; }
+
+    .seg-btn.active {
+      background: #eef2ff;
+      color: #4f46e5;
+      font-weight: 600;
+    }
+
+    /* Select */
+    .option-select {
+      width: 100%;
+      padding: 6px 8px;
+      border: 1px solid #e2e8f0;
+      border-radius: 6px;
+      font-size: 12px;
+      font-family: inherit;
+      color: #334155;
+      background: #fff;
+      cursor: pointer;
+      outline: none;
+      transition: border-color 150ms;
+    }
+
+    .option-select:focus { border-color: #4f46e5; }
+
+    /* Option toggle (inline) */
+    .option-toggle-row {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+    }
+
+    .opt-toggle-track {
+      width: 36px;
+      height: 20px;
+      background: #e2e8f0;
+      border-radius: 10px;
+      position: relative;
+      cursor: pointer;
+      border: none;
+      flex-shrink: 0;
+      transition: background 200ms;
+      padding: 0;
+    }
+
+    .opt-toggle-track.on { background: #4f46e5; }
+
+    .opt-toggle-thumb {
+      width: 14px;
+      height: 14px;
+      background: #fff;
+      border-radius: 50%;
+      position: absolute;
+      top: 3px;
+      left: 3px;
+      transition: transform 200ms;
+      pointer-events: none;
+      box-shadow: 0 1px 3px rgba(0,0,0,.2);
+    }
+
+    .opt-toggle-track.on .opt-toggle-thumb { transform: translateX(16px); }
+
+    .opt-toggle-label {
+      font-size: 12px;
+      color: #64748b;
+      font-weight: 500;
+    }
+
+    /* ---- Content area ---- */
+    .content-area {
+      flex: 1;
+      display: flex;
+      flex-direction: column;
+      padding: 20px;
+      gap: 16px;
+      min-width: 0;
+      overflow: auto;
+    }
+
+    #cal {
+      flex: 1;
+      min-height: 580px;
+    }
+
+    /* ---- Log panel ---- */
+    .log-panel {
+      background: #fff;
+      border: 1px solid #e2e8f0;
+      border-radius: 8px;
+      overflow: hidden;
+    }
+
+    .log-header {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      padding: 10px 14px;
+      border-bottom: 1px solid #e2e8f0;
+      font-size: 12px;
+      font-weight: 600;
+      text-transform: uppercase;
+      letter-spacing: 0.06em;
+      color: #64748b;
+    }
+
+    .log-clear {
+      font-size: 11px;
+      background: none;
+      border: 1px solid #e2e8f0;
+      border-radius: 4px;
+      padding: 2px 8px;
+      cursor: pointer;
+      color: #64748b;
+      font-weight: 500;
+      text-transform: none;
+      letter-spacing: 0;
+      transition: background 150ms;
+    }
+
+    .log-clear:hover { background: #f1f5f9; }
+
+    #log-list {
+      list-style: none;
+      max-height: 140px;
+      overflow-y: auto;
+      padding: 6px 0;
+    }
+
+    #log-list li {
+      padding: 4px 14px;
+      font-size: 12px;
+      font-family: 'SFMono-Regular', Consolas, monospace;
+      color: #334155;
+      border-bottom: 1px solid #f8fafc;
+      white-space: pre-wrap;
+      word-break: break-all;
+    }
+
+    #log-list li:last-child { border-bottom: none; }
+
+    #log-list li .log-tag {
+      display: inline-block;
+      font-size: 10px;
+      font-weight: 700;
+      border-radius: 3px;
+      padding: 1px 5px;
+      margin-right: 6px;
+      text-transform: uppercase;
+      letter-spacing: 0.04em;
+    }
+
+    .tag-event  { background: #dbeafe; color: #1d4ed8; }
+    .tag-slot   { background: #dcfce7; color: #15803d; }
+    .tag-nav    { background: #fef9c3; color: #a16207; }
+    .tag-view   { background: #f3e8ff; color: #7e22ce; }
+    .tag-opt    { background: #fee2e2; color: #b91c1c; }
+
+    /* ---- Dark mode ---- */
+    body.dark-page {
+      background: #0f172a;
+      color: #e2e8f0;
+    }
+
+    body.dark-page .page-header {
+      background: #1e293b;
+      border-color: #334155;
+    }
+
+    body.dark-page .page-header h1 { color: #f1f5f9; }
+
+    body.dark-page .options-panel {
+      background: #1e293b;
+      border-color: #334155;
+    }
+
+    body.dark-page .options-panel-header { color: #475569; border-color: #334155; }
+
+    body.dark-page .option-group { border-color: #334155; }
+    body.dark-page .option-label { color: #94a3b8; }
+
+    body.dark-page .seg-control { border-color: #334155; }
+    body.dark-page .seg-btn { border-color: #334155; color: #94a3b8; }
+    body.dark-page .seg-btn:hover { background: #0f172a; color: #e2e8f0; }
+    body.dark-page .seg-btn.active { background: #312e81; color: #a5b4fc; }
+
+    body.dark-page .option-select {
+      background: #0f172a;
+      border-color: #334155;
+      color: #e2e8f0;
+    }
+
+    body.dark-page .toggle-track { background: #334155; }
+    body.dark-page .toggle-track.on { background: #4f46e5; }
+    body.dark-page .toggle-thumb { background: #fff; }
+    body.dark-page .opt-toggle-track { background: #334155; }
+    body.dark-page .opt-toggle-track.on { background: #4f46e5; }
+    body.dark-page .opt-toggle-thumb { background: #fff; }
+    body.dark-page .opt-toggle-label { color: #64748b; }
+
+    body.dark-page .log-panel,
+    body.dark-page .log-header {
+      background: #1e293b;
+      border-color: #334155;
+      color: #94a3b8;
+    }
+
+    body.dark-page #log-list li { color: #cbd5e1; border-color: #1e293b; }
+
+    body.dark-page .log-clear {
+      border-color: #334155;
+      color: #94a3b8;
+      background: transparent;
+    }
+
+    body.dark-page .log-clear:hover { background: #334155; }
+
+    .docs-link {
+      text-decoration: none;
+      color: #64748b;
+      font-size: 14px;
+      font-weight: 500;
+      transition: color 150ms;
+    }
+
+    .docs-link:hover {
+      color: #4f46e5;
+    }
+
+    body.dark-page .docs-link {
+      color: #94a3b8;
+    }
+
+    body.dark-page .docs-link:hover {
+      color: #a5b4fc;
+    }
+
+    /* Checkbox styles */
+    .checkbox-group {
+      display: flex;
+      flex-direction: column;
+      gap: 8px;
+    }
+
+    .checkbox-row {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+    }
+
+    .opt-checkbox {
+      width: 16px;
+      height: 16px;
+      border: 1.5px solid #cbd5e1;
+      border-radius: 3px;
+      cursor: pointer;
+      position: relative;
+      background: #fff;
+      flex-shrink: 0;
+      transition: background 150ms, border-color 150ms;
+    }
+
+    .opt-checkbox.checked {
+      background: #4f46e5;
+      border-color: #4f46e5;
+    }
+
+    .opt-checkbox.checked::after {
+      content: '✓';
+      position: absolute;
+      top: 50%;
+      left: 50%;
+      transform: translate(-50%, -50%);
+      color: #fff;
+      font-size: 11px;
+      font-weight: 700;
+      line-height: 1;
+    }
+
+    .checkbox-label {
+      font-size: 12px;
+      color: #64748b;
+      font-weight: 500;
+      cursor: pointer;
+      user-select: none;
+    }
+
+    body.dark-page .opt-checkbox {
+      background: #0f172a;
+      border-color: #475569;
+    }
+
+    body.dark-page .opt-checkbox.checked {
+      background: #4f46e5;
+      border-color: #4f46e5;
+    }
+
+    body.dark-page .checkbox-label { color: #94a3b8; }
+
+    /* Color picker styles */
+    .color-swatches {
+      display: grid;
+      grid-template-columns: repeat(4, 1fr);
+      gap: 8px;
+      margin-bottom: 8px;
+    }
+
+    .color-swatch {
+      width: 100%;
+      aspect-ratio: 1;
+      border-radius: 6px;
+      border: 2px solid transparent;
+      cursor: pointer;
+      transition: all 150ms;
+      position: relative;
+    }
+
+    .color-swatch:hover {
+      transform: scale(1.1);
+      box-shadow: 0 2px 8px rgba(0,0,0,.15);
+    }
+
+    .color-swatch.active {
+      border-color: #1e293b;
+      box-shadow: 0 0 0 1px #fff, 0 0 0 3px currentColor;
+    }
+
+    body.dark-page .color-swatch.active {
+      border-color: #f1f5f9;
+    }
+
+    .custom-color-row {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+    }
+
+    .custom-color-input {
+      width: 40px;
+      height: 32px;
+      border: 1px solid #e2e8f0;
+      border-radius: 6px;
+      cursor: pointer;
+      padding: 2px;
+    }
+
+    .custom-color-input::-webkit-color-swatch-wrapper {
+      padding: 0;
+    }
+
+    .custom-color-input::-webkit-color-swatch {
+      border: none;
+      border-radius: 4px;
+    }
+
+    .custom-color-label {
+      flex: 1;
+      font-size: 12px;
+      color: #64748b;
+      font-weight: 500;
+    }
+
+    body.dark-page .custom-color-input {
+      border-color: #475569;
+      background: #0f172a;
+    }
+
+    body.dark-page .custom-color-label { color: #94a3b8; }
+  </style>
 </head>
 <body>
-    <div class="container">
-        <div class="demo-header">
-            <h1>Simple Calendar JS</h1>
-            <p>A responsive, pure JavaScript calendar component with month, week, and day views</p>
+
+  <header class="page-header">
+    <div style="display:flex;align-items:center;gap:10px">
+      <h1>SimpleCalendarJs</h1>
+      <span>v3.0.0</span>
+    </div>
+    <div class="header-controls">
+      <a href="docs.html" class="docs-link">Documentation</a>
+      <div class="theme-toggle">
+        <span class="theme-icon sun-icon" aria-hidden="true">☀</span>
+        <button class="toggle-track" id="theme-toggle-btn" role="switch" aria-checked="false" aria-label="Toggle dark mode">
+          <span class="toggle-thumb"></span>
+        </button>
+        <span class="theme-icon moon-icon" aria-hidden="true">🌙</span>
+      </div>
+    </div>
+  </header>
+
+  <div class="page-layout">
+
+    <!-- Calendar + log -->
+    <div class="content-area">
+      <div id="cal"></div>
+
+      <div class="log-panel">
+        <div class="log-header">
+          Callback log
+          <button class="log-clear" id="clear-log">Clear</button>
         </div>
-        
-        <div class="demo-controls">
-            <label>
-                Fullday Mode:
-                <input type="checkbox" id="fulldayToggle">
-            </label>
-            
-            <button id="todayBtn">Go to Today</button>
-            <button id="addEventBtn">Add Sample Event</button>
-            <button id="toggleModeBtn">Toggle Fullday Mode</button>
-            
-            <label>
-                Grid Borders:
-                <select id="gridBordersSelect">
-                    <option value="both">Both</option>
-                    <option value="vertical">Vertical Only</option>
-                    <option value="horizontal">Horizontal Only</option>
-                    <option value="none">None</option>
-                </select>
-            </label>
-            
-            <label>
-                Event Borders:
-                <input type="checkbox" id="eventBordersToggle">
-            </label>
-            
-            <label>
-                Event Border Color:
-                <input type="color" id="eventBorderColorPicker" value="#6c757d">
-            </label>
-            
-            <label>
-                Default Event Color:
-                <input type="color" id="eventColorPicker" value="#4c6f94">
-            </label>
-            
-            <label>
-                Show Month Button:
-                <input type="checkbox" id="showMonthButtonToggle" checked>
-            </label>
-            
-            <label>
-                Show Week Button:
-                <input type="checkbox" id="showWeekButtonToggle" checked>
-            </label>
-            
-            <label>
-                Show Day Button:
-                <input type="checkbox" id="showDayButtonToggle" checked>
-            </label>
-            
-            <label>
-                Show Navigation:
-                <input type="checkbox" id="showNavigationToggle" checked>
-            </label>
-            
-            <label>
-                Calendar Shadow:
-                <input type="checkbox" id="shadowToggle">
-            </label>
-            
-            <button class="theme-switcher" id="themeToggle">🌙 Dark Mode</button>
-        </div>
-        
-        <div id="calendar-container" style="height: 100%;"></div>
-        
-        <div class="small-calendars-section">
-            <h2>Small Calendar Examples</h2>
-            <p>Testing responsiveness and compact layouts across different views</p>
-            
-            <div class="small-calendars-grid">
-                <div class="small-calendar-container">
-                    <h3>Month View</h3>
-                    <div id="small-month-calendar"></div>
-                    <p class="small-calendar-note">No header - all controls hidden (navigation, title, view buttons)</p>
-                </div>
-                
-                <div class="small-calendar-container">
-                    <h3>Week View</h3>
-                    <div id="small-week-calendar"></div>
-                    <p class="small-calendar-note">Week view with reduced hours (8-18)</p>
-                </div>
-                
-                <div class="small-calendar-container">
-                    <h3>Day View</h3>
-                    <div id="small-day-calendar"></div>
-                    <p class="small-calendar-note">Today's schedule (9-17 hours)</p>
-                </div>
-            </div>
-        </div>
-        
-        <div class="small-calendars-section">
-            <h2>Fullday Mode Examples</h2>
-            <p>Testing fullday mode (fulldayMode: true) across different views</p>
-            
-            <div class="small-calendars-grid">
-                <div class="small-calendar-container">
-                    <h3>Month View (Fullday)</h3>
-                    <div id="fullday-month-calendar"></div>
-                    <p class="small-calendar-note">Fullday month view with events displayed in day cells</p>
-                </div>
-                
-                <div class="small-calendar-container">
-                    <h3>Week View (Fullday)</h3>
-                    <div id="fullday-week-calendar"></div>
-                    <p class="small-calendar-note">Fullday week view - no time slots, just day columns</p>
-                </div>
-                
-                <div class="small-calendar-container">
-                    <h3>Day View (Fullday)</h3>
-                    <div id="fullday-day-calendar"></div>
-                    <p class="small-calendar-note">Fullday day view - shows events for the entire day</p>
-                </div>
-            </div>
-        </div>
+        <ul id="log-list">
+          <li><span class="log-tag tag-nav">info</span>Calendar mounted — interact to see callbacks here.</li>
+        </ul>
+      </div>
     </div>
 
-    <script src="js/SimpleCalendarJs.js"></script>
-    <script>
-        // Sample events data (normally this would come from an API/database)
-        const sampleEvents = [
-            {
-                id: 1,
-                title: 'Team Meeting',
-                startDate: new Date(),
-                endDate: new Date(),
-                time: '10:00 AM',
-                color: '#e74c3c',
-                colorIsGradient: true
-            },
-            {
-                id: 2,
-                title: 'Project Conference',
-                startDate: new Date(Date.now() + 86400000), // Tomorrow
-                endDate: new Date(Date.now() + 4 * 86400000), // 4 days from now
-                time: '9:00 AM',
-                color: '#2ecc71'
-            },
-            {
-                id: 3,
-                title: 'Sprint Planning',
-                startDate: new Date(Date.now() + 2 * 86400000), // Day after tomorrow
-                endDate: new Date(Date.now() + 2 * 86400000), // Same day
-                time: '2:30 PM',
-                colorIsGradient: true
-            },
-            {
-                id: 4,
-                title: 'Early Morning Jog',
-                startDate: new Date(),
-                endDate: new Date(),
-                time: '5:30 AM',
-                color: '#f39c12',
-                colorIsGradient: false
-            },
-            {
-                id: 5,
-                title: 'Late Night Study',
-                startDate: new Date(),
-                endDate: new Date(),
-                time: '11:30 PM',
-                color: '#9b59b6',
-                colorIsGradient: true
-            },
-            {
-                id: 6,
-                title: 'Training Workshop',
-                startDate: new Date(Date.now() + 10 * 86400000),
-                endDate: new Date(Date.now() + 12 * 86400000),
-                time: '9:00 AM'
-            },
-            {
-                id: 7,
-                title: 'Midnight Oil Burning',
-                startDate: new Date(Date.now() + 86400000), // Tomorrow
-                endDate: new Date(Date.now() + 86400000),
-                time: '12:30 AM'
-            },
-            {
-                id: 8,
-                title: 'Dawn Meditation',
-                startDate: new Date(Date.now() + 2 * 86400000), // Day after tomorrow
-                endDate: new Date(Date.now() + 2 * 86400000),
-                time: '4:45 AM'
-            },
-            {
-                id: 9,
-                title: 'Airport Drop-off',
-                startDate: new Date(),
-                endDate: new Date(),
-                time: '3:00 AM'
-            },
-            {
-                id: 10,
-                title: 'Movie Marathon End',
-                startDate: new Date(Date.now() + 3 * 86400000),
-                endDate: new Date(Date.now() + 3 * 86400000),
-                time: '11:45 PM',
-                colorIsGradient: true
-            },
-            {
-                id: 11,
-                title: 'Night Shift Work',
-                startDate: new Date(Date.now() + 86400000), // Tomorrow
-                endDate: new Date(Date.now() + 86400000),
-                time: '11:00 PM'
-            },
-            {
-                id: 12,
-                title: 'Early Bird Gym',
-                startDate: new Date(Date.now() + 4 * 86400000),
-                endDate: new Date(Date.now() + 4 * 86400000),
-                time: '5:00 AM'
-            },
-            {
-                id: 13,
-                title: 'Morning Standup',
-                startDate: new Date(),
-                endDate: new Date(),
-                time: '9:00 AM'
-            },
-            {
-                id: 14,
-                title: 'Code Review Session',
-                startDate: new Date(),
-                endDate: new Date(),
-                time: '11:30 AM'
-            },
-            {
-                id: 15,
-                title: 'Lunch with Client',
-                startDate: new Date(),
-                endDate: new Date(),
-                time: '12:30 PM'
-            },
-            {
-                id: 16,
-                title: 'Design Review',
-                startDate: new Date(),
-                endDate: new Date(),
-                time: '3:00 PM'
-            },
-            {
-                id: 17,
-                title: 'Sprint Planning',
-                startDate: new Date(),
-                endDate: new Date(),
-                time: '4:30 PM'
-            },
-            {
-                id: 18,
-                title: 'Documentation Update',
-                startDate: new Date(),
-                endDate: new Date(),
-                time: '6:00 PM'
-            },
-            {
-                id: 19,
-                title: 'October Conference Week',
-                startDate: new Date(2025, 9, 8), // October 8th, 2025
-                endDate: new Date(2025, 9, 12), // October 12th, 2025
-                time: '9:00 AM'
-            },
-            {
-                id: 20,
-                title: 'Product Launch Campaign',
-                startDate: new Date(2025, 9, 12), // October 12th, 2025
-                endDate: new Date(2025, 9, 15), // October 15th, 2025
-                time: '10:00 AM'
-            }
-        ];
+    <!-- Options sidebar -->
+    <aside class="options-panel">
+      <div class="options-panel-header">Options</div>
 
-        // Initialize the calendar with callback function and click handlers
-        const calendar = new SimpleCalendarJs('#calendar-container', {
-            view: 'month',
-            date: new Date(),
-            fulldayMode: false,
-            eventBorders: true,
-            // Localization example - uncomment to test
-            weekdays: ['Domingo', 'Segunda', 'Terça', 'Quarta', 'Quinta', 'Sexta', 'Sábado'],
-            months: ['Janeiro', 'Fevereiro', 'Março', 'Abril', 'Maio', 'Junho', 'Julho', 'Agosto', 'Setembro', 'Outubro', 'Novembro', 'Dezembro'],
-            showWeekdayChars: 3, // Show only first 3 characters
-            labels: { month: 'Mês', week: 'Semana', day: 'Dia', events: 'eventos', event: 'evento', before: 'Antes das', after: 'Depois das' }, // UI labels
-            // Test custom color - only passing background color with dark theme version
-            
-            events: function(dateRange) {
-                // This callback is called once per view with a date range object
-                // dateRange contains: { startDate, endDate }
-                // You can implement any logic here: API calls, filtering, etc.
-                
-                console.log('Fetching events for range:', dateRange.startDate.toDateString(), 'to', dateRange.endDate.toDateString());
-                
-                // In a real application, you might fetch from an API:
-                // return fetch(`/api/events?start=${dateRange.startDate.toISOString()}&end=${dateRange.endDate.toISOString()}`).then(r => r.json());
-                
-                // For this demo, we'll filter the sample data for the visible range
-                return sampleEvents.filter(event => {
-                    const eventStart = new Date(event.startDate);
-                    const eventEnd = new Date(event.endDate);
-                    
-                    // Set to start of day for comparison
-                    eventStart.setHours(0, 0, 0, 0);
-                    eventEnd.setHours(0, 0, 0, 0);
-                    const rangeStart = new Date(dateRange.startDate);
-                    const rangeEnd = new Date(dateRange.endDate);
-                    rangeStart.setHours(0, 0, 0, 0);
-                    rangeEnd.setHours(23, 59, 59, 999);
-                    
-                    // Return events that overlap with the visible range
-                    return eventEnd >= rangeStart && eventStart <= rangeEnd;
-                });
-            },
-            
-            // Day click handler - receives clicked date/time info
-            dayClick: function(clickInfo, originalEvent) {
-                console.log('Day clicked:', clickInfo.date.toDateString(), clickInfo.time ? `at ${clickInfo.time}` : '(all day)');
-                const timeText = clickInfo.time ? ` at ${clickInfo.time}` : ' (all day)';
-                alert(`You clicked on ${clickInfo.date.toDateString()}${timeText}`);
-            },
-            
-            // Event click handler - receives event object, date/time info, and original click event
-            eventClick: function(event, clickInfo, originalEvent) {
-                console.log('Event clicked:', event.title, 'on', clickInfo.date.toDateString(), clickInfo.time ? `at ${clickInfo.time}` : '(all day)');
-                const timeText = clickInfo.time ? ` at ${clickInfo.time}` : ' (all day)';
-                alert(`You clicked on event "${event.title}" on ${clickInfo.date.toDateString()}${timeText}\n\nEvent details:\nID: ${event.id}\nEvent Time: ${event.time || 'All day'}`);
-            },
-            
-            // Change state handler - receives current calendar state whenever it changes
-            changeState: function(state) {
-                console.log('Calendar state changed:', state);
-                // state contains: { view, date, fulldayMode, startHour, endHour, timeSlotMinutes }
-            }
-        });
+      <div class="option-group">
+        <span class="option-label">Default View</span>
+        <div class="seg-control" id="opt-view">
+          <button class="seg-btn active" data-val="month">Month</button>
+          <button class="seg-btn" data-val="week">Week</button>
+          <button class="seg-btn" data-val="day">Day</button>
+        </div>
+      </div>
 
-        // Demo controls
-        const fulldayToggle = document.getElementById('fulldayToggle');
-        const todayBtn = document.getElementById('todayBtn');
-        const addEventBtn = document.getElementById('addEventBtn');
-        const toggleModeBtn = document.getElementById('toggleModeBtn');
-        const gridBordersSelect = document.getElementById('gridBordersSelect');
-        const eventBordersToggle = document.getElementById('eventBordersToggle');
-        const eventBorderColorPicker = document.getElementById('eventBorderColorPicker');
-        const eventColorPicker = document.getElementById('eventColorPicker');
-        const showMonthButtonToggle = document.getElementById('showMonthButtonToggle');
-        const showWeekButtonToggle = document.getElementById('showWeekButtonToggle');
-        const showDayButtonToggle = document.getElementById('showDayButtonToggle');
-        const showNavigationToggle = document.getElementById('showNavigationToggle');
-        const shadowToggle = document.getElementById('shadowToggle');
-        const themeToggle = document.getElementById('themeToggle');
+      <div class="option-group">
+        <span class="option-label">Week Starts On</span>
+        <div class="seg-control" id="opt-week-start">
+          <button class="seg-btn" data-val="0">Sunday</button>
+          <button class="seg-btn active" data-val="1">Monday</button>
+        </div>
+      </div>
 
-        fulldayToggle.addEventListener('change', (e) => {
-            calendar.setFulldayMode(e.target.checked);
-        });
+      <div class="option-group">
+        <span class="option-label">Primary Color</span>
+        <div class="color-swatches">
+          <div class="color-swatch active" style="background: #4f46e5; color: #4f46e5;" data-color="#4f46e5" title="Indigo"></div>
+          <div class="color-swatch" style="background: #3b82f6; color: #3b82f6;" data-color="#3b82f6" title="Blue"></div>
+          <div class="color-swatch" style="background: #10b981; color: #10b981;" data-color="#10b981" title="Green"></div>
+          <div class="color-swatch" style="background: #f59e0b; color: #f59e0b;" data-color="#f59e0b" title="Orange"></div>
+          <div class="color-swatch" style="background: #ef4444; color: #ef4444;" data-color="#ef4444" title="Red"></div>
+          <div class="color-swatch" style="background: #ec4899; color: #ec4899;" data-color="#ec4899" title="Pink"></div>
+          <div class="color-swatch" style="background: #8b5cf6; color: #8b5cf6;" data-color="#8b5cf6" title="Purple"></div>
+          <div class="color-swatch" style="background: #06b6d4; color: #06b6d4;" data-color="#06b6d4" title="Cyan"></div>
+        </div>
+        <div class="custom-color-row">
+          <input type="color" class="custom-color-input" id="custom-color-picker" value="#4f46e5" />
+          <span class="custom-color-label">Custom Color</span>
+        </div>
+      </div>
 
-        todayBtn.addEventListener('click', () => {
-            calendar.goToToday();
-        });
+      <div class="option-group">
+        <span class="option-label">Locale</span>
+        <select class="option-select" id="opt-locale">
+          <option value="en-US" selected>English (US)</option>
+          <option value="en-GB">English (UK)</option>
+          <option value="es-ES">Spanish (Spain)</option>
+          <option value="es-MX">Spanish (Mexico)</option>
+          <option value="fr-FR">French (France)</option>
+          <option value="fr-CA">French (Canada)</option>
+          <option value="de-DE">German</option>
+          <option value="it-IT">Italian</option>
+          <option value="pt-PT">Portuguese (Portugal)</option>
+          <option value="pt-BR">Portuguese (Brazil)</option>
+          <option value="nl-NL">Dutch</option>
+          <option value="pl-PL">Polish</option>
+          <option value="ru-RU">Russian</option>
+          <option value="tr-TR">Turkish</option>
+          <option value="sv-SE">Swedish</option>
+          <option value="da-DK">Danish</option>
+          <option value="fi-FI">Finnish</option>
+          <option value="no-NO">Norwegian</option>
+          <option value="cs-CZ">Czech</option>
+          <option value="hu-HU">Hungarian</option>
+          <option value="ro-RO">Romanian</option>
+          <option value="el-GR">Greek</option>
+          <option value="ja-JP">Japanese</option>
+          <option value="ko-KR">Korean</option>
+          <option value="zh-CN">Chinese (Simplified)</option>
+          <option value="zh-TW">Chinese (Traditional)</option>
+          <option value="ar-SA">Arabic</option>
+          <option value="he-IL">Hebrew</option>
+          <option value="hi-IN">Hindi</option>
+          <option value="th-TH">Thai</option>
+          <option value="vi-VN">Vietnamese</option>
+          <option value="id-ID">Indonesian</option>
+          <option value="ms-MY">Malay</option>
+          <option value="uk-UA">Ukrainian</option>
+        </select>
+      </div>
 
-        addEventBtn.addEventListener('click', () => {
-            const sampleEvents = [
-                'Client Presentation',
-                'Code Review',
-                'Lunch Break',
-                'Training Session',
-                'Sprint Planning',
-                'Team Standup',
-                'Design Review',
-                'Product Demo'
-            ];
-            
-            const randomTitle = sampleEvents[Math.floor(Math.random() * sampleEvents.length)];
-            const randomDate = new Date();
-            randomDate.setDate(randomDate.getDate() + Math.floor(Math.random() * 30) - 15);
-            
-            const eventLength = Math.floor(Math.random() * 5) + 1; // 1-5 days
-            const endDate = new Date(randomDate);
-            endDate.setDate(endDate.getDate() + eventLength - 1);
-            
-            const newEvent = {
-                id: Date.now(),
-                title: randomTitle,
-                startDate: randomDate,
-                endDate: endDate,
-                time: '12:00'
-            };
-            
-            calendar.addEvent(newEvent);
-        });
+      <div class="option-group">
+        <span class="option-label">24-Hour Clock</span>
+        <div class="option-toggle-row">
+          <button class="opt-toggle-track" id="opt-24hour" role="switch" aria-checked="false">
+            <span class="opt-toggle-thumb"></span>
+          </button>
+          <span class="opt-toggle-label" id="opt-24hour-label">Off</span>
+        </div>
+      </div>
 
-        toggleModeBtn.addEventListener('click', () => {
-            fulldayToggle.checked = !fulldayToggle.checked;
-            calendar.setFulldayMode(fulldayToggle.checked);
-        });
+      <div class="option-group">
+        <span class="option-label">Show Time in Items</span>
+        <div class="option-toggle-row">
+          <button class="opt-toggle-track on" id="opt-show-time" role="switch" aria-checked="true">
+            <span class="opt-toggle-thumb"></span>
+          </button>
+          <span class="opt-toggle-label" id="opt-show-time-label">On</span>
+        </div>
+      </div>
 
-        gridBordersSelect.addEventListener('change', (e) => {
-            calendar.setGridBorders(e.target.value);
-        });
+      <div class="option-group">
+        <span class="option-label">Show Grid Lines</span>
+        <div class="option-toggle-row">
+          <button class="opt-toggle-track on" id="opt-show-grid" role="switch" aria-checked="true">
+            <span class="opt-toggle-thumb"></span>
+          </button>
+          <span class="opt-toggle-label" id="opt-show-grid-label">On</span>
+        </div>
+      </div>
 
-        eventBordersToggle.addEventListener('change', (e) => {
-            calendar.setEventBorders(e.target.checked);
-        });
+      <div class="option-group">
+        <span class="option-label">Show Toolbar</span>
+        <div class="option-toggle-row">
+          <button class="opt-toggle-track on" id="opt-show-toolbar" role="switch" aria-checked="true">
+            <span class="opt-toggle-thumb"></span>
+          </button>
+          <span class="opt-toggle-label" id="opt-show-toolbar-label">On</span>
+        </div>
+      </div>
 
-        eventBorderColorPicker.addEventListener('change', (e) => {
-            calendar.setEventBorderColor(e.target.value);
-        });
+      <div class="option-group">
+        <span class="option-label">Show Today Button</span>
+        <div class="option-toggle-row">
+          <button class="opt-toggle-track on" id="opt-show-today" role="switch" aria-checked="true">
+            <span class="opt-toggle-thumb"></span>
+          </button>
+          <span class="opt-toggle-label" id="opt-show-today-label">On</span>
+        </div>
+      </div>
 
-        eventColorPicker.addEventListener('change', (e) => {
-            calendar.setDefaultEventColor(e.target.value);
-        });
+      <div class="option-group">
+        <span class="option-label">Show Navigation</span>
+        <div class="option-toggle-row">
+          <button class="opt-toggle-track on" id="opt-show-nav" role="switch" aria-checked="true">
+            <span class="opt-toggle-thumb"></span>
+          </button>
+          <span class="opt-toggle-label" id="opt-show-nav-label">On</span>
+        </div>
+      </div>
 
-        showMonthButtonToggle.addEventListener('change', (e) => {
-            calendar.setShowMonthButton(e.target.checked);
-        });
+      <div class="option-group">
+        <span class="option-label">Show Title</span>
+        <div class="option-toggle-row">
+          <button class="opt-toggle-track on" id="opt-show-title" role="switch" aria-checked="true">
+            <span class="opt-toggle-thumb"></span>
+          </button>
+          <span class="opt-toggle-label" id="opt-show-title-label">On</span>
+        </div>
+      </div>
 
-        showWeekButtonToggle.addEventListener('change', (e) => {
-            calendar.setShowWeekButton(e.target.checked);
-        });
+      <div class="option-group">
+        <span class="option-label">Show Year Picker</span>
+        <div class="option-toggle-row">
+          <button class="opt-toggle-track on" id="opt-show-year" role="switch" aria-checked="true">
+            <span class="opt-toggle-thumb"></span>
+          </button>
+          <span class="opt-toggle-label" id="opt-show-year-label">On</span>
+        </div>
+      </div>
 
-        showDayButtonToggle.addEventListener('change', (e) => {
-            calendar.setShowDayButton(e.target.checked);
-        });
+      <div class="option-group">
+        <span class="option-label">Show View Switcher</span>
+        <div class="option-toggle-row">
+          <button class="opt-toggle-track on" id="opt-show-view-switcher" role="switch" aria-checked="true">
+            <span class="opt-toggle-thumb"></span>
+          </button>
+          <span class="opt-toggle-label" id="opt-show-view-switcher-label">On</span>
+        </div>
+      </div>
 
-        showNavigationToggle.addEventListener('change', (e) => {
-            calendar.setShowNavigation(e.target.checked);
-        });
+      <div class="option-group">
+        <span class="option-label">Enabled Views</span>
+        <div class="checkbox-group">
+          <div class="checkbox-row" data-view="month">
+            <div class="opt-checkbox checked"></div>
+            <span class="checkbox-label">Month</span>
+          </div>
+          <div class="checkbox-row" data-view="week">
+            <div class="opt-checkbox checked"></div>
+            <span class="checkbox-label">Week</span>
+          </div>
+          <div class="checkbox-row" data-view="day">
+            <div class="opt-checkbox checked"></div>
+            <span class="checkbox-label">Day</span>
+          </div>
+        </div>
+      </div>
+    </aside>
 
-        shadowToggle.addEventListener('change', (e) => {
-            const calendarElement = document.querySelector('.sc-calendar');
-            if (e.target.checked) {
-                calendarElement.classList.add('sc-shadow');
-            } else {
-                calendarElement.classList.remove('sc-shadow');
-            }
-        });
+  </div>
 
-        // Theme switcher functionality
-        function toggleTheme() {
-            const currentTheme = document.documentElement.getAttribute('data-theme');
-            const newTheme = currentTheme === 'dark' ? 'light' : 'dark';
-            
-            document.documentElement.setAttribute('data-theme', newTheme);
-            themeToggle.textContent = newTheme === 'dark' ? '☀️ Light Mode' : '🌙 Dark Mode';
-            
-            // Save theme preference
-            localStorage.setItem('theme', newTheme);
+  <script src="js/simple-calendar-js.js"></script>
+  <script>
+    /* ============================================================
+       SAMPLE DATA
+       ============================================================ */
+    const TODAY = new Date();
+
+    function d(offsetDays, h = 0, m = 0) {
+      const dt = new Date(TODAY);
+      dt.setDate(dt.getDate() + offsetDays);
+      dt.setHours(h, m, 0, 0);
+      return dt;
+    }
+
+    const SAMPLE_EVENTS = [
+      { id: 'md1', title: 'Engineering Offsite',  start: d(-2),       end: d(2),        allDay: true,  color: '#7c3aed' },
+      { id: 'md2', title: 'Company All-Hands',    start: d(5),        end: d(7),        allDay: true,  color: '#0891b2' },
+      { id: 'md3', title: 'Product Launch Week',  start: d(10),       end: d(15),       allDay: true,  color: '#dc2626' },
+      { id: 'md4', title: 'Holiday Break is a great way to start the year',        start: d(-10),      end: d(-6),       allDay: true,  color: '#059669' },
+      { id: 'md5', title: 'Conf. Prep',           start: d(3),        end: d(5),        allDay: true,  color: '#d97706' },
+      { id: 't1',  title: 'Morning Stand-up',     start: d(0, 9, 15), end: d(0, 9, 45),  color: '#4f46e5' },
+      { id: 't2',  title: 'Design Review',        start: d(0, 10, 30), end: d(0, 11, 45),  color: '#7c3aed' },
+      { id: 't3',  title: 'Lunch with Maria',     start: d(0, 12, 15), end: d(0, 13, 30),  color: '#059669' },
+      { id: 't4',  title: 'Architecture Planning',start: d(0, 13,45), end: d(0, 15,15),  color: '#0891b2' },
+      { id: 't5',  title: 'Sprint Retrospective', start: d(0, 15, 30), end: d(0, 16, 30),  color: '#d97706' },
+      { id: 't6',  title: '1:1 with Manager',     start: d(0, 16,45), end: d(0, 17, 30),  color: '#dc2626' },
+      { id: 't7',  title: 'Product Demo',         start: d(1, 10, 15), end: d(1, 11,45),  color: '#4f46e5' },
+      { id: 't8',  title: 'Client Call — ACME',   start: d(1, 14, 20), end: d(1, 15, 10),  color: '#0891b2' },
+      { id: 't9',  title: 'Code Review',          start: d(1, 11, 50), end: d(1, 12, 40),  color: '#059669' },
+      { id: 't10', title: 'Investor Update',      start: d(2, 9, 30),  end: d(2, 10, 45),  color: '#7c3aed' },
+      { id: 't11', title: 'Tech Talk',            start: d(2, 15, 15), end: d(2, 16,45),  color: '#d97706' },
+      { id: 't12', title: 'Team Lunch',           start: d(3, 12, 0), end: d(3, 13,30),  color: '#059669' },
+      { id: 't13', title: 'UX Workshop is awesome and great to learn',          start: d(3, 9, 20),  end: d(3, 11, 50),  color: '#0891b2' },
+      { id: 't14', title: 'Roadmap Planning',     start: d(4, 10, 15), end: d(4, 12, 0),  color: '#4f46e5' },
+      { id: 't15', title: 'Release Sign-off',     start: d(4, 14, 5), end: d(4, 14,35),  color: '#dc2626' },
+      { id: 't16', title: 'Kickoff: Q2',          start: d(7, 9, 10),  end: d(7, 10,40),  color: '#4f46e5' },
+      { id: 't17', title: 'Security Audit',       start: d(8, 13, 25), end: d(8, 16, 50),  color: '#dc2626' },
+      { id: 't18', title: 'Budget Review',        start: d(9, 10, 20), end: d(9, 11, 15),  color: '#d97706' },
+      { id: 't19', title: 'Board Meeting',        start: d(-3, 9, 0), end: d(-3, 12, 0), color: '#dc2626' },
+      { id: 't20', title: 'Onboarding Session',   start: d(-5, 10, 10),end: d(-5, 11, 5), color: '#059669' },
+      { id: 't21', title: 'Weekly Sync',          start: d(-7, 9,30), end: d(-7, 10, 15), color: '#4f46e5' },
+      { id: 't22', title: 'Weekly Sync',          start: d(-14,9,30), end: d(-14,10, 20), color: '#4f46e5' },
+      { id: 'ov1', title: 'Workshop A',           start: d(6, 9, 0),  end: d(6, 10, 0),  color: '#4f46e5' },
+      { id: 'ov2', title: 'Workshop B',           start: d(6, 10, 0), end: d(6, 11, 0),  color: '#7c3aed' },
+      { id: 'ov3', title: 'Workshop C',           start: d(6, 11, 0), end: d(6, 12, 0),  color: '#0891b2' },
+      { id: 'ov4', title: 'Workshop D',           start: d(6, 13, 0), end: d(6, 14, 0),  color: '#059669' },
+      { id: 'ov5', title: 'Workshop E',           start: d(6, 14, 0), end: d(6, 15, 0),  color: '#d97706' },
+    ];
+
+    /* ============================================================
+       LOG HELPERS
+       ============================================================ */
+    const logList = document.getElementById('log-list');
+
+    function log(tag, tagClass, message) {
+      if (logList.children.length === 1 && logList.children[0].querySelector('.tag-nav')?.textContent === 'info') {
+        logList.innerHTML = '';
+      }
+      const li = document.createElement('li');
+      li.innerHTML = `<span class="log-tag ${tagClass}">${tag}</span>${escHtml(String(message))}`;
+      logList.prepend(li);
+      while (logList.children.length > 50) logList.lastChild.remove();
+    }
+
+    function escHtml(s) {
+      return s.replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;');
+    }
+
+    document.getElementById('clear-log').addEventListener('click', () => {
+      logList.innerHTML = '<li><span class="log-tag tag-nav">info</span>Log cleared.</li>';
+    });
+
+    function fmt(d) {
+      return new Intl.DateTimeFormat('en-US', { hour: 'numeric', minute: '2-digit', hour12: true }).format(d);
+    }
+
+    function fmtFull(d) {
+      return new Intl.DateTimeFormat('en-US', {
+        weekday: 'short', month: 'short', day: 'numeric',
+        year: 'numeric', hour: 'numeric', minute: '2-digit', hour12: true
+      }).format(d);
+    }
+
+    /* ============================================================
+       COLOR UTILITIES
+       ============================================================ */
+    function hexToRgb(hex) {
+      const result = /^#?([a-f\d]{2})([a-f\d]{2})([a-f\d]{2})$/i.exec(hex);
+      return result ? {
+        r: parseInt(result[1], 16),
+        g: parseInt(result[2], 16),
+        b: parseInt(result[3], 16)
+      } : null;
+    }
+
+    function rgbToHex(r, g, b) {
+      return '#' + [r, g, b].map(x => {
+        const hex = Math.round(x).toString(16);
+        return hex.length === 1 ? '0' + hex : hex;
+      }).join('');
+    }
+
+    function lighten(hex, percent) {
+      const rgb = hexToRgb(hex);
+      if (!rgb) return hex;
+
+      const amount = percent / 100;
+      const r = rgb.r + (255 - rgb.r) * amount;
+      const g = rgb.g + (255 - rgb.g) * amount;
+      const b = rgb.b + (255 - rgb.b) * amount;
+
+      return rgbToHex(r, g, b);
+    }
+
+    function darken(hex, percent) {
+      const rgb = hexToRgb(hex);
+      if (!rgb) return hex;
+
+      const amount = percent / 100;
+      const r = rgb.r * (1 - amount);
+      const g = rgb.g * (1 - amount);
+      const b = rgb.b * (1 - amount);
+
+      return rgbToHex(r, g, b);
+    }
+
+    function updateCalendarColor(color) {
+      if (!cal) return;
+
+      const root = cal._root;
+
+      // Light mode variants
+      const primaryLight = lighten(color, 90);
+      const primaryDark = darken(color, 15);
+
+      // Dark mode variants (darker backgrounds instead of lighter)
+      const primaryLightDark = darken(color, 60);
+      const todayBgDark = darken(color, 65);
+      const selectedBgDark = darken(color, 55);
+
+      root.style.setProperty('--cal-primary', color);
+      root.style.setProperty('--cal-primary-dark', primaryDark);
+
+      if (!isDark) {
+        // Light mode - use lighter variant and remove dark mode overrides
+        root.style.setProperty('--cal-primary-light', primaryLight);
+        root.style.removeProperty('--cal-today-bg');
+        root.style.removeProperty('--cal-selected-bg');
+      } else {
+        // Dark mode - use darker variants
+        root.style.setProperty('--cal-primary-light', primaryLightDark);
+        root.style.setProperty('--cal-today-bg', todayBgDark);
+        root.style.setProperty('--cal-selected-bg', selectedBgDark);
+      }
+
+      log('opt', 'tag-opt', `primaryColor → ${color}`);
+    }
+
+    /* ============================================================
+       CURRENT OPTIONS STATE
+       ============================================================ */
+    const opts = {
+      defaultView: 'month',
+      weekStartsOn: 1,
+      locale: 'en-US',
+      use24Hour: false,
+      showTimeInItems: true,
+      showGridLines: true,
+      showToolbar: true,
+      showTodayButton: true,
+      showNavigation: true,
+      showTitle: true,
+      showYearPicker: true,
+      showViewSwitcher: true,
+      enabledViews: ['month', 'week', 'day'],
+    };
+
+    let cal = null;
+    let isDark = false;
+
+    function createCalendar() {
+      // Remember current date before destroying
+      const savedDate = cal ? new Date(cal._date) : null;
+
+      if (cal) cal.destroy();
+
+      cal = new SimpleCalendarJs('#cal', {
+        ...opts,
+        fetchEvents: async (start, end) => {
+          await new Promise(r => setTimeout(r, 120));
+          return SAMPLE_EVENTS.filter(e => new Date(e.start) <= end && new Date(e.end) >= start);
+        },
+        onEventClick: (event) => {
+          const time = event.allDay ? 'all-day' : `${fmt(event.start)} – ${fmt(event.end)}`;
+          log('event', 'tag-event', `"${event.title}"  (${time})`);
+        },
+        onSlotClick: (date) => {
+          log('slot', 'tag-slot', `Empty slot: ${fmtFull(date)}`);
+        },
+        onViewChange: (view) => {
+          log('view', 'tag-view', `Switched to ${view} view`);
+          // Keep segmented control in sync when view changes via toolbar
+          setActiveBtn(document.getElementById('opt-view'), view);
+          // Update state so next option change uses the current view
+          opts.defaultView = view;
+        },
+        onNavigate: (start, end) => {
+          log('nav', 'tag-nav', `Navigated → ${fmtFull(start)} – ${fmtFull(end)}`);
+        },
+      });
+
+      // Restore dark mode
+      if (isDark) cal._root.classList.add('uc-dark');
+
+      // Restore custom color
+      const currentColor = customColorPicker.value;
+      if (currentColor !== '#4f46e5') {
+        updateCalendarColor(currentColor);
+      } else if (isDark) {
+        // Even for default color, need to apply dark mode variants
+        updateCalendarColor(currentColor);
+      }
+
+      // Restore previous date position
+      if (savedDate) {
+        cal._date = savedDate;
+        cal._fetchAndRender();
+      }
+    }
+
+    /* ============================================================
+       OPTION CONTROLS
+       ============================================================ */
+
+    // Generic helper: activate a seg-btn and return its value
+    function setActiveBtn(container, val) {
+      container.querySelectorAll('.seg-btn').forEach(btn => {
+        btn.classList.toggle('active', btn.dataset.val === String(val));
+      });
+    }
+
+    // Color Swatches
+    const colorSwatches = document.querySelector('.color-swatches');
+    const customColorPicker = document.getElementById('custom-color-picker');
+
+    colorSwatches.addEventListener('click', (e) => {
+      const swatch = e.target.closest('.color-swatch');
+      if (!swatch) return;
+
+      const color = swatch.dataset.color;
+
+      // Update active state
+      colorSwatches.querySelectorAll('.color-swatch').forEach(s => s.classList.remove('active'));
+      swatch.classList.add('active');
+
+      // Sync custom color picker
+      customColorPicker.value = color;
+
+      // Update calendar
+      updateCalendarColor(color);
+    });
+
+    // Custom Color Picker
+    customColorPicker.addEventListener('input', (e) => {
+      const color = e.target.value;
+
+      // Clear active state from preset swatches
+      colorSwatches.querySelectorAll('.color-swatch').forEach(s => s.classList.remove('active'));
+
+      // Update calendar
+      updateCalendarColor(color);
+    });
+
+    // Default View
+    document.getElementById('opt-view').addEventListener('click', e => {
+      const btn = e.target.closest('.seg-btn');
+      if (!btn) return;
+      opts.defaultView = btn.dataset.val;
+      setActiveBtn(e.currentTarget, opts.defaultView);
+      log('opt', 'tag-opt', `defaultView → "${opts.defaultView}"`);
+      createCalendar();
+    });
+
+    // Week Starts On
+    document.getElementById('opt-week-start').addEventListener('click', e => {
+      const btn = e.target.closest('.seg-btn');
+      if (!btn) return;
+      opts.weekStartsOn = Number(btn.dataset.val);
+      setActiveBtn(e.currentTarget, opts.weekStartsOn);
+      log('opt', 'tag-opt', `weekStartsOn → ${opts.weekStartsOn === 0 ? '0 (Sunday)' : '1 (Monday)'}`);
+      createCalendar();
+    });
+
+    // Locale
+    document.getElementById('opt-locale').addEventListener('change', e => {
+      opts.locale = e.target.value;
+      log('opt', 'tag-opt', `locale → "${opts.locale}"`);
+      createCalendar();
+    });
+
+    // 24-Hour Clock
+    const toggle24 = document.getElementById('opt-24hour');
+    const label24  = document.getElementById('opt-24hour-label');
+
+    toggle24.addEventListener('click', () => {
+      opts.use24Hour = !opts.use24Hour;
+      toggle24.classList.toggle('on', opts.use24Hour);
+      toggle24.setAttribute('aria-checked', opts.use24Hour);
+      label24.textContent = opts.use24Hour ? 'On' : 'Off';
+      log('opt', 'tag-opt', `use24Hour → ${opts.use24Hour}`);
+      createCalendar();
+    });
+
+    // Show Time in Items
+    const toggleShowTime = document.getElementById('opt-show-time');
+    const labelShowTime  = document.getElementById('opt-show-time-label');
+
+    toggleShowTime.addEventListener('click', () => {
+      opts.showTimeInItems = !opts.showTimeInItems;
+      toggleShowTime.classList.toggle('on', opts.showTimeInItems);
+      toggleShowTime.setAttribute('aria-checked', opts.showTimeInItems);
+      labelShowTime.textContent = opts.showTimeInItems ? 'On' : 'Off';
+      log('opt', 'tag-opt', `showTimeInItems → ${opts.showTimeInItems}`);
+      createCalendar();
+    });
+
+    // Show Grid Lines
+    const toggleShowGrid = document.getElementById('opt-show-grid');
+    const labelShowGrid  = document.getElementById('opt-show-grid-label');
+
+    toggleShowGrid.addEventListener('click', () => {
+      opts.showGridLines = !opts.showGridLines;
+      toggleShowGrid.classList.toggle('on', opts.showGridLines);
+      toggleShowGrid.setAttribute('aria-checked', opts.showGridLines);
+      labelShowGrid.textContent = opts.showGridLines ? 'On' : 'Off';
+      log('opt', 'tag-opt', `showGridLines → ${opts.showGridLines}`);
+      createCalendar();
+    });
+
+    // Show Toolbar
+    const toggleShowToolbar = document.getElementById('opt-show-toolbar');
+    const labelShowToolbar  = document.getElementById('opt-show-toolbar-label');
+
+    toggleShowToolbar.addEventListener('click', () => {
+      opts.showToolbar = !opts.showToolbar;
+      toggleShowToolbar.classList.toggle('on', opts.showToolbar);
+      toggleShowToolbar.setAttribute('aria-checked', opts.showToolbar);
+      labelShowToolbar.textContent = opts.showToolbar ? 'On' : 'Off';
+      log('opt', 'tag-opt', `showToolbar → ${opts.showToolbar}`);
+      createCalendar();
+    });
+
+    // Show Today Button
+    const toggleShowToday = document.getElementById('opt-show-today');
+    const labelShowToday  = document.getElementById('opt-show-today-label');
+
+    toggleShowToday.addEventListener('click', () => {
+      opts.showTodayButton = !opts.showTodayButton;
+      toggleShowToday.classList.toggle('on', opts.showTodayButton);
+      toggleShowToday.setAttribute('aria-checked', opts.showTodayButton);
+      labelShowToday.textContent = opts.showTodayButton ? 'On' : 'Off';
+      log('opt', 'tag-opt', `showTodayButton → ${opts.showTodayButton}`);
+      createCalendar();
+    });
+
+    // Show Navigation
+    const toggleShowNav = document.getElementById('opt-show-nav');
+    const labelShowNav  = document.getElementById('opt-show-nav-label');
+
+    toggleShowNav.addEventListener('click', () => {
+      opts.showNavigation = !opts.showNavigation;
+      toggleShowNav.classList.toggle('on', opts.showNavigation);
+      toggleShowNav.setAttribute('aria-checked', opts.showNavigation);
+      labelShowNav.textContent = opts.showNavigation ? 'On' : 'Off';
+      log('opt', 'tag-opt', `showNavigation → ${opts.showNavigation}`);
+      createCalendar();
+    });
+
+    // Show Title
+    const toggleShowTitle = document.getElementById('opt-show-title');
+    const labelShowTitle  = document.getElementById('opt-show-title-label');
+
+    toggleShowTitle.addEventListener('click', () => {
+      opts.showTitle = !opts.showTitle;
+      toggleShowTitle.classList.toggle('on', opts.showTitle);
+      toggleShowTitle.setAttribute('aria-checked', opts.showTitle);
+      labelShowTitle.textContent = opts.showTitle ? 'On' : 'Off';
+      log('opt', 'tag-opt', `showTitle → ${opts.showTitle}`);
+      createCalendar();
+    });
+
+    // Show Year Picker
+    const toggleShowYear = document.getElementById('opt-show-year');
+    const labelShowYear  = document.getElementById('opt-show-year-label');
+
+    toggleShowYear.addEventListener('click', () => {
+      opts.showYearPicker = !opts.showYearPicker;
+      toggleShowYear.classList.toggle('on', opts.showYearPicker);
+      toggleShowYear.setAttribute('aria-checked', opts.showYearPicker);
+      labelShowYear.textContent = opts.showYearPicker ? 'On' : 'Off';
+      log('opt', 'tag-opt', `showYearPicker → ${opts.showYearPicker}`);
+      createCalendar();
+    });
+
+    // Show View Switcher
+    const toggleShowViewSwitcher = document.getElementById('opt-show-view-switcher');
+    const labelShowViewSwitcher  = document.getElementById('opt-show-view-switcher-label');
+
+    toggleShowViewSwitcher.addEventListener('click', () => {
+      opts.showViewSwitcher = !opts.showViewSwitcher;
+      toggleShowViewSwitcher.classList.toggle('on', opts.showViewSwitcher);
+      toggleShowViewSwitcher.setAttribute('aria-checked', opts.showViewSwitcher);
+      labelShowViewSwitcher.textContent = opts.showViewSwitcher ? 'On' : 'Off';
+      log('opt', 'tag-opt', `showViewSwitcher → ${opts.showViewSwitcher}`);
+      createCalendar();
+    });
+
+    // Enabled Views (checkboxes)
+    const checkboxGroup = document.querySelector('.checkbox-group');
+
+    checkboxGroup.addEventListener('click', (e) => {
+      const row = e.target.closest('.checkbox-row');
+      if (!row) return;
+
+      const checkbox = row.querySelector('.opt-checkbox');
+      const view = row.dataset.view;
+
+      // Toggle checkbox visual state
+      const isChecked = checkbox.classList.toggle('checked');
+
+      // Update opts.enabledViews array
+      if (isChecked) {
+        if (!opts.enabledViews.includes(view)) {
+          opts.enabledViews.push(view);
         }
+      } else {
+        opts.enabledViews = opts.enabledViews.filter(v => v !== view);
+      }
 
-        // Load saved domingo
-        const savedTheme = localStorage.getItem('theme') || 'light';
-        document.documentElement.setAttribute('data-theme', savedTheme);
-        themeToggle.textContent = savedTheme === 'dark' ? '☀️ Light Mode' : '🌙 Dark Mode';
+      // Ensure at least one view is enabled
+      if (opts.enabledViews.length === 0) {
+        checkbox.classList.add('checked');
+        opts.enabledViews.push(view);
+        log('opt', 'tag-opt', 'At least one view must be enabled');
+        return;
+      }
 
-        themeToggle.addEventListener('click', toggleTheme);
+      log('opt', 'tag-opt', `enabledViews → [${opts.enabledViews.join(', ')}]`);
+      createCalendar();
+    });
 
-        // Keyboard shortcuts
-        document.addEventListener('keydown', (e) => {
-            if (e.target.tagName === 'INPUT') return;
-            
-            switch(e.key) {
-                case 'ArrowLeft':
-                    e.preventDefault();
-                    calendar.navigate('prev');
-                    break;
-                case 'ArrowRight':
-                    e.preventDefault();
-                    calendar.navigate('next');
-                    break;
-                case 't':
-                case 'T':
-                    e.preventDefault();
-                    calendar.goToToday();
-                    break;
-                case 'm':
-                case 'M':
-                    e.preventDefault();
-                    calendar.setView('month');
-                    break;
-                case 'w':
-                case 'W':
-                    e.preventDefault();
-                    calendar.setView('week');
-                    break;
-                case 'd':
-                case 'D':
-                    e.preventDefault();
-                    calendar.setView('day');
-                    break;
-            }
-        });
+    /* ============================================================
+       THEME TOGGLE
+       ============================================================ */
+    const themeBtn = document.getElementById('theme-toggle-btn');
 
-        // Update control states
-        fulldayToggle.checked = calendar.fulldayMode;
-        gridBordersSelect.value = calendar.options.gridBorders;
-        eventBordersToggle.checked = calendar.options.eventBorders;
-        eventBorderColorPicker.value = calendar.options.eventBorderColor;
-        eventColorPicker.value = calendar.options.defaultEventColor;
-        showMonthButtonToggle.checked = calendar.options.showMonthButton;
-        showWeekButtonToggle.checked = calendar.options.showWeekButton;
-        showDayButtonToggle.checked = calendar.options.showDayButton;
-        showNavigationToggle.checked = calendar.options.showNavigation;
-        
-        // Create small test calendars
-        createSmallCalendars();
-        
-        function createSmallCalendars() {
-            // Small Month Calendar
-            const monthCalendar = new SimpleCalendarJs('#small-month-calendar', {
-                view: 'month',
-                date: new Date(),
-                fulldayMode: false,
-                showMonthButton: false,
-                showWeekButton: false,
-                showDayButton: false,
-                showNavigation: false,
-                showMonth: false, // Show month in title
-                showYear: false, // Hide year to test functionality
-                weekdays: ['Dom', 'Seg', 'Ter', 'Qua', 'Qui', 'Sex', 'Sáb'],
-                showWeekdayChars: 1, // Single character for compact view
-                
-                events: sampleEvents.slice(0, 5) // Just a few events
-            });
-            
-            // Small Week Calendar
-            const weekCalendar = new SimpleCalendarJs('#small-week-calendar', {
-                view: 'week',
-                date: new Date(),
-                fulldayMode: false,
-                startHour: 8,
-                endHour: 18,
-                showMonthButton: false,
-                showWeekButton: false,
-                showDayButton: false,
-                showNavigation: true,
-                weekdays: ['Dom', 'Seg', 'Ter', 'Qua', 'Qui', 'Sex', 'Sáb'],
-                showWeekdayChars: 3,
-                
-                events: sampleEvents.slice(0, 8)
-            });
-            
-            // Small Day Calendar
-            const dayCalendar = new SimpleCalendarJs('#small-day-calendar', {
-                view: 'day',
-                date: new Date(),
-                fulldayMode: false,
-                startHour: 9,
-                endHour: 17,
-                showMonthButton: false,
-                showWeekButton: false,
-                showDayButton: false,
-                showNavigation: true,
-                showTitle: false, // Hide entire title to test functionality
-                weekdays: ['Domingo', 'Segunda', 'Terça', 'Quarta', 'Quinta', 'Sexta', 'Sábado'],
-                labels: {before: '<', after: '>'},
-                events: sampleEvents.filter(event => {
-                    const eventDate = new Date(event.startDate || event.date);
-                    const today = new Date();
-                    return eventDate.toDateString() === today.toDateString();
-                })
-            });
-            
-            // Create fullday mode calendars
-            createFulldayCalendars();
-        }
-        
-        function createFulldayCalendars() {
-            // Fullday Month Calendar
-            const fulldayMonthCalendar = new SimpleCalendarJs('#fullday-month-calendar', {
-                view: 'month',
-                date: new Date(),
-                fulldayMode: true, // Enable fullday mode
-                showMonthButton: false,
-                showWeekButton: false,
-                showDayButton: false,
-                showNavigation: true,
-                showMonth: true,
-                showYear: true,
-                weekdays: ['Sun', 'Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat'],
-                showWeekdayChars: 3,
-                
-                events: sampleEvents.slice(0, 10)
-            });
-            
-            // Fullday Week Calendar
-            const fulldayWeekCalendar = new SimpleCalendarJs('#fullday-week-calendar', {
-                view: 'week',
-                date: new Date(),
-                fulldayMode: true, // Enable fullday mode
-                showMonthButton: false,
-                showWeekButton: false,
-                showDayButton: false,
-                showNavigation: true,
-                weekdays: ['Sunday', 'Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday'],
-                showWeekdayChars: 3,
-                
-                events: sampleEvents.slice(5, 15)
-            });
-            
-            // Fullday Day Calendar
-            const fulldayDayCalendar = new SimpleCalendarJs('#fullday-day-calendar', {
-                view: 'day',
-                date: new Date(),
-                fulldayMode: true, // Enable fullday mode
-                showMonthButton: false,
-                showWeekButton: false,
-                showDayButton: false,
-                showNavigation: true,
-                showTitle: true,
-                weekdays: ['Sunday', 'Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday'],
-                
-                events: sampleEvents.filter(event => {
-                    const eventDate = new Date(event.startDate || event.date);
-                    const today = new Date();
-                    return eventDate.toDateString() === today.toDateString();
-                })
-            });
-        }
-    </script>
+    themeBtn.addEventListener('click', () => {
+      isDark = themeBtn.classList.toggle('on');
+      themeBtn.setAttribute('aria-checked', isDark);
+      document.body.classList.toggle('dark-page', isDark);
+      if (cal) {
+        cal._root.classList.toggle('uc-dark', isDark);
+        // Re-apply current color with appropriate dark/light mode variants
+        const currentColor = customColorPicker.value;
+        updateCalendarColor(currentColor);
+      }
+    });
+
+    /* ============================================================
+       INIT
+       ============================================================ */
+    createCalendar();
+  </script>
 </body>
 </html>

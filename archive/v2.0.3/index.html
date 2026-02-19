@@ -1,0 +1,850 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Simple Calendar JS - Demo</title>
+    <link rel="stylesheet" href="css/SimpleCalendarJs.css">
+    <style>
+        :root {
+            --bg-primary: #f5f5f5;
+            --bg-secondary: #ffffff;
+            --bg-tertiary: #ecf0f1;
+            --text-primary: #2c3e50;
+            --text-secondary: #ffffff;
+            --border-color: #bdc3c7;
+            --button-bg: #3498db;
+            --button-hover: #2980b9;
+            --header-bg: #2c3e50;
+        }
+
+        [data-theme="dark"] {
+            --bg-primary: #1a1a1a;
+            --bg-secondary: #2d2d2d;
+            --bg-tertiary: #3a3a3a;
+            --text-primary: #ffffff;
+            --text-secondary: #ffffff;
+            --border-color: #555555;
+            --button-bg: #4a90e2;
+            --button-hover: #357abd;
+            --header-bg: #1e1e1e;
+        }
+
+        html, body {
+            margin: 0;
+            padding: 0;
+        }
+
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+            background: var(--bg-primary);
+            color: var(--text-primary);
+            line-height: 1.6;
+            transition: background-color 0.3s ease, color 0.3s ease;
+        }
+        
+        .container {
+            display: flex;
+            flex-direction: column;
+            min-height: 100vh;
+            padding: 10px;
+        }
+        
+        .demo-header {
+            background: var(--header-bg);
+            color: var(--text-secondary);
+            padding: 20px;
+            text-align: center;
+            transition: background-color 0.3s ease;
+            flex-shrink: 0;
+        }
+        
+        .demo-header h1 {
+            margin: 0 0 10px 0;
+            font-size: 2rem;
+        }
+        
+        .demo-header p {
+            margin: 0;
+            opacity: 0.9;
+        }
+        
+        .demo-controls {
+            background: var(--bg-tertiary);
+            padding: 16px;
+            border-bottom: 1px solid var(--border-color);
+            display: flex;
+            flex-wrap: wrap;
+            gap: 12px;
+            align-items: center;
+            transition: background-color 0.3s ease, border-color 0.3s ease;
+            flex-shrink: 0;
+        }
+        
+        .demo-controls label {
+            font-weight: 500;
+            color: var(--text-primary);
+        }
+        
+        .demo-controls button {
+            background: var(--button-bg);
+            color: var(--text-secondary);
+            border: none;
+            padding: 8px 16px;
+            border-radius: 4px;
+            cursor: pointer;
+            font-size: 14px;
+            transition: background-color 0.2s;
+        }
+        
+        .demo-controls button:hover {
+            background: var(--button-hover);
+        }
+
+        .theme-switcher {
+            background: var(--button-bg);
+            color: var(--text-secondary);
+            border: none;
+            padding: 8px 16px;
+            border-radius: 4px;
+            cursor: pointer;
+            font-size: 14px;
+            transition: background-color 0.2s;
+            margin-left: auto;
+        }
+        
+        .theme-switcher:hover {
+            background: var(--button-hover);
+        }
+        
+        .demo-controls input[type="checkbox"] {
+            margin-left: 8px;
+        }
+        
+        #calendar-container {
+            flex: 1;
+            min-height: 600px;
+        }
+        
+        .small-calendars-section {
+            margin-top: 40px;
+            padding: 20px;
+            background: var(--bg-tertiary);
+            border-radius: 8px;
+            border: 1px solid var(--border-color);
+            transition: background-color 0.3s ease, border-color 0.3s ease;
+        }
+        
+        .small-calendars-section h2 {
+            margin: 0 0 10px 0;
+            color: var(--text-primary);
+            font-size: 1.5rem;
+        }
+        
+        .small-calendars-section p {
+            margin: 0 0 20px 0;
+            color: var(--text-secondary);
+            font-size: 0.95rem;
+        }
+        
+        .small-calendars-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+            gap: 20px;
+        }
+        
+        .small-calendar-container {
+            background: var(--bg-secondary);
+            border-radius: 6px;
+            padding: 15px;
+            border: 1px solid var(--border-color);
+            transition: background-color 0.3s ease, border-color 0.3s ease;
+        }
+        
+        .small-calendar-container h3 {
+            margin: 0 0 10px 0;
+            font-size: 1.1rem;
+            color: var(--text-primary);
+            text-align: center;
+        }
+        
+        .small-calendar-container .sc-calendar {
+            height: 420px;
+            font-size: 0.85rem;
+        }
+        
+        
+        
+        .small-calendar-note {
+            margin: 10px 0 0 0;
+            font-size: 0.8rem;
+            color: var(--text-muted);
+            text-align: center;
+            font-style: italic;
+        }
+        
+        @media (max-width: 768px) {
+            .demo-header h1 {
+                font-size: 1.5rem;
+            }
+            
+            .demo-controls {
+                flex-direction: column;
+                align-items: stretch;
+            }
+            
+            .demo-controls > * {
+                margin-bottom: 8px;
+            }
+            
+            .small-calendars-grid {
+                grid-template-columns: 1fr;
+                gap: 15px;
+            }
+            
+            .small-calendar-container .sc-calendar {
+                height: 380px;
+                font-size: 0.8rem;
+            }
+            
+            /* Even more compact on mobile */
+            .small-calendar-container .sc-days-grid {
+                grid-template-rows: repeat(6, minmax(28px, 1fr)) !important;
+            }
+            
+            .small-calendar-container .sc-day {
+                min-height: 28px !important;
+            }
+            
+            .small-calendars-section {
+                margin-top: 30px;
+                padding: 15px;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="demo-header">
+            <h1>Simple Calendar JS</h1>
+            <p>A responsive, pure JavaScript calendar component with month, week, and day views</p>
+        </div>
+        
+        <div class="demo-controls">
+            <label>
+                Fullday Mode:
+                <input type="checkbox" id="fulldayToggle">
+            </label>
+            
+            <button id="todayBtn">Go to Today</button>
+            <button id="addEventBtn">Add Sample Event</button>
+            <button id="toggleModeBtn">Toggle Fullday Mode</button>
+            
+            <label>
+                Grid Borders:
+                <select id="gridBordersSelect">
+                    <option value="both">Both</option>
+                    <option value="vertical">Vertical Only</option>
+                    <option value="horizontal">Horizontal Only</option>
+                    <option value="none">None</option>
+                </select>
+            </label>
+            
+            <label>
+                Event Borders:
+                <input type="checkbox" id="eventBordersToggle">
+            </label>
+            
+            <label>
+                Event Border Color:
+                <input type="color" id="eventBorderColorPicker" value="#6c757d">
+            </label>
+            
+            <label>
+                Default Event Color:
+                <input type="color" id="eventColorPicker" value="#4c6f94">
+            </label>
+            
+            <label>
+                Show Month Button:
+                <input type="checkbox" id="showMonthButtonToggle" checked>
+            </label>
+            
+            <label>
+                Show Week Button:
+                <input type="checkbox" id="showWeekButtonToggle" checked>
+            </label>
+            
+            <label>
+                Show Day Button:
+                <input type="checkbox" id="showDayButtonToggle" checked>
+            </label>
+            
+            <label>
+                Show Navigation:
+                <input type="checkbox" id="showNavigationToggle" checked>
+            </label>
+            
+            <label>
+                Calendar Shadow:
+                <input type="checkbox" id="shadowToggle">
+            </label>
+            
+            <button class="theme-switcher" id="themeToggle">🌙 Dark Mode</button>
+        </div>
+        
+        <div id="calendar-container" style="height: 100%;"></div>
+        
+        <div class="small-calendars-section">
+            <h2>Small Calendar Examples</h2>
+            <p>Testing responsiveness and compact layouts across different views</p>
+            
+            <div class="small-calendars-grid">
+                <div class="small-calendar-container">
+                    <h3>Month View</h3>
+                    <div id="small-month-calendar"></div>
+                    <p class="small-calendar-note">No header - all controls hidden (navigation, title, view buttons)</p>
+                </div>
+                
+                <div class="small-calendar-container">
+                    <h3>Week View</h3>
+                    <div id="small-week-calendar"></div>
+                    <p class="small-calendar-note">Week view with reduced hours (8-18)</p>
+                </div>
+                
+                <div class="small-calendar-container">
+                    <h3>Day View</h3>
+                    <div id="small-day-calendar"></div>
+                    <p class="small-calendar-note">Today's schedule (9-17 hours)</p>
+                </div>
+            </div>
+        </div>
+        
+        <div class="small-calendars-section">
+            <h2>Fullday Mode Examples</h2>
+            <p>Testing fullday mode (fulldayMode: true) across different views</p>
+            
+            <div class="small-calendars-grid">
+                <div class="small-calendar-container">
+                    <h3>Month View (Fullday)</h3>
+                    <div id="fullday-month-calendar"></div>
+                    <p class="small-calendar-note">Fullday month view with events displayed in day cells</p>
+                </div>
+                
+                <div class="small-calendar-container">
+                    <h3>Week View (Fullday)</h3>
+                    <div id="fullday-week-calendar"></div>
+                    <p class="small-calendar-note">Fullday week view - no time slots, just day columns</p>
+                </div>
+                
+                <div class="small-calendar-container">
+                    <h3>Day View (Fullday)</h3>
+                    <div id="fullday-day-calendar"></div>
+                    <p class="small-calendar-note">Fullday day view - shows events for the entire day</p>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script src="js/SimpleCalendarJs.js"></script>
+    <script>
+        // Sample events data (normally this would come from an API/database)
+        const sampleEvents = [
+            {
+                id: 1,
+                title: 'Team Meeting',
+                startDate: new Date(),
+                endDate: new Date(),
+                time: '10:00 AM',
+                color: '#e74c3c',
+                colorIsGradient: true
+            },
+            {
+                id: 2,
+                title: 'Project Conference',
+                startDate: new Date(Date.now() + 86400000), // Tomorrow
+                endDate: new Date(Date.now() + 4 * 86400000), // 4 days from now
+                time: '9:00 AM',
+                color: '#2ecc71'
+            },
+            {
+                id: 3,
+                title: 'Sprint Planning',
+                startDate: new Date(Date.now() + 2 * 86400000), // Day after tomorrow
+                endDate: new Date(Date.now() + 2 * 86400000), // Same day
+                time: '2:30 PM',
+                colorIsGradient: true
+            },
+            {
+                id: 4,
+                title: 'Early Morning Jog',
+                startDate: new Date(),
+                endDate: new Date(),
+                time: '5:30 AM',
+                color: '#f39c12',
+                colorIsGradient: false
+            },
+            {
+                id: 5,
+                title: 'Late Night Study',
+                startDate: new Date(),
+                endDate: new Date(),
+                time: '11:30 PM',
+                color: '#9b59b6',
+                colorIsGradient: true
+            },
+            {
+                id: 6,
+                title: 'Training Workshop',
+                startDate: new Date(Date.now() + 10 * 86400000),
+                endDate: new Date(Date.now() + 12 * 86400000),
+                time: '9:00 AM'
+            },
+            {
+                id: 7,
+                title: 'Midnight Oil Burning',
+                startDate: new Date(Date.now() + 86400000), // Tomorrow
+                endDate: new Date(Date.now() + 86400000),
+                time: '12:30 AM'
+            },
+            {
+                id: 8,
+                title: 'Dawn Meditation',
+                startDate: new Date(Date.now() + 2 * 86400000), // Day after tomorrow
+                endDate: new Date(Date.now() + 2 * 86400000),
+                time: '4:45 AM'
+            },
+            {
+                id: 9,
+                title: 'Airport Drop-off',
+                startDate: new Date(),
+                endDate: new Date(),
+                time: '3:00 AM'
+            },
+            {
+                id: 10,
+                title: 'Movie Marathon End',
+                startDate: new Date(Date.now() + 3 * 86400000),
+                endDate: new Date(Date.now() + 3 * 86400000),
+                time: '11:45 PM',
+                colorIsGradient: true
+            },
+            {
+                id: 11,
+                title: 'Night Shift Work',
+                startDate: new Date(Date.now() + 86400000), // Tomorrow
+                endDate: new Date(Date.now() + 86400000),
+                time: '11:00 PM'
+            },
+            {
+                id: 12,
+                title: 'Early Bird Gym',
+                startDate: new Date(Date.now() + 4 * 86400000),
+                endDate: new Date(Date.now() + 4 * 86400000),
+                time: '5:00 AM'
+            },
+            {
+                id: 13,
+                title: 'Morning Standup',
+                startDate: new Date(),
+                endDate: new Date(),
+                time: '9:00 AM'
+            },
+            {
+                id: 14,
+                title: 'Code Review Session',
+                startDate: new Date(),
+                endDate: new Date(),
+                time: '11:30 AM'
+            },
+            {
+                id: 15,
+                title: 'Lunch with Client',
+                startDate: new Date(),
+                endDate: new Date(),
+                time: '12:30 PM'
+            },
+            {
+                id: 16,
+                title: 'Design Review',
+                startDate: new Date(),
+                endDate: new Date(),
+                time: '3:00 PM'
+            },
+            {
+                id: 17,
+                title: 'Sprint Planning',
+                startDate: new Date(),
+                endDate: new Date(),
+                time: '4:30 PM'
+            },
+            {
+                id: 18,
+                title: 'Documentation Update',
+                startDate: new Date(),
+                endDate: new Date(),
+                time: '6:00 PM'
+            },
+            {
+                id: 19,
+                title: 'October Conference Week',
+                startDate: new Date(2025, 9, 8), // October 8th, 2025
+                endDate: new Date(2025, 9, 12), // October 12th, 2025
+                time: '9:00 AM'
+            },
+            {
+                id: 20,
+                title: 'Product Launch Campaign',
+                startDate: new Date(2025, 9, 12), // October 12th, 2025
+                endDate: new Date(2025, 9, 15), // October 15th, 2025
+                time: '10:00 AM'
+            }
+        ];
+
+        // Initialize the calendar with callback function and click handlers
+        const calendar = new SimpleCalendarJs('#calendar-container', {
+            view: 'month',
+            date: new Date(),
+            fulldayMode: false,
+            eventBorders: true,
+            // Localization example - uncomment to test
+            weekdays: ['Domingo', 'Segunda', 'Terça', 'Quarta', 'Quinta', 'Sexta', 'Sábado'],
+            months: ['Janeiro', 'Fevereiro', 'Março', 'Abril', 'Maio', 'Junho', 'Julho', 'Agosto', 'Setembro', 'Outubro', 'Novembro', 'Dezembro'],
+            showWeekdayChars: 3, // Show only first 3 characters
+            labels: { month: 'Mês', week: 'Semana', day: 'Dia', events: 'eventos', event: 'evento', before: 'Antes das', after: 'Depois das' }, // UI labels
+            // Test custom color - only passing background color with dark theme version
+            
+            events: function(dateRange) {
+                // This callback is called once per view with a date range object
+                // dateRange contains: { startDate, endDate }
+                // You can implement any logic here: API calls, filtering, etc.
+                
+                console.log('Fetching events for range:', dateRange.startDate.toDateString(), 'to', dateRange.endDate.toDateString());
+                
+                // In a real application, you might fetch from an API:
+                // return fetch(`/api/events?start=${dateRange.startDate.toISOString()}&end=${dateRange.endDate.toISOString()}`).then(r => r.json());
+                
+                // For this demo, we'll filter the sample data for the visible range
+                return sampleEvents.filter(event => {
+                    const eventStart = new Date(event.startDate);
+                    const eventEnd = new Date(event.endDate);
+                    
+                    // Set to start of day for comparison
+                    eventStart.setHours(0, 0, 0, 0);
+                    eventEnd.setHours(0, 0, 0, 0);
+                    const rangeStart = new Date(dateRange.startDate);
+                    const rangeEnd = new Date(dateRange.endDate);
+                    rangeStart.setHours(0, 0, 0, 0);
+                    rangeEnd.setHours(23, 59, 59, 999);
+                    
+                    // Return events that overlap with the visible range
+                    return eventEnd >= rangeStart && eventStart <= rangeEnd;
+                });
+            },
+            
+            // Day click handler - receives clicked date/time info
+            dayClick: function(clickInfo, originalEvent) {
+                console.log('Day clicked:', clickInfo.date.toDateString(), clickInfo.time ? `at ${clickInfo.time}` : '(all day)');
+                const timeText = clickInfo.time ? ` at ${clickInfo.time}` : ' (all day)';
+                alert(`You clicked on ${clickInfo.date.toDateString()}${timeText}`);
+            },
+            
+            // Event click handler - receives event object, date/time info, and original click event
+            eventClick: function(event, clickInfo, originalEvent) {
+                console.log('Event clicked:', event.title, 'on', clickInfo.date.toDateString(), clickInfo.time ? `at ${clickInfo.time}` : '(all day)');
+                const timeText = clickInfo.time ? ` at ${clickInfo.time}` : ' (all day)';
+                alert(`You clicked on event "${event.title}" on ${clickInfo.date.toDateString()}${timeText}\n\nEvent details:\nID: ${event.id}\nEvent Time: ${event.time || 'All day'}`);
+            },
+            
+            // Change state handler - receives current calendar state whenever it changes
+            changeState: function(state) {
+                console.log('Calendar state changed:', state);
+                // state contains: { view, date, fulldayMode, startHour, endHour, timeSlotMinutes }
+            }
+        });
+
+        // Demo controls
+        const fulldayToggle = document.getElementById('fulldayToggle');
+        const todayBtn = document.getElementById('todayBtn');
+        const addEventBtn = document.getElementById('addEventBtn');
+        const toggleModeBtn = document.getElementById('toggleModeBtn');
+        const gridBordersSelect = document.getElementById('gridBordersSelect');
+        const eventBordersToggle = document.getElementById('eventBordersToggle');
+        const eventBorderColorPicker = document.getElementById('eventBorderColorPicker');
+        const eventColorPicker = document.getElementById('eventColorPicker');
+        const showMonthButtonToggle = document.getElementById('showMonthButtonToggle');
+        const showWeekButtonToggle = document.getElementById('showWeekButtonToggle');
+        const showDayButtonToggle = document.getElementById('showDayButtonToggle');
+        const showNavigationToggle = document.getElementById('showNavigationToggle');
+        const shadowToggle = document.getElementById('shadowToggle');
+        const themeToggle = document.getElementById('themeToggle');
+
+        fulldayToggle.addEventListener('change', (e) => {
+            calendar.setFulldayMode(e.target.checked);
+        });
+
+        todayBtn.addEventListener('click', () => {
+            calendar.goToToday();
+        });
+
+        addEventBtn.addEventListener('click', () => {
+            const sampleEvents = [
+                'Client Presentation',
+                'Code Review',
+                'Lunch Break',
+                'Training Session',
+                'Sprint Planning',
+                'Team Standup',
+                'Design Review',
+                'Product Demo'
+            ];
+            
+            const randomTitle = sampleEvents[Math.floor(Math.random() * sampleEvents.length)];
+            const randomDate = new Date();
+            randomDate.setDate(randomDate.getDate() + Math.floor(Math.random() * 30) - 15);
+            
+            const eventLength = Math.floor(Math.random() * 5) + 1; // 1-5 days
+            const endDate = new Date(randomDate);
+            endDate.setDate(endDate.getDate() + eventLength - 1);
+            
+            const newEvent = {
+                id: Date.now(),
+                title: randomTitle,
+                startDate: randomDate,
+                endDate: endDate,
+                time: '12:00'
+            };
+            
+            calendar.addEvent(newEvent);
+        });
+
+        toggleModeBtn.addEventListener('click', () => {
+            fulldayToggle.checked = !fulldayToggle.checked;
+            calendar.setFulldayMode(fulldayToggle.checked);
+        });
+
+        gridBordersSelect.addEventListener('change', (e) => {
+            calendar.setGridBorders(e.target.value);
+        });
+
+        eventBordersToggle.addEventListener('change', (e) => {
+            calendar.setEventBorders(e.target.checked);
+        });
+
+        eventBorderColorPicker.addEventListener('change', (e) => {
+            calendar.setEventBorderColor(e.target.value);
+        });
+
+        eventColorPicker.addEventListener('change', (e) => {
+            calendar.setDefaultEventColor(e.target.value);
+        });
+
+        showMonthButtonToggle.addEventListener('change', (e) => {
+            calendar.setShowMonthButton(e.target.checked);
+        });
+
+        showWeekButtonToggle.addEventListener('change', (e) => {
+            calendar.setShowWeekButton(e.target.checked);
+        });
+
+        showDayButtonToggle.addEventListener('change', (e) => {
+            calendar.setShowDayButton(e.target.checked);
+        });
+
+        showNavigationToggle.addEventListener('change', (e) => {
+            calendar.setShowNavigation(e.target.checked);
+        });
+
+        shadowToggle.addEventListener('change', (e) => {
+            const calendarElement = document.querySelector('.sc-calendar');
+            if (e.target.checked) {
+                calendarElement.classList.add('sc-shadow');
+            } else {
+                calendarElement.classList.remove('sc-shadow');
+            }
+        });
+
+        // Theme switcher functionality
+        function toggleTheme() {
+            const currentTheme = document.documentElement.getAttribute('data-theme');
+            const newTheme = currentTheme === 'dark' ? 'light' : 'dark';
+            
+            document.documentElement.setAttribute('data-theme', newTheme);
+            themeToggle.textContent = newTheme === 'dark' ? '☀️ Light Mode' : '🌙 Dark Mode';
+            
+            // Save theme preference
+            localStorage.setItem('theme', newTheme);
+        }
+
+        // Load saved domingo
+        const savedTheme = localStorage.getItem('theme') || 'light';
+        document.documentElement.setAttribute('data-theme', savedTheme);
+        themeToggle.textContent = savedTheme === 'dark' ? '☀️ Light Mode' : '🌙 Dark Mode';
+
+        themeToggle.addEventListener('click', toggleTheme);
+
+        // Keyboard shortcuts
+        document.addEventListener('keydown', (e) => {
+            if (e.target.tagName === 'INPUT') return;
+            
+            switch(e.key) {
+                case 'ArrowLeft':
+                    e.preventDefault();
+                    calendar.navigate('prev');
+                    break;
+                case 'ArrowRight':
+                    e.preventDefault();
+                    calendar.navigate('next');
+                    break;
+                case 't':
+                case 'T':
+                    e.preventDefault();
+                    calendar.goToToday();
+                    break;
+                case 'm':
+                case 'M':
+                    e.preventDefault();
+                    calendar.setView('month');
+                    break;
+                case 'w':
+                case 'W':
+                    e.preventDefault();
+                    calendar.setView('week');
+                    break;
+                case 'd':
+                case 'D':
+                    e.preventDefault();
+                    calendar.setView('day');
+                    break;
+            }
+        });
+
+        // Update control states
+        fulldayToggle.checked = calendar.fulldayMode;
+        gridBordersSelect.value = calendar.options.gridBorders;
+        eventBordersToggle.checked = calendar.options.eventBorders;
+        eventBorderColorPicker.value = calendar.options.eventBorderColor;
+        eventColorPicker.value = calendar.options.defaultEventColor;
+        showMonthButtonToggle.checked = calendar.options.showMonthButton;
+        showWeekButtonToggle.checked = calendar.options.showWeekButton;
+        showDayButtonToggle.checked = calendar.options.showDayButton;
+        showNavigationToggle.checked = calendar.options.showNavigation;
+        
+        // Create small test calendars
+        createSmallCalendars();
+        
+        function createSmallCalendars() {
+            // Small Month Calendar
+            const monthCalendar = new SimpleCalendarJs('#small-month-calendar', {
+                view: 'month',
+                date: new Date(),
+                fulldayMode: false,
+                showMonthButton: false,
+                showWeekButton: false,
+                showDayButton: false,
+                showNavigation: false,
+                showMonth: false, // Show month in title
+                showYear: false, // Hide year to test functionality
+                weekdays: ['Dom', 'Seg', 'Ter', 'Qua', 'Qui', 'Sex', 'Sáb'],
+                showWeekdayChars: 1, // Single character for compact view
+                
+                events: sampleEvents.slice(0, 5) // Just a few events
+            });
+            
+            // Small Week Calendar
+            const weekCalendar = new SimpleCalendarJs('#small-week-calendar', {
+                view: 'week',
+                date: new Date(),
+                fulldayMode: false,
+                startHour: 8,
+                endHour: 18,
+                showMonthButton: false,
+                showWeekButton: false,
+                showDayButton: false,
+                showNavigation: true,
+                weekdays: ['Dom', 'Seg', 'Ter', 'Qua', 'Qui', 'Sex', 'Sáb'],
+                showWeekdayChars: 3,
+                
+                events: sampleEvents.slice(0, 8)
+            });
+            
+            // Small Day Calendar
+            const dayCalendar = new SimpleCalendarJs('#small-day-calendar', {
+                view: 'day',
+                date: new Date(),
+                fulldayMode: false,
+                startHour: 9,
+                endHour: 17,
+                showMonthButton: false,
+                showWeekButton: false,
+                showDayButton: false,
+                showNavigation: true,
+                showTitle: false, // Hide entire title to test functionality
+                weekdays: ['Domingo', 'Segunda', 'Terça', 'Quarta', 'Quinta', 'Sexta', 'Sábado'],
+                labels: {before: '<', after: '>'},
+                events: sampleEvents.filter(event => {
+                    const eventDate = new Date(event.startDate || event.date);
+                    const today = new Date();
+                    return eventDate.toDateString() === today.toDateString();
+                })
+            });
+            
+            // Create fullday mode calendars
+            createFulldayCalendars();
+        }
+        
+        function createFulldayCalendars() {
+            // Fullday Month Calendar
+            const fulldayMonthCalendar = new SimpleCalendarJs('#fullday-month-calendar', {
+                view: 'month',
+                date: new Date(),
+                fulldayMode: true, // Enable fullday mode
+                showMonthButton: false,
+                showWeekButton: false,
+                showDayButton: false,
+                showNavigation: true,
+                showMonth: true,
+                showYear: true,
+                weekdays: ['Sun', 'Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat'],
+                showWeekdayChars: 3,
+                
+                events: sampleEvents.slice(0, 10)
+            });
+            
+            // Fullday Week Calendar
+            const fulldayWeekCalendar = new SimpleCalendarJs('#fullday-week-calendar', {
+                view: 'week',
+                date: new Date(),
+                fulldayMode: true, // Enable fullday mode
+                showMonthButton: false,
+                showWeekButton: false,
+                showDayButton: false,
+                showNavigation: true,
+                weekdays: ['Sunday', 'Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday'],
+                showWeekdayChars: 3,
+                
+                events: sampleEvents.slice(5, 15)
+            });
+            
+            // Fullday Day Calendar
+            const fulldayDayCalendar = new SimpleCalendarJs('#fullday-day-calendar', {
+                view: 'day',
+                date: new Date(),
+                fulldayMode: true, // Enable fullday mode
+                showMonthButton: false,
+                showWeekButton: false,
+                showDayButton: false,
+                showNavigation: true,
+                showTitle: true,
+                weekdays: ['Sunday', 'Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday'],
+                
+                events: sampleEvents.filter(event => {
+                    const eventDate = new Date(event.startDate || event.date);
+                    const today = new Date();
+                    return eventDate.toDateString() === today.toDateString();
+                })
+            });
+        }
+    </script>
+</body>
+</html>

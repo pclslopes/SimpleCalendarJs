@@ -9,7 +9,7 @@ async function build() {
   }
   
   // Minify JavaScript
-  const jsSource = fs.readFileSync('./js/SimpleCalendarJs.js', 'utf8');
+  const jsSource = fs.readFileSync('./js/simple-calendar-js.js', 'utf8');
   const jsResult = await minify(jsSource, {
     compress: {
       dead_code: true,
@@ -24,19 +24,19 @@ async function build() {
       }
     }
   });
-  fs.writeFileSync('./dist/SimpleCalendarJs.min.js', jsResult.code);
+  fs.writeFileSync('./dist/simple-calendar-js.min.js', jsResult.code);
   console.log('✓ JS minified');
   
   // Minify CSS
-  const cssSource = fs.readFileSync('./css/SimpleCalendarJs.css', 'utf8');
+  const cssSource = fs.readFileSync('./css/simple-calendar-js.css', 'utf8');
   
   // Extract header comment manually
-  const cssHeaderMatch = cssSource.match(/^(\/\*\*[\s\S]*?\*\/)/);
+  const cssHeaderMatch = cssSource.match(/^(\/\*[\s\S]*?\*\/)/);
   const cssHeader = cssHeaderMatch ? cssHeaderMatch[1] + '\n' : '';
   
   const cssResult = new CleanCSS({}).minify(cssSource);
   const minifiedCSS = cssHeader + cssResult.styles;
-  fs.writeFileSync('./dist/SimpleCalendarJs.min.css', minifiedCSS);
+  fs.writeFileSync('./dist/simple-calendar-js.min.css', minifiedCSS);
   console.log('✓ CSS minified');
 }
 

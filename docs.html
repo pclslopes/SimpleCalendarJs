@@ -1,0 +1,1013 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>SimpleCalendarJs — Documentation</title>
+  <style>
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+    :root {
+      --primary: #4f46e5;
+      --primary-dark: #4338ca;
+      --primary-light: #eef2ff;
+      --bg: #ffffff;
+      --bg-secondary: #f8fafc;
+      --text: #0f172a;
+      --text-secondary: #64748b;
+      --border: #e2e8f0;
+      --code-bg: #f1f5f9;
+    }
+
+    body {
+      font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', system-ui, sans-serif;
+      line-height: 1.6;
+      color: var(--text);
+      background: var(--bg);
+    }
+
+    .header {
+      background: var(--primary);
+      color: white;
+      padding: 3rem 2rem;
+      text-align: center;
+    }
+
+    .header h1 {
+      font-size: 2.5rem;
+      font-weight: 700;
+      margin-bottom: 0.5rem;
+      letter-spacing: -0.02em;
+    }
+
+    .header p {
+      font-size: 1.125rem;
+      opacity: 0.9;
+    }
+
+    .nav {
+      position: sticky;
+      top: 0;
+      background: var(--bg);
+      border-bottom: 1px solid var(--border);
+      padding: 0 2rem;
+      z-index: 100;
+      box-shadow: 0 1px 3px rgba(0,0,0,.05);
+    }
+
+    .nav-inner {
+      max-width: 1200px;
+      margin: 0 auto;
+      display: flex;
+      gap: 2rem;
+      overflow-x: auto;
+    }
+
+    .nav a {
+      display: block;
+      padding: 1rem 0;
+      color: var(--text-secondary);
+      text-decoration: none;
+      font-weight: 500;
+      font-size: 0.875rem;
+      white-space: nowrap;
+      border-bottom: 2px solid transparent;
+      transition: all 150ms;
+    }
+
+    .nav a:hover {
+      color: var(--primary);
+      border-bottom-color: var(--primary);
+    }
+
+    .container {
+      max-width: 1200px;
+      margin: 0 auto;
+      padding: 3rem 2rem;
+    }
+
+    .section {
+      margin-bottom: 4rem;
+    }
+
+    .section h2 {
+      font-size: 2rem;
+      font-weight: 700;
+      margin-bottom: 1rem;
+      color: var(--text);
+      padding-bottom: 0.5rem;
+      border-bottom: 2px solid var(--border);
+    }
+
+    .section h3 {
+      font-size: 1.5rem;
+      font-weight: 600;
+      margin: 2rem 0 1rem;
+      color: var(--text);
+    }
+
+    .section h4 {
+      font-size: 1.125rem;
+      font-weight: 600;
+      margin: 1.5rem 0 0.75rem;
+      color: var(--text);
+    }
+
+    .section p {
+      margin-bottom: 1rem;
+      color: var(--text-secondary);
+    }
+
+    .section ul, .section ol {
+      margin: 1rem 0 1rem 1.5rem;
+      color: var(--text-secondary);
+    }
+
+    .section li {
+      margin-bottom: 0.5rem;
+    }
+
+    code {
+      background: var(--code-bg);
+      padding: 0.125rem 0.375rem;
+      border-radius: 3px;
+      font-family: 'SFMono-Regular', Consolas, 'Liberation Mono', Menlo, monospace;
+      font-size: 0.875em;
+      color: var(--primary-dark);
+    }
+
+    pre {
+      background: var(--code-bg);
+      border: 1px solid var(--border);
+      border-radius: 8px;
+      padding: 1.5rem;
+      overflow-x: auto;
+      margin: 1rem 0;
+      font-size: 0.875rem;
+    }
+
+    pre code {
+      background: none;
+      padding: 0;
+      border-radius: 0;
+      color: var(--text);
+    }
+
+    .table-wrapper {
+      overflow-x: auto;
+      margin: 1.5rem 0;
+      border: 1px solid var(--border);
+      border-radius: 8px;
+    }
+
+    table {
+      width: 100%;
+      border-collapse: collapse;
+      font-size: 0.875rem;
+    }
+
+    table th {
+      background: var(--bg-secondary);
+      padding: 0.75rem 1rem;
+      text-align: left;
+      font-weight: 600;
+      color: var(--text);
+      border-bottom: 1px solid var(--border);
+    }
+
+    table td {
+      padding: 0.75rem 1rem;
+      border-bottom: 1px solid var(--border);
+      color: var(--text-secondary);
+    }
+
+    table tr:last-child td {
+      border-bottom: none;
+    }
+
+    .badge {
+      display: inline-block;
+      padding: 0.25rem 0.5rem;
+      border-radius: 4px;
+      font-size: 0.75rem;
+      font-weight: 600;
+      text-transform: uppercase;
+      letter-spacing: 0.025em;
+    }
+
+    .badge-required {
+      background: #fee2e2;
+      color: #b91c1c;
+    }
+
+    .badge-optional {
+      background: #dbeafe;
+      color: #1e40af;
+    }
+
+    .note {
+      background: var(--primary-light);
+      border-left: 4px solid var(--primary);
+      padding: 1rem 1.5rem;
+      margin: 1.5rem 0;
+      border-radius: 4px;
+    }
+
+    .note p {
+      color: var(--text);
+      margin: 0;
+    }
+
+    .btn {
+      display: inline-block;
+      padding: 0.75rem 1.5rem;
+      background: var(--primary);
+      color: white;
+      text-decoration: none;
+      border-radius: 6px;
+      font-weight: 600;
+      transition: background 150ms;
+      margin-top: 1rem;
+    }
+
+    .btn:hover {
+      background: var(--primary-dark);
+    }
+
+    .grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+      gap: 2rem;
+      margin: 2rem 0;
+    }
+
+    .card {
+      background: var(--bg-secondary);
+      border: 1px solid var(--border);
+      border-radius: 8px;
+      padding: 1.5rem;
+    }
+
+    .card h4 {
+      margin-top: 0;
+    }
+
+    .footer {
+      background: var(--bg-secondary);
+      border-top: 1px solid var(--border);
+      padding: 2rem;
+      text-align: center;
+      color: var(--text-secondary);
+      font-size: 0.875rem;
+    }
+  </style>
+</head>
+<body>
+
+  <div class="header">
+    <h1>SimpleCalendarJs</h1>
+    <p>A lightweight, zero-dependency JavaScript calendar component</p>
+  </div>
+
+  <nav class="nav">
+    <div class="nav-inner">
+      <a href="#installation">Installation</a>
+      <a href="#quickstart">Quick Start</a>
+      <a href="#options">Options</a>
+      <a href="#callbacks">Callbacks</a>
+      <a href="#methods">Methods</a>
+      <a href="#theming">Theming</a>
+      <a href="#react">React</a>
+      <a href="#vue">Vue</a>
+      <a href="#angular">Angular</a>
+      <a href="#styling">Styling</a>
+    </div>
+  </nav>
+
+  <div class="container">
+
+    <!-- Installation -->
+    <section id="installation" class="section">
+      <h2>Installation</h2>
+      <p>SimpleCalendarJs is a zero-dependency calendar component. Include the CSS and JS files in your project:</p>
+
+      <h3>Via Script Tags</h3>
+      <pre><code>&lt;link rel="stylesheet" href="simple-calendar-js.css" /&gt;
+&lt;script src="simple-calendar-js.js"&gt;&lt;/script&gt;</code></pre>
+
+      <h3>Via ES Modules</h3>
+      <pre><code>import SimpleCalendarJs from './simple-calendar-js.js';
+import './simple-calendar-js.css';</code></pre>
+
+      <div class="note">
+        <p><strong>Note:</strong> Make sure to include the CSS file for proper styling.</p>
+      </div>
+    </section>
+
+    <!-- Quick Start -->
+    <section id="quickstart" class="section">
+      <h2>Quick Start</h2>
+      <p>Create a calendar instance by passing a container element and options:</p>
+
+      <pre><code>// Create a container in your HTML
+&lt;div id="calendar"&gt;&lt;/div&gt;
+
+// Initialize the calendar
+const calendar = new SimpleCalendarJs('#calendar', {
+  defaultView: 'month',
+  weekStartsOn: 1, // 0 = Sunday, 1 = Monday
+  locale: 'en-US',
+  use24Hour: false,
+  fetchEvents: async (start, end) => {
+    // Fetch events from your API
+    const response = await fetch(`/api/events?start=${start}&end=${end}`);
+    return response.json();
+  },
+  onEventClick: (event) => {
+    console.log('Event clicked:', event);
+  },
+  onSlotClick: (date) => {
+    console.log('Empty slot clicked:', date);
+  }
+});</code></pre>
+
+      <a href="demo.html" class="btn">View Live Demo</a>
+    </section>
+
+    <!-- Options -->
+    <section id="options" class="section">
+      <h2>Options</h2>
+      <p>All available options when creating a calendar instance:</p>
+
+      <h3>View Options</h3>
+      <div class="table-wrapper">
+        <table>
+          <thead>
+            <tr>
+              <th>Option</th>
+              <th>Type</th>
+              <th>Default</th>
+              <th>Description</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr>
+              <td><code>defaultView</code></td>
+              <td>String</td>
+              <td><code>'month'</code></td>
+              <td>Initial view: <code>'month'</code>, <code>'week'</code>, or <code>'day'</code></td>
+            </tr>
+            <tr>
+              <td><code>defaultDate</code></td>
+              <td>Date</td>
+              <td><code>null</code></td>
+              <td>Initial date to display (defaults to today if not provided)</td>
+            </tr>
+            <tr>
+              <td><code>weekStartsOn</code></td>
+              <td>Number</td>
+              <td><code>0</code></td>
+              <td>First day of week: <code>0</code> (Sunday) or <code>1</code> (Monday)</td>
+            </tr>
+            <tr>
+              <td><code>locale</code></td>
+              <td>String</td>
+              <td><code>'default'</code></td>
+              <td>Locale code (e.g., <code>'en-US'</code>, <code>'fr-FR'</code>, <code>'pt-PT'</code>). Supports 34+ locales.</td>
+            </tr>
+            <tr>
+              <td><code>use24Hour</code></td>
+              <td>Boolean</td>
+              <td><code>false</code></td>
+              <td>Use 24-hour time format instead of 12-hour with AM/PM</td>
+            </tr>
+            <tr>
+              <td><code>showTimeInItems</code></td>
+              <td>Boolean</td>
+              <td><code>true</code></td>
+              <td>Show time in event items across all views</td>
+            </tr>
+            <tr>
+              <td><code>showGridLines</code></td>
+              <td>Boolean</td>
+              <td><code>true</code></td>
+              <td>Show/hide grid lines (borders between cells and time slots)</td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+
+      <h3>Display Options</h3>
+      <p>Control which toolbar elements are visible:</p>
+      <div class="table-wrapper">
+        <table>
+          <thead>
+            <tr>
+              <th>Option</th>
+              <th>Type</th>
+              <th>Default</th>
+              <th>Description</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr>
+              <td><code>showToolbar</code></td>
+              <td>Boolean</td>
+              <td><code>true</code></td>
+              <td>Show/hide the entire toolbar</td>
+            </tr>
+            <tr>
+              <td><code>showTodayButton</code></td>
+              <td>Boolean</td>
+              <td><code>true</code></td>
+              <td>Show/hide the "Today" button</td>
+            </tr>
+            <tr>
+              <td><code>showNavigation</code></td>
+              <td>Boolean</td>
+              <td><code>true</code></td>
+              <td>Show/hide navigation arrows (← →)</td>
+            </tr>
+            <tr>
+              <td><code>showTitle</code></td>
+              <td>Boolean</td>
+              <td><code>true</code></td>
+              <td>Show/hide the month/week/day title</td>
+            </tr>
+            <tr>
+              <td><code>showYearPicker</code></td>
+              <td>Boolean</td>
+              <td><code>true</code></td>
+              <td>Enable/disable year selection (clickable year)</td>
+            </tr>
+            <tr>
+              <td><code>showViewSwitcher</code></td>
+              <td>Boolean</td>
+              <td><code>true</code></td>
+              <td>Show/hide Month/Week/Day view switcher buttons</td>
+            </tr>
+            <tr>
+              <td><code>enabledViews</code></td>
+              <td>Array</td>
+              <td><code>['month', 'week', 'day']</code></td>
+              <td>Which views are available to switch to</td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+
+      <div class="note">
+        <p><strong>Example:</strong> Start calendar on a specific date:</p>
+        <pre><code>new SimpleCalendarJs('#calendar', {
+  defaultView: 'month',
+  defaultDate: new Date(2024, 5, 15) // June 15, 2024
+});</code></pre>
+      </div>
+
+      <div class="note">
+        <p><strong>Example:</strong> Hide grid lines for a cleaner look:</p>
+        <pre><code>new SimpleCalendarJs('#calendar', {
+  showGridLines: false
+});</code></pre>
+      </div>
+
+      <div class="note">
+        <p><strong>Example:</strong> Hide toolbar and only allow month view:</p>
+        <pre><code>new SimpleCalendarJs('#calendar', {
+  showToolbar: false,
+  enabledViews: ['month']
+});</code></pre>
+      </div>
+    </section>
+
+    <!-- Callbacks -->
+    <section id="callbacks" class="section">
+      <h2>Callbacks</h2>
+      <p>Register event handlers for user interactions:</p>
+
+      <div class="table-wrapper">
+        <table>
+          <thead>
+            <tr>
+              <th>Callback</th>
+              <th>Parameters</th>
+              <th>Description</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr>
+              <td><code>fetchEvents</code></td>
+              <td><code>(start: Date, end: Date)</code></td>
+              <td>Async function to fetch events for the visible date range. Should return an array of event objects.</td>
+            </tr>
+            <tr>
+              <td><code>onEventClick</code></td>
+              <td><code>(event: Object)</code></td>
+              <td>Called when an event is clicked</td>
+            </tr>
+            <tr>
+              <td><code>onSlotClick</code></td>
+              <td><code>(date: Date)</code></td>
+              <td>Called when an empty time slot is clicked</td>
+            </tr>
+            <tr>
+              <td><code>onViewChange</code></td>
+              <td><code>(view: String)</code></td>
+              <td>Called when the view changes (month/week/day)</td>
+            </tr>
+            <tr>
+              <td><code>onNavigate</code></td>
+              <td><code>(start: Date, end: Date)</code></td>
+              <td>Called when navigating to a different date range</td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+
+      <h3>Event Object Format</h3>
+      <p>Events returned from <code>fetchEvents</code> should have the following structure:</p>
+      <pre><code>{
+  id: 'unique-id',           // Required: Unique identifier
+  title: 'Event Title',      // Required: Event name
+  start: Date,               // Required: Start date/time
+  end: Date,                 // Required: End date/time
+  allDay: false,             // Optional: All-day event flag
+  color: '#4f46e5'           // Optional: Custom color (hex)
+}</code></pre>
+
+      <div class="note">
+        <p><strong>Minute Precision:</strong> The calendar supports minute-level precision for event times. Events are positioned exactly according to their start/end times in week and day views. For example, an event starting at 9:15 AM will be positioned 15 minutes (25%) below the 9:00 AM hour line.</p>
+      </div>
+
+      <h3>Example</h3>
+      <pre><code>const calendar = new SimpleCalendarJs('#calendar', {
+  fetchEvents: async (start, end) => {
+    return [
+      {
+        id: '1',
+        title: 'Team Meeting',
+        start: new Date(2024, 0, 15, 9, 15),  // 9:15 AM
+        end: new Date(2024, 0, 15, 10, 45),   // 10:45 AM
+        color: '#4f46e5'
+      },
+      {
+        id: '2',
+        title: 'Lunch Break',
+        start: new Date(2024, 0, 15, 12, 30), // 12:30 PM
+        end: new Date(2024, 0, 15, 13, 30),   // 1:30 PM
+        allDay: false,
+        color: '#059669'
+      }
+    ];
+  },
+  onEventClick: (event) => {
+    alert(`Clicked: ${event.title}`);
+  },
+  onSlotClick: (date) => {
+    console.log('Create event at:', date);
+  }
+});</code></pre>
+    </section>
+
+    <!-- Methods -->
+    <section id="methods" class="section">
+      <h2>Methods</h2>
+      <p>Programmatically control the calendar:</p>
+
+      <div class="table-wrapper">
+        <table>
+          <thead>
+            <tr>
+              <th>Method</th>
+              <th>Parameters</th>
+              <th>Description</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr>
+              <td><code>setView(view)</code></td>
+              <td><code>'month' | 'week' | 'day'</code></td>
+              <td>Switch to a different view</td>
+            </tr>
+            <tr>
+              <td><code>navigate(direction)</code></td>
+              <td><code>number</code></td>
+              <td>Navigate by offset: <code>1</code> = next, <code>-1</code> = previous</td>
+            </tr>
+            <tr>
+              <td><code>goToDate(date)</code></td>
+              <td><code>Date</code></td>
+              <td>Jump to a specific date</td>
+            </tr>
+            <tr>
+              <td><code>goToToday()</code></td>
+              <td>-</td>
+              <td>Jump to today's date</td>
+            </tr>
+            <tr>
+              <td><code>destroy()</code></td>
+              <td>-</td>
+              <td>Remove calendar and cleanup event listeners</td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+
+      <h3>Example</h3>
+      <pre><code>const calendar = new SimpleCalendarJs('#calendar', { /* options */ });
+
+// Switch to week view
+calendar.setView('week');
+
+// Navigate to next week
+calendar.navigate(1);
+
+// Jump to a specific date
+calendar.goToDate(new Date(2024, 5, 15));
+
+// Go to today
+calendar.goToToday();
+
+// Cleanup when done
+calendar.destroy();</code></pre>
+    </section>
+
+    <!-- Theming -->
+    <section id="theming" class="section">
+      <h2>Theming</h2>
+      <p>SimpleCalendarJs supports dark mode and color customization via CSS custom properties.</p>
+
+      <h3>Dark Mode</h3>
+      <p>Toggle dark mode by adding the <code>uc-dark</code> class to the calendar container:</p>
+      <pre><code>// Enable dark mode
+calendar._root.classList.add('uc-dark');
+
+// Disable dark mode
+calendar._root.classList.remove('uc-dark');
+
+// Toggle dark mode
+calendar._root.classList.toggle('uc-dark', isDark);</code></pre>
+
+      <h3>Color Customization</h3>
+      <p>Override CSS custom properties to customize colors:</p>
+      <pre><code>/* In your CSS */
+:root {
+  --cal-primary: #10b981;        /* Primary color */
+  --cal-primary-dark: #059669;   /* Darker shade for hover */
+  --cal-primary-light: #d1fae5;  /* Lighter shade for backgrounds */
+}
+
+/* Or target specific calendar */
+.my-calendar {
+  --cal-primary: #ef4444;
+  --cal-primary-dark: #dc2626;
+  --cal-primary-light: #fee2e2;
+}</code></pre>
+
+      <h3>Available CSS Variables</h3>
+      <div class="table-wrapper">
+        <table>
+          <thead>
+            <tr>
+              <th>Variable</th>
+              <th>Default (Light)</th>
+              <th>Description</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr>
+              <td><code>--cal-primary</code></td>
+              <td><code>#4f46e5</code></td>
+              <td>Primary accent color</td>
+            </tr>
+            <tr>
+              <td><code>--cal-primary-dark</code></td>
+              <td><code>#4338ca</code></td>
+              <td>Primary color (darker)</td>
+            </tr>
+            <tr>
+              <td><code>--cal-primary-light</code></td>
+              <td><code>#eef2ff</code></td>
+              <td>Primary color (lighter)</td>
+            </tr>
+            <tr>
+              <td><code>--cal-bg</code></td>
+              <td><code>#ffffff</code></td>
+              <td>Background color</td>
+            </tr>
+            <tr>
+              <td><code>--cal-text</code></td>
+              <td><code>#111827</code></td>
+              <td>Text color</td>
+            </tr>
+            <tr>
+              <td><code>--cal-border</code></td>
+              <td><code>#e5e7eb</code></td>
+              <td>Border color</td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+    </section>
+
+    <!-- React -->
+    <section id="react" class="section">
+      <h2>React</h2>
+      <p>Use the React wrapper for seamless integration with React applications.</p>
+
+      <h3>Installation</h3>
+      <pre><code>import SimpleCalendarJsReact from './simple-calendar-js-react.jsx';
+import './simple-calendar-js.css';</code></pre>
+
+      <h3>Basic Usage</h3>
+      <pre><code>import { useState } from 'react';
+import SimpleCalendarJsReact from './simple-calendar-js-react.jsx';
+
+function App() {
+  const [isDark, setIsDark] = useState(false);
+
+  const fetchEvents = async (start, end) => {
+    const response = await fetch(`/api/events?start=${start}&end=${end}`);
+    return response.json();
+  };
+
+  const handleEventClick = (event) => {
+    console.log('Event clicked:', event);
+  };
+
+  return (
+    &lt;&gt;
+      &lt;button onClick={() => setIsDark(!isDark)}&gt;
+        Toggle Theme
+      &lt;/button&gt;
+      &lt;SimpleCalendarJsReact
+        defaultView="month"
+        defaultDate={new Date(2024, 5, 15)}
+        weekStartsOn={1}
+        darkMode={isDark}
+        fetchEvents={fetchEvents}
+        onEventClick={handleEventClick}
+        onSlotClick={(date) => console.log('Slot clicked:', date)}
+        onViewChange={(view) => console.log('View changed:', view)}
+        style={{ height: '600px' }}
+      /&gt;
+    &lt;/&gt;
+  );
+}</code></pre>
+
+      <h3>Using Imperative Methods</h3>
+      <pre><code>import { useRef } from 'react';
+
+function App() {
+  const calRef = useRef();
+
+  const handleNextWeek = () => {
+    calRef.current.setView('week');
+    calRef.current.navigate(1);
+  };
+
+  return (
+    &lt;&gt;
+      &lt;button onClick={handleNextWeek}&gt;Next Week&lt;/button&gt;
+      &lt;SimpleCalendarJsReact ref={calRef} /&gt;
+    &lt;/&gt;
+  );
+}</code></pre>
+
+      <h3>Props</h3>
+      <ul>
+        <li>All calendar options are available as props</li>
+        <li><code>darkMode</code> - Boolean prop for theme control</li>
+        <li><code>onEventClick</code>, <code>onSlotClick</code>, <code>onViewChange</code>, <code>onNavigate</code> - Event handlers</li>
+        <li><code>style</code>, <code>className</code> - Apply to wrapper div</li>
+      </ul>
+    </section>
+
+    <!-- Vue -->
+    <section id="vue" class="section">
+      <h2>Vue</h2>
+      <p>Use the Vue 3 wrapper with Composition API.</p>
+
+      <h3>Installation</h3>
+      <pre><code>import SimpleCalendarJsVue from './simple-calendar-js-vue.js';
+import './simple-calendar-js.css';</code></pre>
+
+      <h3>Basic Usage</h3>
+      <pre><code>&lt;script setup&gt;
+import { ref } from 'vue';
+import SimpleCalendarJsVue from './simple-calendar-js-vue.js';
+
+const isDark = ref(false);
+
+const fetchEvents = async (start, end) => {
+  const response = await fetch(`/api/events?start=${start}&end=${end}`);
+  return response.json();
+};
+
+const handleEventClick = (event) => {
+  console.log('Event clicked:', event);
+};
+&lt;/script&gt;
+
+&lt;template&gt;
+  &lt;button @click="isDark = !isDark"&gt;Toggle Theme&lt;/button&gt;
+  &lt;SimpleCalendarJsVue
+    :defaultView="'month'"
+    :defaultDate="new Date(2024, 5, 15)"
+    :weekStartsOn="1"
+    :darkMode="isDark"
+    :fetchEvents="fetchEvents"
+    @eventClick="handleEventClick"
+    @slotClick="(date) => console.log('Slot clicked:', date)"
+    @viewChange="(view) => console.log('View changed:', view)"
+    :style="{ height: '600px' }"
+  /&gt;
+&lt;/template&gt;</code></pre>
+
+      <h3>Using Imperative Methods</h3>
+      <pre><code>&lt;script setup&gt;
+import { ref } from 'vue';
+
+const calendarRef = ref();
+
+const handleNextWeek = () => {
+  calendarRef.value.setView('week');
+  calendarRef.value.navigate(1);
+};
+&lt;/script&gt;
+
+&lt;template&gt;
+  &lt;button @click="handleNextWeek"&gt;Next Week&lt;/button&gt;
+  &lt;SimpleCalendarJsVue ref="calendarRef" /&gt;
+&lt;/template&gt;</code></pre>
+
+      <h3>Props & Events</h3>
+      <ul>
+        <li>All calendar options are available as props (use kebab-case or camelCase)</li>
+        <li><code>:darkMode</code> - Boolean prop for theme control</li>
+        <li><code>@eventClick</code>, <code>@slotClick</code>, <code>@viewChange</code>, <code>@navigate</code> - Vue events</li>
+        <li><code>:customClass</code> - Apply CSS class to wrapper</li>
+      </ul>
+    </section>
+
+    <!-- Angular -->
+    <section id="angular" class="section">
+      <h2>Angular</h2>
+      <p>Use the Angular standalone component (or NgModule).</p>
+
+      <h3>Installation</h3>
+      <pre><code>import { SimpleCalendarJsComponent } from './simple-calendar-js-angular.component';
+
+@Component({
+  selector: 'app-root',
+  standalone: true,
+  imports: [SimpleCalendarJsComponent],
+  // ...
+})</code></pre>
+
+      <h3>Basic Usage</h3>
+      <pre><code>import { Component } from '@angular/core';
+import { SimpleCalendarJsComponent } from './simple-calendar-js-angular.component';
+
+@Component({
+  selector: 'app-calendar-demo',
+  standalone: true,
+  imports: [SimpleCalendarJsComponent],
+  template: `
+    &lt;button (click)="isDark = !isDark"&gt;Toggle Theme&lt;/button&gt;
+    &lt;simple-calendar-js
+      [defaultView]="'month'"
+      [defaultDate]="new Date(2024, 5, 15)"
+      [weekStartsOn]="1"
+      [darkMode]="isDark"
+      [fetchEvents]="fetchEvents"
+      (eventClick)="handleEventClick($event)"
+      (slotClick)="handleSlotClick($event)"
+      (viewChange)="handleViewChange($event)"
+      [customStyle]="{ height: '600px' }"
+    &gt;&lt;/simple-calendar-js&gt;
+  `
+})
+export class CalendarDemoComponent {
+  isDark = false;
+
+  fetchEvents = async (start: Date, end: Date) => {
+    const response = await fetch(`/api/events?start=${start}&end=${end}`);
+    return response.json();
+  };
+
+  handleEventClick(event: any) {
+    console.log('Event clicked:', event);
+  }
+
+  handleSlotClick(date: Date) {
+    console.log('Slot clicked:', date);
+  }
+
+  handleViewChange(view: string) {
+    console.log('View changed:', view);
+  }
+}</code></pre>
+
+      <h3>Using Methods via ViewChild</h3>
+      <pre><code>import { Component, ViewChild } from '@angular/core';
+import { SimpleCalendarJsComponent } from './simple-calendar-js-angular.component';
+
+@Component({
+  // ...
+})
+export class CalendarDemoComponent {
+  @ViewChild(SimpleCalendarJsComponent) calendar!: SimpleCalendarJsComponent;
+
+  handleNextWeek() {
+    this.calendar.setView('week');
+    this.calendar.navigate(1);
+  }
+}</code></pre>
+
+      <h3>Inputs & Outputs</h3>
+      <ul>
+        <li>All calendar options are available as <code>@Input</code> properties</li>
+        <li><code>[darkMode]</code> - Boolean input for theme control</li>
+        <li><code>(eventClick)</code>, <code>(slotClick)</code>, <code>(viewChange)</code>, <code>(navigate)</code> - Angular outputs</li>
+        <li><code>[customClass]</code>, <code>[customStyle]</code> - Apply to wrapper div</li>
+      </ul>
+    </section>
+
+    <!-- Styling -->
+    <section id="styling" class="section">
+      <h2>Custom Styling</h2>
+      <p>Customize the calendar appearance with CSS.</p>
+
+      <h3>Example: Green Theme</h3>
+      <pre><code>.my-green-calendar {
+  --cal-primary: #10b981;
+  --cal-primary-dark: #059669;
+  --cal-primary-light: #d1fae5;
+}</code></pre>
+
+      <h3>Example: Larger Text</h3>
+      <pre><code>.my-calendar {
+  --cal-font-size: 14px;
+  --cal-event-height: 26px;
+}</code></pre>
+
+      <h3>Example: Custom Event Styling</h3>
+      <pre><code>/* Target all events */
+.uc-calendar .uc-event {
+  border-radius: 6px;
+  font-weight: 600;
+}
+
+/* Target timed events in week/day view */
+.uc-calendar .uc-timed-event {
+  box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+}</code></pre>
+
+      <h3>Important CSS Classes</h3>
+      <div class="table-wrapper">
+        <table>
+          <thead>
+            <tr>
+              <th>Class</th>
+              <th>Target</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr>
+              <td><code>.uc-calendar</code></td>
+              <td>Calendar root container</td>
+            </tr>
+            <tr>
+              <td><code>.uc-dark</code></td>
+              <td>Dark mode modifier</td>
+            </tr>
+            <tr>
+              <td><code>.uc-toolbar</code></td>
+              <td>Top toolbar</td>
+            </tr>
+            <tr>
+              <td><code>.uc-event</code></td>
+              <td>Event elements</td>
+            </tr>
+            <tr>
+              <td><code>.uc-timed-event</code></td>
+              <td>Timed events in week/day view</td>
+            </tr>
+            <tr>
+              <td><code>.uc-today</code></td>
+              <td>Today's date cell</td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+    </section>
+
+  </div>
+
+  <div class="footer">
+    <p>SimpleCalendarJs v3.0.0 — A zero-dependency JavaScript calendar component</p>
+  </div>
+
+</body>
+</html>

@@ -33,8 +33,8 @@ jobs:
           echo "Package name: $(node -p "require('./package.json').name")"
           echo "Package version: $(node -p "require('./package.json').version")"
           echo "Verifying required files exist:"
-          ls -la dist/SimpleCalendarJs.min.js
-          ls -la dist/SimpleCalendarJs.min.css
+          ls -la dist/simple-calendar-js.min.js
+          ls -la dist/simple-calendar-js.min.css
           ls -la LICENSE
           ls -la README.md
         
