@@ -1,5 +1,5 @@
 /**
- * SimpleCalendarJs v3.0.0 — simple-calendar-js.css
+ * SimpleCalendarJs v3.0.1 — simple-calendar-js.css
  * A clean, modern, and feature-rich JavaScript calendar component with zero dependencies
  *
  * @author Pedro Lopes <simplecalendarjs@gmail.com>
@@ -51,6 +51,17 @@
   --cal-radius:              8px;
   --cal-shadow:              0 1px 3px rgba(0,0,0,.08), 0 1px 2px rgba(0,0,0,.06);
   --cal-transition:          150ms ease;
+
+  /* Tooltip theming */
+  --cal-tooltip-bg:          #1f2937;
+  --cal-tooltip-text:        #f9fafb;
+  --cal-tooltip-border:      #374151;
+  --cal-tooltip-shadow:      0 4px 12px rgba(0, 0, 0, 0.15);
+  --cal-tooltip-max-width:   250px;
+  --cal-tooltip-padding:     8px 12px;
+  --cal-tooltip-radius:      6px;
+  --cal-tooltip-font-size:   12px;
+  --cal-tooltip-offset:      8px;
 }
 
 /* ===== BASE CONTAINER ===== */
@@ -61,7 +72,7 @@
   background: var(--cal-bg);
   border: 1px solid var(--cal-border);
   border-radius: var(--cal-radius);
-  overflow: hidden;
+  overflow: visible;
   display: flex;
   flex-direction: column;
   position: relative;
@@ -344,7 +355,7 @@
 /* ===== VIEW CONTAINER ===== */
 .uc-view-container {
   flex: 1;
-  overflow: hidden;
+  overflow: visible;
   display: flex;
   flex-direction: column;
 }
@@ -354,7 +365,7 @@
   display: flex;
   flex-direction: column;
   flex: 1;
-  overflow: hidden;
+  overflow: visible;
 }
 
 /* Day-name header row */
@@ -383,7 +394,7 @@
   flex: 1;
   display: flex;
   flex-direction: column;
-  overflow: hidden;
+  overflow: visible;
 }
 
 /* Each week row */
@@ -466,7 +477,7 @@
   inset: 0;
   z-index: 2;
   pointer-events: none;
-  overflow: hidden;
+  overflow: visible;
 }
 
 /* ===== EVENT BARS (shared across views) ===== */
@@ -480,7 +491,6 @@
   align-items: center;
   gap: 4px;
   padding: 0 6px;
-  overflow: hidden;
   cursor: pointer;
   pointer-events: auto;
   white-space: nowrap;
@@ -492,6 +502,7 @@
 
 .uc-event-bar:hover {
   filter: brightness(0.92);
+  z-index: 1000;
 }
 
 .uc-event-bar:active {
@@ -526,11 +537,11 @@
 /* "+N more" overflow link */
 .uc-more-link {
   position: absolute;
-  height: var(--cal-event-height);
+  height: 16px;
   display: flex;
   align-items: center;
   padding: 0 6px;
-  font-size: 11px;
+  font-size: 10px;
   font-weight: 600;
   color: var(--cal-text-subtle);
   cursor: pointer;
@@ -552,7 +563,7 @@
   display: flex;
   flex-direction: column;
   flex: 1;
-  overflow: hidden;
+  overflow: visible;
 }
 
 /* Column header row */
@@ -665,7 +676,7 @@
 .uc-time-body {
   flex: 1;
   overflow-y: auto;
-  overflow-x: hidden;
+  overflow-x: visible;
   position: relative;
 }
 
@@ -769,7 +780,6 @@
   color: var(--cal-event-text);
   border-radius: var(--cal-event-border-radius);
   padding: 3px 6px;
-  overflow: hidden;
   cursor: pointer;
   display: flex;
   flex-direction: column;
@@ -785,7 +795,7 @@
 .uc-timed-event:hover {
   filter: brightness(0.92);
   box-shadow: 0 2px 8px rgba(0,0,0,0.15);
-  z-index: 4;
+  z-index: 1000;
 }
 
 .uc-timed-event .uc-event-title {
@@ -859,6 +869,118 @@
   .uc-time-col.uc-today:hover {
     background: var(--cal-today-bg);
   }
+}
+
+/* ===== TOOLTIPS ===== */
+
+.uc-calendar [data-tooltip]:not([data-tooltip=""]):hover::before,
+.uc-calendar [data-tooltip]:not([data-tooltip=""]):hover::after {
+  opacity: 1;
+  visibility: visible;
+  transition-delay: 0.4s; /* Show after 400ms hover */
+}
+
+/* Tooltip bubble */
+.uc-calendar [data-tooltip]:not([data-tooltip=""])::before {
+  content: attr(data-tooltip);
+  position: absolute;
+  bottom: calc(100% + var(--cal-tooltip-offset));
+  left: 50%;
+  transform: translateX(-50%);
+
+  background: var(--cal-tooltip-bg);
+  color: var(--cal-tooltip-text);
+  border: 1px solid var(--cal-tooltip-border);
+  box-shadow: var(--cal-tooltip-shadow);
+
+  padding: var(--cal-tooltip-padding);
+  border-radius: var(--cal-tooltip-radius);
+  font-size: var(--cal-tooltip-font-size);
+  font-weight: 500;
+  line-height: 1.4;
+
+  max-width: var(--cal-tooltip-max-width);
+  width: max-content;
+  white-space: pre-wrap;
+  word-wrap: break-word;
+  text-align: left;
+
+  z-index: 1000;
+  pointer-events: none;
+
+  opacity: 0;
+  visibility: hidden;
+  transition: opacity 0.2s ease, visibility 0.2s ease;
+}
+
+/* Tooltip arrow - creates a downward pointing triangle */
+.uc-calendar [data-tooltip]:not([data-tooltip=""])::after {
+  content: '';
+  position: absolute;
+  bottom: calc(100% + var(--cal-tooltip-offset) - 5px);
+  left: 50%;
+  transform: translateX(-50%);
+
+  width: 0;
+  height: 0;
+  border-left: 5px solid transparent;
+  border-right: 5px solid transparent;
+  border-top: 5px solid var(--cal-tooltip-bg);
+
+  z-index: 1002;
+  pointer-events: none;
+
+  opacity: 0;
+  visibility: hidden;
+  transition: opacity 0.2s ease, visibility 0.2s ease;
+}
+
+/* Arrow border/outline effect */
+.uc-calendar [data-tooltip]:not([data-tooltip=""])::before {
+  filter: drop-shadow(0 1px 0 var(--cal-tooltip-border));
+}
+
+/* Position modifiers for edge cases */
+
+/* Align tooltip to right edge */
+.uc-calendar [data-tooltip].uc-tooltip-left::before {
+  left: auto;
+  right: 0;
+  transform: translateX(0);
+}
+
+.uc-calendar [data-tooltip].uc-tooltip-left::after {
+  left: auto;
+  right: 12px;
+  transform: translateX(0);
+}
+
+/* Align tooltip to left edge */
+.uc-calendar [data-tooltip].uc-tooltip-right::before {
+  left: 0;
+  transform: translateX(0);
+}
+
+.uc-calendar [data-tooltip].uc-tooltip-right::after {
+  left: 12px;
+  transform: translateX(0);
+}
+
+/* Show tooltip below (when near top of viewport) */
+.uc-calendar [data-tooltip].uc-tooltip-bottom::before {
+  bottom: auto;
+  top: calc(100% + var(--cal-tooltip-offset));
+  filter: drop-shadow(0 -1px 0 var(--cal-tooltip-border));
+}
+
+.uc-calendar [data-tooltip].uc-tooltip-bottom::after {
+  bottom: auto;
+  top: calc(100% + var(--cal-tooltip-offset) - 5px);
+  border-top: 5px solid var(--cal-tooltip-bg);
+  border-left: 5px solid transparent;
+  border-right: 5px solid transparent;
+  border-bottom: none;
+  transform: translateX(-50%) rotate(180deg);
 }
 
 /* ===== RESPONSIVE ===== */
@@ -957,6 +1079,11 @@
   --cal-today-bg:        #1e1b4b;
   --cal-primary-light:   #1e1b4b;
   --cal-toolbar-bg:      #111827;
+
+  /* Tooltip dark mode */
+  --cal-tooltip-bg:      #374151;
+  --cal-tooltip-text:    #f9fafb;
+  --cal-tooltip-border:  #4b5563;
 }
 
 /* ===== PRINT STYLES ===== */

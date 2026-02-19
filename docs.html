@@ -275,6 +275,7 @@
       <a href="#quickstart">Quick Start</a>
       <a href="#options">Options</a>
       <a href="#callbacks">Callbacks</a>
+      <a href="#tooltips">Tooltips</a>
       <a href="#methods">Methods</a>
       <a href="#theming">Theming</a>
       <a href="#react">React</a>
@@ -452,6 +453,12 @@ const calendar = new SimpleCalendarJs('#calendar', {
               <td><code>['month', 'week', 'day']</code></td>
               <td>Which views are available to switch to</td>
             </tr>
+            <tr>
+              <td><code>showTooltips</code></td>
+              <td>Boolean</td>
+              <td><code>true</code></td>
+              <td>Show/hide event tooltips on hover</td>
+            </tr>
           </tbody>
         </table>
       </div>
@@ -532,7 +539,9 @@ const calendar = new SimpleCalendarJs('#calendar', {
   start: Date,               // Required: Start date/time
   end: Date,                 // Required: End date/time
   allDay: false,             // Optional: All-day event flag
-  color: '#4f46e5'           // Optional: Custom color (hex)
+  color: '#4f46e5',          // Optional: Custom color (hex)
+  description: 'Details',    // Optional: Event description (also used for tooltip)
+  tooltip: 'Custom tooltip'  // Optional: Custom tooltip text (overrides description)
 }</code></pre>
 
       <div class="note">
@@ -567,6 +576,100 @@ const calendar = new SimpleCalendarJs('#calendar', {
     console.log('Create event at:', date);
   }
 });</code></pre>
+    </section>
+
+    <!-- Tooltips -->
+    <section id="tooltips" class="section">
+      <h2>Tooltips</h2>
+      <p>SimpleCalendarJs includes built-in tooltip support for displaying additional event information on hover.</p>
+
+      <h3>How Tooltips Work</h3>
+      <p>Tooltips appear when you hover over an event for 400ms. They display content based on the following priority:</p>
+      <ol>
+        <li><strong><code>tooltip</code> property</strong> (highest priority) - Custom tooltip text</li>
+        <li><strong><code>description</code> property</strong> - Falls back if no tooltip is provided</li>
+        <li><strong><code>title</code> property</strong> - Falls back if neither tooltip nor description is provided</li>
+      </ol>
+
+      <h3>Basic Usage</h3>
+      <pre><code>const events = [
+  {
+    id: 1,
+    title: 'Team Meeting',
+    start: new Date(2024, 2, 15, 10, 0),
+    end: new Date(2024, 2, 15, 11, 0),
+    tooltip: 'Weekly team sync\nDiscuss Q1 roadmap'  // Custom tooltip
+  },
+  {
+    id: 2,
+    title: 'Client Call',
+    start: new Date(2024, 2, 15, 14, 0),
+    end: new Date(2024, 2, 15, 15, 0),
+    description: 'Requirements gathering\nPrepare demo'  // Used as tooltip
+  },
+  {
+    id: 3,
+    title: 'Code Review',
+    start: new Date(2024, 2, 15, 16, 0),
+    end: new Date(2024, 2, 15, 17, 0)
+    // No tooltip/description - will show title
+  }
+];</code></pre>
+
+      <h3>Multiline Tooltips</h3>
+      <p>Use <code>\n</code> (newline character) in your tooltip or description text to create multiple lines:</p>
+      <pre><code>{
+  id: 1,
+  title: 'Project Kickoff',
+  start: new Date(2024, 2, 20, 9, 0),
+  end: new Date(2024, 2, 20, 10, 30),
+  tooltip: 'Project Kickoff Meeting\n\nAgenda:\n- Introductions\n- Timeline review\n- Q&A session\n\nLocation: Conference Room A'
+}</code></pre>
+
+      <h3>Tooltip Features</h3>
+      <div class="card">
+        <h4>Smart Positioning</h4>
+        <p>Tooltips automatically adjust their position to stay visible:</p>
+        <ul>
+          <li>Events near the <strong>top</strong> of the viewport: tooltip shows below</li>
+          <li>Events near the <strong>right edge</strong>: tooltip aligns to the right</li>
+          <li>Events near the <strong>left edge</strong>: tooltip aligns to the left</li>
+        </ul>
+      </div>
+
+      <div class="card">
+        <h4>Visual Design</h4>
+        <ul>
+          <li>Dark background with rounded corners</li>
+          <li>Small arrow pointing to the event</li>
+          <li>Smooth fade-in animation (400ms delay)</li>
+          <li>Supports both light and dark themes</li>
+        </ul>
+      </div>
+
+      <h3>Disabling Tooltips</h3>
+      <p>You can disable tooltips globally using the <code>showTooltips</code> option:</p>
+      <pre><code>const calendar = new SimpleCalendarJs('#calendar', {
+  showTooltips: false,  // Disable all tooltips
+  fetchEvents: async (start, end) => { /* ... */ }
+});</code></pre>
+
+      <h3>Styling Tooltips</h3>
+      <p>Tooltips use CSS custom properties and can be customized:</p>
+      <pre><code>:root {
+  --cal-tooltip-bg: #1f2937;           /* Background color */
+  --cal-tooltip-text: #f9fafb;         /* Text color */
+  --cal-tooltip-border: #374151;       /* Border color */
+  --cal-tooltip-max-width: 250px;      /* Maximum width */
+  --cal-tooltip-padding: 8px 12px;     /* Inner padding */
+  --cal-tooltip-radius: 6px;           /* Border radius */
+  --cal-tooltip-font-size: 12px;       /* Font size */
+  --cal-tooltip-offset: 8px;           /* Distance from event */
+}</code></pre>
+
+      <div class="note">
+        <p><strong>Limitations:</strong> Tooltips display plain text only (no HTML rendering). Special characters are automatically escaped for security. Maximum width is 250px by default (customizable via CSS variables).</p>
+      </div>
     </section>
 
     <!-- Methods -->
@@ -1006,7 +1109,7 @@ export class CalendarDemoComponent {
   </div>
 
   <div class="footer">
-    <p>SimpleCalendarJs v3.0.0 — A zero-dependency JavaScript calendar component</p>
+    <p>SimpleCalendarJs v3.0.1 — A zero-dependency JavaScript calendar component</p>
   </div>
 
 </body>

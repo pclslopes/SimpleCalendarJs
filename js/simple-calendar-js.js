@@ -1,5 +1,5 @@
 /**
- * SimpleCalendarJs v3.0.0
+ * SimpleCalendarJs v3.0.1
  * A clean, modern, and feature-rich JavaScript calendar component with zero dependencies
  *
  * @author Pedro Lopes <simplecalendarjs@gmail.com>
@@ -361,6 +361,7 @@
           showTitle: true,
           showYearPicker: true,
           showViewSwitcher: true,
+          showTooltips: true,
           enabledViews: ['month', 'week', 'day'],
           fetchEvents: null,
           onEventClick: null,
@@ -389,6 +390,10 @@
       // Single event delegation listener on root
       this._onClick = this._handleClick.bind(this);
       this._root.addEventListener('click', this._onClick);
+
+      // Tooltip positioning handler
+      this._onMouseMove = this._handleTooltipPosition.bind(this);
+      this._root.addEventListener('mouseover', this._onMouseMove);
 
       this._fetchAndRender();
       this._startNowUpdater();
@@ -440,6 +445,7 @@
       if (this._nowInterval) clearInterval(this._nowInterval);
       if (this._yearOutsideHandler) document.removeEventListener('click', this._yearOutsideHandler);
       this._root.removeEventListener('click', this._onClick);
+      this._root.removeEventListener('mouseover', this._onMouseMove);
       this._root.remove();
     }
 
@@ -747,10 +753,14 @@
         const contL = !isStart ? ' uc-continues-left' : '';
         const contR = !isEnd ? ' uc-continues-right' : '';
 
+        const tooltipAttr = this._opts.showTooltips
+          ? `data-tooltip="${esc(event.tooltip || event.description || event.title)}"`
+          : '';
         barsHtml += `
           <div class="uc-event-bar${contL}${contR}"
                style="left:calc(${left}% + 2px);width:calc(${width}% - 4px);top:${topCss};background:${esc(color)};border-radius:${rl} ${rr} ${rr} ${rl};"
-               data-event-id="${esc(event.id)}" data-action="event-click" title="${esc(event.title)}">
+               data-event-id="${esc(event.id)}" data-action="event-click"
+               ${tooltipAttr}>
             ${isStart ? `<span class="uc-event-title">${esc(event.title)}</span>` : '&nbsp;'}
           </div>`;
       }
@@ -785,10 +795,14 @@
             const timeHtml = this._opts.showTimeInItems
               ? `<span class="uc-event-time">${esc(timeStr)}</span>`
               : '';
+            const tooltipAttr = this._opts.showTooltips
+              ? `data-tooltip="${esc(ev.tooltip || ev.description || ev.title)}"`
+              : '';
             barsHtml += `
               <div class="uc-event-bar"
                    style="left:calc(${left}% + 2px);width:calc(${cw}% - 4px);top:${topCss};background:${esc(color)};"
-                   data-event-id="${esc(ev.id)}" data-action="event-click" title="${esc(ev.title)}">
+                   data-event-id="${esc(ev.id)}" data-action="event-click"
+                   ${tooltipAttr}>
                 ${timeHtml}
                 <span class="uc-event-title">${esc(ev.title)}</span>
               </div>`;
@@ -798,7 +812,7 @@
         });
 
         if (hidden > 0) {
-          const topCss = `calc(var(--cal-header-day-height) + ${MAX} * (var(--cal-event-height) + var(--cal-event-gap)) + 4px)`;
+          const topCss = `calc(var(--cal-header-day-height) + ${MAX} * (var(--cal-event-height) + var(--cal-event-gap)) + 2px)`;
           barsHtml += `
             <div class="uc-more-link"
                  style="left:calc(${left}% + 2px);width:calc(${cw}% - 4px);top:${topCss};"
@@ -875,11 +889,15 @@
         const rr = isEnd ? 'var(--cal-event-border-radius)' : '0';
         const contL = !isStart ? ' uc-continues-left' : '';
         const contR = !isEnd ? ' uc-continues-right' : '';
+        const tooltipAttr = this._opts.showTooltips
+          ? `data-tooltip="${esc(event.tooltip || event.description || event.title)}"`
+          : '';
 
         allDayBarsHtml += `
           <div class="uc-event-bar${contL}${contR}"
                style="left:calc(${left}% + 2px);width:calc(${width}% - 4px);top:${topCss};background:${esc(color)};border-radius:${rl} ${rr} ${rr} ${rl};"
-               data-event-id="${esc(event.id)}" data-action="event-click" title="${esc(event.title)}">
+               data-event-id="${esc(event.id)}" data-action="event-click"
+               ${tooltipAttr}>
             ${isStart ? `<span class="uc-event-title">${esc(event.title)}</span>` : '&nbsp;'}
           </div>`;
       }
@@ -930,11 +948,15 @@
               const timeHtml = this._opts.showTimeInItems
                 ? `<span class="uc-event-time">${esc(timeStr)}</span>`
                 : '';
+              const tooltipAttr = this._opts.showTooltips
+                ? `data-tooltip="${esc(event.tooltip || event.description || event.title)}"`
+                : '';
 
               return `
                 <div class="uc-timed-event${shortClass}"
                      style="top:${topCss};height:${heightCss};left:${leftCss};width:${widthCss};background:${esc(color)};"
-                     data-event-id="${esc(event.id)}" data-action="event-click" title="${esc(event.title)}">
+                     data-event-id="${esc(event.id)}" data-action="event-click"
+                     ${tooltipAttr}>
                   ${timeHtml}
                   <span class="uc-event-title">${esc(event.title)}</span>
                 </div>`;
@@ -1115,6 +1137,37 @@
         }
       }
 
+    }
+
+    _handleTooltipPosition(evt) {
+      const target = evt.target.closest('[data-tooltip]');
+      if (!target || !target.dataset.tooltip) return;
+
+      // Only position if tooltip has content
+      const tooltipText = target.dataset.tooltip.trim();
+      if (!tooltipText) return;
+
+      // Get viewport dimensions
+      const rect = target.getBoundingClientRect();
+      const viewportWidth = window.innerWidth;
+
+      // Remove positioning classes
+      target.classList.remove('uc-tooltip-left', 'uc-tooltip-right', 'uc-tooltip-bottom');
+
+      // Check if tooltip would overflow right edge (default: show on top-center)
+      const tooltipWidth = 250; // max-width from CSS
+      const centerOffset = (rect.width / 2) - (tooltipWidth / 2);
+
+      if (rect.left + centerOffset + tooltipWidth > viewportWidth - 10) {
+        target.classList.add('uc-tooltip-left'); // Align to right
+      } else if (rect.left + centerOffset < 10) {
+        target.classList.add('uc-tooltip-right'); // Align to left
+      }
+
+      // Check if tooltip would overflow top edge
+      if (rect.top < 50) {
+        target.classList.add('uc-tooltip-bottom'); // Show below instead
+      }
     }
 
     _startNowUpdater() {

@@ -545,7 +545,7 @@
   <header class="page-header">
     <div style="display:flex;align-items:center;gap:10px">
       <h1>SimpleCalendarJs</h1>
-      <span>v3.0.0</span>
+      <span>v3.0.1</span>
     </div>
     <div class="header-controls">
       <a href="docs.html" class="docs-link">Documentation</a>
@@ -686,6 +686,16 @@
       </div>
 
       <div class="option-group">
+        <span class="option-label">Show Tooltips</span>
+        <div class="option-toggle-row">
+          <button class="opt-toggle-track on" id="opt-show-tooltips" role="switch" aria-checked="true">
+            <span class="opt-toggle-thumb"></span>
+          </button>
+          <span class="opt-toggle-label" id="opt-show-tooltips-label">On</span>
+        </div>
+      </div>
+
+      <div class="option-group">
         <span class="option-label">Show Toolbar</span>
         <div class="option-toggle-row">
           <button class="opt-toggle-track on" id="opt-show-toolbar" role="switch" aria-checked="true">
@@ -781,19 +791,19 @@
     }
 
     const SAMPLE_EVENTS = [
-      { id: 'md1', title: 'Engineering Offsite',  start: d(-2),       end: d(2),        allDay: true,  color: '#7c3aed' },
-      { id: 'md2', title: 'Company All-Hands',    start: d(5),        end: d(7),        allDay: true,  color: '#0891b2' },
-      { id: 'md3', title: 'Product Launch Week',  start: d(10),       end: d(15),       allDay: true,  color: '#dc2626' },
+      { id: 'md1', title: 'Engineering Offsite',  start: d(-2),       end: d(2),        allDay: true,  color: '#7c3aed', tooltip: 'Team building and strategic planning\nLocation: Mountain View Resort' },
+      { id: 'md2', title: 'Company All-Hands',    start: d(5),        end: d(7),        allDay: true,  color: '#0891b2', description: 'Quarterly company-wide meeting\nMain Office Auditorium' },
+      { id: 'md3', title: 'Product Launch Week',  start: d(10),       end: d(15),       allDay: true,  color: '#dc2626', tooltip: 'Major product release v3.0\nPR campaign and demos' },
       { id: 'md4', title: 'Holiday Break is a great way to start the year',        start: d(-10),      end: d(-6),       allDay: true,  color: '#059669' },
-      { id: 'md5', title: 'Conf. Prep',           start: d(3),        end: d(5),        allDay: true,  color: '#d97706' },
-      { id: 't1',  title: 'Morning Stand-up',     start: d(0, 9, 15), end: d(0, 9, 45),  color: '#4f46e5' },
-      { id: 't2',  title: 'Design Review',        start: d(0, 10, 30), end: d(0, 11, 45),  color: '#7c3aed' },
-      { id: 't3',  title: 'Lunch with Maria',     start: d(0, 12, 15), end: d(0, 13, 30),  color: '#059669' },
-      { id: 't4',  title: 'Architecture Planning',start: d(0, 13,45), end: d(0, 15,15),  color: '#0891b2' },
-      { id: 't5',  title: 'Sprint Retrospective', start: d(0, 15, 30), end: d(0, 16, 30),  color: '#d97706' },
-      { id: 't6',  title: '1:1 with Manager',     start: d(0, 16,45), end: d(0, 17, 30),  color: '#dc2626' },
-      { id: 't7',  title: 'Product Demo',         start: d(1, 10, 15), end: d(1, 11,45),  color: '#4f46e5' },
-      { id: 't8',  title: 'Client Call — ACME',   start: d(1, 14, 20), end: d(1, 15, 10),  color: '#0891b2' },
+      { id: 'md5', title: 'Conf. Prep',           start: d(3),        end: d(5),        allDay: true,  color: '#d97706', description: 'Preparing for TechConf 2026\nSlides and booth materials' },
+      { id: 't1',  title: 'Morning Stand-up',     start: d(0, 9, 15), end: d(0, 9, 45),  color: '#4f46e5', tooltip: 'Daily team sync\nZoom: https://zoom.us/j/123456' },
+      { id: 't2',  title: 'Design Review',        start: d(0, 10, 30), end: d(0, 11, 45),  color: '#7c3aed', description: 'Review new UI mockups for dashboard\nConference Room A' },
+      { id: 't3',  title: 'Lunch with Maria',     start: d(0, 12, 15), end: d(0, 13, 30),  color: '#059669', tooltip: 'Discuss Q2 marketing strategy\nDowntown Bistro' },
+      { id: 't4',  title: 'Architecture Planning',start: d(0, 13,45), end: d(0, 15,15),  color: '#0891b2', tooltip: 'Planning microservices migration\nBring architecture diagrams' },
+      { id: 't5',  title: 'Sprint Retrospective', start: d(0, 15, 30), end: d(0, 16, 30),  color: '#d97706', description: 'Review sprint 23 outcomes\nIdentify improvements' },
+      { id: 't6',  title: '1:1 with Manager',     start: d(0, 16,45), end: d(0, 17, 30),  color: '#dc2626', tooltip: 'Performance review and goals\nOffice or Zoom' },
+      { id: 't7',  title: 'Product Demo',         start: d(1, 10, 15), end: d(1, 11,45),  color: '#4f46e5', description: 'Demo new features to stakeholders\nMain Conference Room' },
+      { id: 't8',  title: 'Client Call — ACME',   start: d(1, 14, 20), end: d(1, 15, 10),  color: '#0891b2', tooltip: 'Requirements gathering session\nPrepare questions about API integration' },
       { id: 't9',  title: 'Code Review',          start: d(1, 11, 50), end: d(1, 12, 40),  color: '#059669' },
       { id: 't10', title: 'Investor Update',      start: d(2, 9, 30),  end: d(2, 10, 45),  color: '#7c3aed' },
       { id: 't11', title: 'Tech Talk',            start: d(2, 15, 15), end: d(2, 16,45),  color: '#d97706' },
@@ -934,6 +944,7 @@
       use24Hour: false,
       showTimeInItems: true,
       showGridLines: true,
+      showTooltips: true,
       showToolbar: true,
       showTodayButton: true,
       showNavigation: true,
@@ -1102,6 +1113,19 @@
       toggleShowGrid.setAttribute('aria-checked', opts.showGridLines);
       labelShowGrid.textContent = opts.showGridLines ? 'On' : 'Off';
       log('opt', 'tag-opt', `showGridLines → ${opts.showGridLines}`);
+      createCalendar();
+    });
+
+    // Show Tooltips
+    const toggleShowTooltips = document.getElementById('opt-show-tooltips');
+    const labelShowTooltips  = document.getElementById('opt-show-tooltips-label');
+
+    toggleShowTooltips.addEventListener('click', () => {
+      opts.showTooltips = !opts.showTooltips;
+      toggleShowTooltips.classList.toggle('on', opts.showTooltips);
+      toggleShowTooltips.setAttribute('aria-checked', opts.showTooltips);
+      labelShowTooltips.textContent = opts.showTooltips ? 'On' : 'Off';
+      log('opt', 'tag-opt', `showTooltips → ${opts.showTooltips}`);
       createCalendar();
     });
 

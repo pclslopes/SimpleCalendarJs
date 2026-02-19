@@ -2,7 +2,7 @@
 
 A lightweight, zero-dependency JavaScript calendar component with internationalization support and framework wrappers for React, Vue, and Angular.
 
-![Version](https://img.shields.io/badge/version-3.0.0-blue.svg)
+![Version](https://img.shields.io/badge/version-3.0.1-blue.svg)
 ![License](https://img.shields.io/badge/license-See%20LICENSE-green.svg)
 
 ## Features
@@ -172,6 +172,7 @@ export class CalendarComponent {
 | `showTitle` | boolean | `true` | Show month/year title |
 | `showYearPicker` | boolean | `true` | Enable year picker dropdown (month view) |
 | `showViewSwitcher` | boolean | `true` | Show view switcher buttons |
+| `showTooltips` | boolean | `true` | Show tooltips on hover for events |
 | `enabledViews` | string[] | `['month', 'week', 'day']` | Available view modes |
 | `primaryColor` | string | `'#4f46e5'` | Primary theme color (hex) |
 | `fetchEvents` | function | `null` | Async function to fetch events: `async (start, end) => Event[]` |
@@ -192,6 +193,8 @@ interface CalendarEvent {
   end?: Date;                    // End date/time (optional, defaults to start)
   allDay?: boolean;              // All-day event flag (optional)
   color?: string;                // Custom color (hex, optional)
+  description?: string;          // Event description (also used for tooltip if tooltip not provided)
+  tooltip?: string;              // Custom tooltip text shown on hover (overrides description)
   [key: string]: any;            // Any additional custom properties
 }
 ```
@@ -205,7 +208,8 @@ const events = [
     title: 'Team Meeting',
     start: new Date('2024-03-15T10:00:00'),
     end: new Date('2024-03-15T11:00:00'),
-    color: '#3b82f6'
+    color: '#3b82f6',
+    tooltip: 'Weekly team sync\nDiscuss Q1 roadmap and sprint planning'
   },
   {
     id: 2,
@@ -213,10 +217,114 @@ const events = [
     start: new Date('2024-03-20T00:00:00'),
     end: new Date('2024-03-22T23:59:59'),
     allDay: true,
-    color: '#10b981'
+    color: '#10b981',
+    description: 'Tech Conference 2024\nDowntown Convention Center'
   }
 ];
 ```
+
+## Tooltips
+
+SimpleCalendarJs includes built-in tooltip support for displaying additional event information on hover.
+
+### How Tooltips Work
+
+Tooltips appear when you hover over an event for 400ms. They display content based on the following priority:
+
+1. **`tooltip` property** (highest priority) - Custom tooltip text
+2. **`description` property** - Falls back if no tooltip is provided
+3. **`title` property** - Falls back if neither tooltip nor description is provided
+
+### Basic Usage
+
+```javascript
+const events = [
+  {
+    id: 1,
+    title: 'Team Meeting',
+    start: new Date('2024-03-15T10:00:00'),
+    end: new Date('2024-03-15T11:00:00'),
+    tooltip: 'Weekly team sync\nDiscuss Q1 roadmap'  // Custom tooltip
+  },
+  {
+    id: 2,
+    title: 'Client Call',
+    start: new Date('2024-03-15T14:00:00'),
+    end: new Date('2024-03-15T15:00:00'),
+    description: 'Requirements gathering\nPrepare demo'  // Used as tooltip
+  },
+  {
+    id: 3,
+    title: 'Code Review',
+    start: new Date('2024-03-15T16:00:00'),
+    end: new Date('2024-03-15T17:00:00')
+    // No tooltip/description - will show title
+  }
+];
+```
+
+### Multiline Tooltips
+
+Use `\n` (newline character) in your tooltip or description text to create multiple lines:
+
+```javascript
+{
+  id: 1,
+  title: 'Project Kickoff',
+  start: new Date('2024-03-20T09:00:00'),
+  end: new Date('2024-03-20T10:30:00'),
+  tooltip: 'Project Kickoff Meeting\n\nAgenda:\n- Introductions\n- Timeline review\n- Q&A session\n\nLocation: Conference Room A'
+}
+```
+
+### Tooltip Features
+
+- **Smart Positioning**: Tooltips automatically adjust their position to stay visible:
+  - Events near the **top** of the viewport: tooltip shows below
+  - Events near the **right edge**: tooltip aligns to the right
+  - Events near the **left edge**: tooltip aligns to the left
+
+- **Visual Design**:
+  - Dark background with rounded corners
+  - Small arrow pointing to the event
+  - Smooth fade-in animation (400ms delay)
+  - Supports both light and dark themes
+
+- **Responsive**: Tooltips overflow outside calendar boundaries to ensure full visibility
+
+### Disabling Tooltips
+
+You can disable tooltips globally using the `showTooltips` option:
+
+```javascript
+const calendar = new SimpleCalendarJs('#calendar', {
+  showTooltips: false,  // Disable all tooltips
+  fetchEvents: async (start, end) => { ... }
+});
+```
+
+### Styling Tooltips
+
+Tooltips use CSS custom properties and can be customized:
+
+```css
+:root {
+  --cal-tooltip-bg: #1f2937;           /* Background color */
+  --cal-tooltip-text: #f9fafb;         /* Text color */
+  --cal-tooltip-border: #374151;       /* Border color */
+  --cal-tooltip-max-width: 250px;      /* Maximum width */
+  --cal-tooltip-padding: 8px 12px;     /* Inner padding */
+  --cal-tooltip-radius: 6px;           /* Border radius */
+  --cal-tooltip-font-size: 12px;       /* Font size */
+  --cal-tooltip-offset: 8px;           /* Distance from event */
+}
+```
+
+### Limitations
+
+- Tooltips display **plain text only** (no HTML rendering)
+- Special characters are automatically escaped for security
+- Maximum width is 250px by default (can be customized via CSS variables)
 
 ## API Methods
 
