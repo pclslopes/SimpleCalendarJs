@@ -1,11 +1,10 @@
 /**
- * SimpleCalendarJs v3.0.1
+ * SimpleCalendarJs v3.0.2
  * A clean, modern, and feature-rich JavaScript calendar component with zero dependencies
  *
  * @author Pedro Lopes <simplecalendarjs@gmail.com>
  * @homepage https://www.simplecalendarjs.com
  * @license SEE LICENSE IN LICENSE
- * @repository https://github.com/pclslopes/SimpleCalendarJs
  */
 (function (global, factory) {
   if (typeof module !== 'undefined' && module.exports) {
@@ -352,6 +351,7 @@
           defaultDate: null,
           weekStartsOn: 0,
           locale: 'default',
+          weekdayFormat: 'short',
           use24Hour: false,
           showTimeInItems: true,
           showGridLines: true,
@@ -362,6 +362,7 @@
           showYearPicker: true,
           showViewSwitcher: true,
           showTooltips: true,
+          showBorder: true,
           enabledViews: ['month', 'week', 'day'],
           fetchEvents: null,
           onEventClick: null,
@@ -384,6 +385,9 @@
       this._root.className = 'uc-calendar';
       if (!this._opts.showGridLines) {
         this._root.classList.add('uc-no-grid');
+      }
+      if (!this._opts.showBorder) {
+        this._root.classList.add('uc-no-border');
       }
       this._el.appendChild(this._root);
 
@@ -673,7 +677,7 @@
     _buildMonthView() {
       const { locale, weekStartsOn } = this._opts;
       const dates = getMonthGridDates(this._date.getFullYear(), this._date.getMonth(), weekStartsOn);
-      const dayNames = getDayNames(locale, weekStartsOn, 'short');
+      const dayNames = getDayNames(locale, weekStartsOn, this._opts.weekdayFormat);
 
       // Normalise multi-day event boundaries to whole-day granularity.
       // Use endOfDay so same-day allDay events (start === end) still render.
@@ -841,8 +845,8 @@
       const colClass = isDay ? ' uc-day-header-single' : '';
 
       const dayNames = isDay
-        ? [new Intl.DateTimeFormat(locale, { weekday: 'short' }).format(days[0])]
-        : getDayNames(locale, weekStartsOn, 'short');
+        ? [new Intl.DateTimeFormat(locale, { weekday: this._opts.weekdayFormat }).format(days[0])]
+        : getDayNames(locale, weekStartsOn, this._opts.weekdayFormat);
 
       const viewStart = startOfDay(days[0]);
       const viewEnd = endOfDay(days[days.length - 1]);

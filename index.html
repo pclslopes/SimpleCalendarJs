@@ -545,7 +545,7 @@
   <header class="page-header">
     <div style="display:flex;align-items:center;gap:10px">
       <h1>SimpleCalendarJs</h1>
-      <span>v3.0.1</span>
+      <span>v3.0.2</span>
     </div>
     <div class="header-controls">
       <a href="docs.html" class="docs-link">Documentation</a>
@@ -656,6 +656,15 @@
       </div>
 
       <div class="option-group">
+        <span class="option-label">Weekday Format</span>
+        <select class="option-select" id="opt-weekday-format">
+          <option value="narrow">Narrow (S, M, T...)</option>
+          <option value="short" selected>Short (Sun, Mon...)</option>
+          <option value="long">Long (Sunday, Monday...)</option>
+        </select>
+      </div>
+
+      <div class="option-group">
         <span class="option-label">24-Hour Clock</span>
         <div class="option-toggle-row">
           <button class="opt-toggle-track" id="opt-24hour" role="switch" aria-checked="false">
@@ -682,6 +691,16 @@
             <span class="opt-toggle-thumb"></span>
           </button>
           <span class="opt-toggle-label" id="opt-show-grid-label">On</span>
+        </div>
+      </div>
+
+      <div class="option-group">
+        <span class="option-label">Show Border</span>
+        <div class="option-toggle-row">
+          <button class="opt-toggle-track on" id="opt-show-border" role="switch" aria-checked="true">
+            <span class="opt-toggle-thumb"></span>
+          </button>
+          <span class="opt-toggle-label" id="opt-show-border-label">On</span>
         </div>
       </div>
 
@@ -941,9 +960,11 @@
       defaultView: 'month',
       weekStartsOn: 1,
       locale: 'en-US',
+      weekdayFormat: 'short',
       use24Hour: false,
       showTimeInItems: true,
       showGridLines: true,
+      showBorder: true,
       showTooltips: true,
       showToolbar: true,
       showTodayButton: true,
@@ -1077,6 +1098,13 @@
       createCalendar();
     });
 
+    // Weekday Format
+    document.getElementById('opt-weekday-format').addEventListener('change', e => {
+      opts.weekdayFormat = e.target.value;
+      log('opt', 'tag-opt', `weekdayFormat → "${opts.weekdayFormat}"`);
+      createCalendar();
+    });
+
     // 24-Hour Clock
     const toggle24 = document.getElementById('opt-24hour');
     const label24  = document.getElementById('opt-24hour-label');
@@ -1113,6 +1141,19 @@
       toggleShowGrid.setAttribute('aria-checked', opts.showGridLines);
       labelShowGrid.textContent = opts.showGridLines ? 'On' : 'Off';
       log('opt', 'tag-opt', `showGridLines → ${opts.showGridLines}`);
+      createCalendar();
+    });
+
+    // Show Border
+    const toggleShowBorder = document.getElementById('opt-show-border');
+    const labelShowBorder  = document.getElementById('opt-show-border-label');
+
+    toggleShowBorder.addEventListener('click', () => {
+      opts.showBorder = !opts.showBorder;
+      toggleShowBorder.classList.toggle('on', opts.showBorder);
+      toggleShowBorder.setAttribute('aria-checked', opts.showBorder);
+      labelShowBorder.textContent = opts.showBorder ? 'On' : 'Off';
+      log('opt', 'tag-opt', `showBorder → ${opts.showBorder}`);
       createCalendar();
     });
 

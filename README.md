@@ -2,7 +2,7 @@
 
 A lightweight, zero-dependency JavaScript calendar component with internationalization support and framework wrappers for React, Vue, and Angular.
 
-![Version](https://img.shields.io/badge/version-3.0.1-blue.svg)
+![Version](https://img.shields.io/badge/version-3.0.2-blue.svg)
 ![License](https://img.shields.io/badge/license-See%20LICENSE-green.svg)
 
 ## Features
@@ -163,9 +163,11 @@ export class CalendarComponent {
 | `defaultDate` | Date | `new Date()` | Initial date to display |
 | `weekStartsOn` | number | `0` | First day of week: `0` (Sunday) or `1` (Monday) |
 | `locale` | string | `'default'` | Locale code for Intl API (e.g., `'en-US'`, `'fr-FR'`, `'ja-JP'`) |
+| `weekdayFormat` | string | `'short'` | Weekday name format: `'narrow'` (1-2 letters), `'short'` (abbreviated), or `'long'` (full name) |
 | `use24Hour` | boolean | `false` | Use 24-hour time format |
 | `showTimeInItems` | boolean | `true` | Show time in event items |
 | `showGridLines` | boolean | `true` | Show calendar grid lines |
+| `showBorder` | boolean | `true` | Show calendar outer border |
 | `showToolbar` | boolean | `true` | Show the toolbar |
 | `showTodayButton` | boolean | `true` | Show "Today" button |
 | `showNavigation` | boolean | `true` | Show prev/next navigation arrows |
@@ -174,7 +176,6 @@ export class CalendarComponent {
 | `showViewSwitcher` | boolean | `true` | Show view switcher buttons |
 | `showTooltips` | boolean | `true` | Show tooltips on hover for events |
 | `enabledViews` | string[] | `['month', 'week', 'day']` | Available view modes |
-| `primaryColor` | string | `'#4f46e5'` | Primary theme color (hex) |
 | `fetchEvents` | function | `null` | Async function to fetch events: `async (start, end) => Event[]` |
 | `onEventClick` | function | `null` | Callback when event is clicked: `(event, mouseEvent) => void` |
 | `onSlotClick` | function | `null` | Callback when time slot is clicked: `(date, mouseEvent) => void` |
@@ -370,6 +371,46 @@ const calendar = new SimpleCalendarJs('#calendar', {
 
 Supported locales include: `en-US`, `en-GB`, `fr-FR`, `de-DE`, `es-ES`, `it-IT`, `pt-PT`, `pt-BR`, `ja-JP`, `zh-CN`, `ko-KR`, `ar-SA`, `ru-RU`, `tr-TR`, and [many more](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Intl/DateTimeFormat/DateTimeFormat#locales).
 
+### Weekday Name Format
+
+Control how day names are displayed using the `weekdayFormat` option:
+
+```javascript
+const calendar = new SimpleCalendarJs('#calendar', {
+  locale: 'pt-PT',
+  weekdayFormat: 'long'  // Full day names
+});
+```
+
+**Available formats:**
+- `'narrow'` - 1-2 letter abbreviation (S, M, T, W, T, F, S)
+- `'short'` - Short abbreviation (Sun, Mon, Tue... or Dom, Seg, Ter...)
+- `'long'` - Full day name (Sunday, Monday... or Domingo, Segunda-feira...)
+
+**Examples:**
+
+```javascript
+// English with narrow format
+new SimpleCalendarJs('#calendar', {
+  locale: 'en-US',
+  weekdayFormat: 'narrow'  // S M T W T F S
+});
+
+// Portuguese (Portugal) with long format
+new SimpleCalendarJs('#calendar', {
+  locale: 'pt-PT',
+  weekdayFormat: 'long'  // Domingo Segunda-feira Terça-feira...
+});
+
+// Portuguese (Brazil) with short format (default)
+new SimpleCalendarJs('#calendar', {
+  locale: 'pt-BR',
+  weekdayFormat: 'short'  // Dom Seg Ter Qua...
+});
+```
+
+**Note:** Different locales may format the same option differently. For example, `'short'` in `pt-PT` might display "Sábado" while `pt-BR` displays "Sáb." - this is controlled by the browser's Intl API based on locale conventions. Use `weekdayFormat` to control the length/style consistently.
+
 ## Dark Mode
 
 Dark mode is automatically detected from the user's system preferences. You can also manually toggle it:
@@ -397,39 +438,87 @@ For framework wrappers, use the `darkMode` prop:
 
 ## Styling & Theming
 
-Customize the calendar appearance using CSS custom properties:
+Customize the calendar appearance using CSS custom properties.
+
+### Override Light Mode Colors
+
+Target the `.uc-calendar` class to customize light mode:
 
 ```css
 .uc-calendar {
   /* Primary color */
-  --cal-primary: #4f46e5;
-  --cal-primary-dark: #4338ca;
-  --cal-primary-light: #eef2ff;
-
-  /* Background colors */
-  --cal-bg: #ffffff;
-  --cal-bg-secondary: #f9fafb;
-
-  /* Text colors */
-  --cal-text: #111827;
-  --cal-text-subtle: #6b7280;
-
-  /* Borders */
-  --cal-border: #e5e7eb;
+  --cal-primary: #10b981;           /* Green theme */
+  --cal-primary-dark: #059669;
+  --cal-primary-light: #d1fae5;
 
   /* Today indicator */
-  --cal-today-bg: #eef2ff;
-  --cal-today-text: var(--cal-primary);
-
-  /* Events */
-  --cal-event-bg: var(--cal-primary);
-  --cal-event-text: #ffffff;
-
-  /* Sizing */
-  --cal-font-size: 13px;
-  --cal-hour-height: 60px;
+  --cal-today-bg: #d1fae5;
+  --cal-today-text: #059669;
 }
 ```
+
+### Override Dark Mode Colors
+
+Target `.uc-calendar.uc-dark` to customize dark mode:
+
+```css
+.uc-calendar.uc-dark {
+  /* Dark mode colors */
+  --cal-bg: #1f2937;
+  --cal-bg-secondary: #111827;
+  --cal-text: #f9fafb;
+  --cal-border: #374151;
+
+  /* Dark mode today/selected indicators */
+  --cal-today-bg: #065f46;          /* Custom dark green */
+  --cal-selected-bg: #047857;
+}
+```
+
+### Customize Both Light and Dark Modes
+
+Example with a complete brand color scheme:
+
+```css
+/* Light mode - Yellow theme */
+.uc-calendar {
+  --cal-primary: #eab308;           /* yellow-500 */
+  --cal-primary-dark: #ca8a04;      /* yellow-600 */
+  --cal-primary-light: #fef9c3;     /* yellow-100 */
+  --cal-today-bg: #fef9c3;
+  --cal-today-text: #854d0e;
+}
+
+/* Dark mode - Yellow theme */
+.uc-calendar.uc-dark {
+  --cal-primary: #eab308;
+  --cal-primary-dark: #facc15;
+  --cal-primary-light: #713f12;
+  --cal-today-bg: #713f12;          /* yellow-900 */
+  --cal-selected-bg: #854d0e;       /* yellow-800 */
+}
+```
+
+### Available CSS Variables
+
+**Colors:**
+- `--cal-primary`, `--cal-primary-dark`, `--cal-primary-light` - Primary theme colors
+- `--cal-bg`, `--cal-bg-secondary` - Background colors
+- `--cal-text`, `--cal-text-subtle`, `--cal-text-muted` - Text colors
+- `--cal-border`, `--cal-border-strong` - Border colors
+- `--cal-today-bg`, `--cal-today-text` - Today indicator
+- `--cal-selected-bg` - Selected date background
+- `--cal-hover`, `--cal-hover-strong` - Hover states
+
+**Sizing:**
+- `--cal-font-size` - Base font size (default: 13px)
+- `--cal-hour-height` - Hour row height in week/day views (default: 60px)
+- `--cal-event-height` - Event bar height (default: 22px)
+
+**Tooltips:**
+- `--cal-tooltip-bg`, `--cal-tooltip-text`, `--cal-tooltip-border` - Tooltip colors
+- `--cal-tooltip-max-width`, `--cal-tooltip-padding`, `--cal-tooltip-radius` - Tooltip sizing
+- `--cal-tooltip-font-size`, `--cal-tooltip-offset` - Tooltip typography
 
 All styles are scoped under `.uc-calendar` to prevent conflicts with your existing CSS.
 

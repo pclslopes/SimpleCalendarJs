@@ -1,11 +1,10 @@
 /**
- * SimpleCalendarJs v3.0.1 — simple-calendar-js.css
+ * SimpleCalendarJs v3.0.2 — simple-calendar-js.css
  * A clean, modern, and feature-rich JavaScript calendar component with zero dependencies
  *
  * @author Pedro Lopes <simplecalendarjs@gmail.com>
  * @homepage https://www.simplecalendarjs.com
  * @license SEE LICENSE IN LICENSE
- * @repository https://github.com/pclslopes/SimpleCalendarJs
  *
  * All styles scoped under .uc-calendar to prevent leaking.
  * Override any --cal-* variable in :root or on .uc-calendar.
@@ -1062,6 +1061,11 @@
   border-right: none !important;
 }
 
+/* Hide calendar outer border when showBorder: false */
+.uc-calendar.uc-no-border {
+  border: none !important;
+}
+
 /* ===== DARK MODE UTILITY CLASS =====
    Add class="uc-dark" to the .uc-calendar element,
    or override these variables in :root / a parent selector. */
@@ -1075,9 +1079,9 @@
   --cal-border-strong:   #4b5563;
   --cal-hover:           #374151;
   --cal-hover-strong:    #4b5563;
-  --cal-selected-bg:     #312e81;
-  --cal-today-bg:        #1e1b4b;
-  --cal-primary-light:   #1e1b4b;
+  --cal-selected-bg:     #78716c;
+  --cal-today-bg:        #57534e;
+  --cal-primary-light:   #57534e;
   --cal-toolbar-bg:      #111827;
 
   /* Tooltip dark mode */

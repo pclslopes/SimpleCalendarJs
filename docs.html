@@ -377,6 +377,12 @@ const calendar = new SimpleCalendarJs('#calendar', {
               <td>Locale code (e.g., <code>'en-US'</code>, <code>'fr-FR'</code>, <code>'pt-PT'</code>). Supports 34+ locales.</td>
             </tr>
             <tr>
+              <td><code>weekdayFormat</code></td>
+              <td>String</td>
+              <td><code>'short'</code></td>
+              <td>Weekday name format: <code>'narrow'</code> (1-2 letters), <code>'short'</code> (abbreviated), or <code>'long'</code> (full name)</td>
+            </tr>
+            <tr>
               <td><code>use24Hour</code></td>
               <td>Boolean</td>
               <td><code>false</code></td>
@@ -393,6 +399,12 @@ const calendar = new SimpleCalendarJs('#calendar', {
               <td>Boolean</td>
               <td><code>true</code></td>
               <td>Show/hide grid lines (borders between cells and time slots)</td>
+            </tr>
+            <tr>
+              <td><code>showBorder</code></td>
+              <td>Boolean</td>
+              <td><code>true</code></td>
+              <td>Show/hide calendar outer border</td>
             </tr>
           </tbody>
         </table>
@@ -484,6 +496,22 @@ const calendar = new SimpleCalendarJs('#calendar', {
   showToolbar: false,
   enabledViews: ['month']
 });</code></pre>
+      </div>
+
+      <div class="note">
+        <p><strong>Example:</strong> Customize weekday name format:</p>
+        <pre><code>// Portuguese with full day names
+new SimpleCalendarJs('#calendar', {
+  locale: 'pt-PT',
+  weekdayFormat: 'long'  // Domingo, Segunda-feira, Terça-feira...
+});
+
+// English with narrow format (single letters)
+new SimpleCalendarJs('#calendar', {
+  locale: 'en-US',
+  weekdayFormat: 'narrow'  // S, M, T, W, T, F, S
+});</code></pre>
+        <p><strong>Note:</strong> Different locales format the same option differently. Use <code>weekdayFormat</code> to control the style: <code>'narrow'</code> (1-2 letters), <code>'short'</code> (abbreviated), or <code>'long'</code> (full name).</p>
       </div>
     </section>
 
@@ -751,20 +779,51 @@ calendar._root.classList.remove('uc-dark');
 // Toggle dark mode
 calendar._root.classList.toggle('uc-dark', isDark);</code></pre>
 
-      <h3>Color Customization</h3>
-      <p>Override CSS custom properties to customize colors:</p>
-      <pre><code>/* In your CSS */
-:root {
-  --cal-primary: #10b981;        /* Primary color */
-  --cal-primary-dark: #059669;   /* Darker shade for hover */
-  --cal-primary-light: #d1fae5;  /* Lighter shade for backgrounds */
+      <h3>Override Light Mode Colors</h3>
+      <p>Target the <code>.uc-calendar</code> class to customize light mode:</p>
+      <pre><code>.uc-calendar {
+  /* Primary color */
+  --cal-primary: #10b981;           /* Green theme */
+  --cal-primary-dark: #059669;
+  --cal-primary-light: #d1fae5;
+
+  /* Today indicator */
+  --cal-today-bg: #d1fae5;
+  --cal-today-text: #059669;
+}</code></pre>
+
+      <h3>Override Dark Mode Colors</h3>
+      <p>Target <code>.uc-calendar.uc-dark</code> to customize dark mode:</p>
+      <pre><code>.uc-calendar.uc-dark {
+  /* Dark mode colors */
+  --cal-bg: #1f2937;
+  --cal-bg-secondary: #111827;
+  --cal-text: #f9fafb;
+  --cal-border: #374151;
+
+  /* Dark mode today/selected indicators */
+  --cal-today-bg: #065f46;          /* Custom dark green */
+  --cal-selected-bg: #047857;
+}</code></pre>
+
+      <h3>Customize Both Light and Dark Modes</h3>
+      <p>Example with a complete brand color scheme:</p>
+      <pre><code>/* Light mode - Yellow theme */
+.uc-calendar {
+  --cal-primary: #eab308;           /* yellow-500 */
+  --cal-primary-dark: #ca8a04;      /* yellow-600 */
+  --cal-primary-light: #fef9c3;     /* yellow-100 */
+  --cal-today-bg: #fef9c3;
+  --cal-today-text: #854d0e;
 }
 
-/* Or target specific calendar */
-.my-calendar {
-  --cal-primary: #ef4444;
-  --cal-primary-dark: #dc2626;
-  --cal-primary-light: #fee2e2;
+/* Dark mode - Yellow theme */
+.uc-calendar.uc-dark {
+  --cal-primary: #eab308;
+  --cal-primary-dark: #facc15;
+  --cal-primary-light: #713f12;
+  --cal-today-bg: #713f12;          /* yellow-900 */
+  --cal-selected-bg: #854d0e;       /* yellow-800 */
 }</code></pre>
 
       <h3>Available CSS Variables</h3>
@@ -773,43 +832,87 @@ calendar._root.classList.toggle('uc-dark', isDark);</code></pre>
           <thead>
             <tr>
               <th>Variable</th>
-              <th>Default (Light)</th>
+              <th>Category</th>
               <th>Description</th>
             </tr>
           </thead>
           <tbody>
             <tr>
               <td><code>--cal-primary</code></td>
-              <td><code>#4f46e5</code></td>
-              <td>Primary accent color</td>
+              <td>Colors</td>
+              <td>Primary theme color</td>
             </tr>
             <tr>
               <td><code>--cal-primary-dark</code></td>
-              <td><code>#4338ca</code></td>
-              <td>Primary color (darker)</td>
+              <td>Colors</td>
+              <td>Darker primary (hover states)</td>
             </tr>
             <tr>
               <td><code>--cal-primary-light</code></td>
-              <td><code>#eef2ff</code></td>
-              <td>Primary color (lighter)</td>
+              <td>Colors</td>
+              <td>Lighter primary (backgrounds)</td>
             </tr>
             <tr>
               <td><code>--cal-bg</code></td>
-              <td><code>#ffffff</code></td>
+              <td>Colors</td>
               <td>Background color</td>
             </tr>
             <tr>
+              <td><code>--cal-bg-secondary</code></td>
+              <td>Colors</td>
+              <td>Secondary background</td>
+            </tr>
+            <tr>
               <td><code>--cal-text</code></td>
-              <td><code>#111827</code></td>
-              <td>Text color</td>
+              <td>Colors</td>
+              <td>Primary text color</td>
+            </tr>
+            <tr>
+              <td><code>--cal-text-subtle</code></td>
+              <td>Colors</td>
+              <td>Subtle text color</td>
             </tr>
             <tr>
               <td><code>--cal-border</code></td>
-              <td><code>#e5e7eb</code></td>
+              <td>Colors</td>
               <td>Border color</td>
+            </tr>
+            <tr>
+              <td><code>--cal-today-bg</code></td>
+              <td>Colors</td>
+              <td>Today indicator background</td>
+            </tr>
+            <tr>
+              <td><code>--cal-selected-bg</code></td>
+              <td>Colors</td>
+              <td>Selected date background</td>
+            </tr>
+            <tr>
+              <td><code>--cal-font-size</code></td>
+              <td>Sizing</td>
+              <td>Base font size (default: 13px)</td>
+            </tr>
+            <tr>
+              <td><code>--cal-hour-height</code></td>
+              <td>Sizing</td>
+              <td>Hour row height (default: 60px)</td>
+            </tr>
+            <tr>
+              <td><code>--cal-event-height</code></td>
+              <td>Sizing</td>
+              <td>Event bar height (default: 22px)</td>
+            </tr>
+            <tr>
+              <td><code>--cal-tooltip-*</code></td>
+              <td>Tooltips</td>
+              <td>Tooltip colors, sizing, typography</td>
             </tr>
           </tbody>
         </table>
+      </div>
+
+      <div class="note">
+        <p><strong>Tip:</strong> Use <code>.uc-calendar.uc-dark</code> to override dark mode colors separately from light mode. This allows you to create cohesive themes that work in both modes.</p>
       </div>
     </section>
 
@@ -1109,7 +1212,7 @@ export class CalendarDemoComponent {
   </div>
 
   <div class="footer">
-    <p>SimpleCalendarJs v3.0.1 — A zero-dependency JavaScript calendar component</p>
+    <p>SimpleCalendarJs v3.0.2 — A zero-dependency JavaScript calendar component</p>
   </div>
 
 </body>
