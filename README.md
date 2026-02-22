@@ -2,7 +2,7 @@
 
 A lightweight, zero-dependency JavaScript calendar component with internationalization support and framework wrappers for React, Vue, and Angular.
 
-![Version](https://img.shields.io/badge/version-3.0.2-blue.svg)
+![Version](https://img.shields.io/badge/version-3.0.3-blue.svg)
 ![License](https://img.shields.io/badge/license-See%20LICENSE-green.svg)
 
 ## Features
@@ -168,6 +168,7 @@ export class CalendarComponent {
 | `showTimeInItems` | boolean | `true` | Show time in event items |
 | `showGridLines` | boolean | `true` | Show calendar grid lines |
 | `showBorder` | boolean | `true` | Show calendar outer border |
+| `maxEventsPerCell` | number | `3` | Maximum events per cell in month view before showing "+N more". Set to `0` for unlimited (show all events) |
 | `showToolbar` | boolean | `true` | Show the toolbar |
 | `showTodayButton` | boolean | `true` | Show "Today" button |
 | `showNavigation` | boolean | `true` | Show prev/next navigation arrows |

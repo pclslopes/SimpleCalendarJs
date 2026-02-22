@@ -1,5 +1,5 @@
 /**
- * SimpleCalendarJs v3.0.2
+ * SimpleCalendarJs v3.0.3
  * A clean, modern, and feature-rich JavaScript calendar component with zero dependencies
  *
  * @author Pedro Lopes <simplecalendarjs@gmail.com>
@@ -363,6 +363,7 @@
           showViewSwitcher: true,
           showTooltips: true,
           showBorder: true,
+          maxEventsPerCell: 3,
           enabledViews: ['month', 'week', 'day'],
           fetchEvents: null,
           onEventClick: null,
@@ -505,6 +506,19 @@
     _renderView() {
       const vc = this._root.querySelector('.uc-view-container');
       if (!vc) return;
+
+      // Update unlimited events class and cell min-height
+      if (this._opts.maxEventsPerCell === 0) {
+        this._root.classList.add('uc-unlimited-events');
+        // Remove cell min-height override for unlimited mode
+        this._root.style.removeProperty('--cal-cell-min-height');
+      } else {
+        this._root.classList.remove('uc-unlimited-events');
+        // Set cell min-height based on maxEventsPerCell to match maximum row height
+        // Formula: header height (30) + (max events * (event height + gap: 24)) + space for "+N more" (28)
+        const cellMinHeight = 30 + this._opts.maxEventsPerCell * 24 + 28;
+        this._root.style.setProperty('--cal-cell-min-height', `${cellMinHeight}px`);
+      }
 
       if (this._view === 'month') {
         vc.innerHTML = this._buildMonthView();
@@ -708,7 +722,7 @@
 
     _buildWeekRow(weekDates, allEvents) {
       const curMonth = this._date.getMonth();
-      const MAX = 3; // max visible event rows per cell
+      const MAX = this._opts.maxEventsPerCell === 0 ? Infinity : this._opts.maxEventsPerCell;
 
       // Separate multi-day from single-day events
       const multiDay = allEvents.filter(isMultiDay);
@@ -744,7 +758,8 @@
 
       // Multi-day bars
       for (const { event, startCol, endCol, slot, isStart, isEnd } of layout) {
-        if (slot >= MAX) continue; // counted in "+N more"
+        // In unlimited mode, show all events; otherwise skip events beyond MAX
+        if (MAX !== Infinity && slot >= MAX) continue; // counted in "+N more"
 
         const cw = 100 / 7;
         const left = startCol * cw;
@@ -770,29 +785,24 @@
       }
 
       // Single-day events and overflow links
+      let maxSlotUsed = -1; // Track maximum slot used across all columns
+
       for (let col = 0; col < 7; col++) {
         const cw = 100 / 7;
         const left = col * cw;
         const date = weekDates[col];
 
-        // Count slots already taken by multi-day events visible in this column
-        const takenVisible = [...colSlots[col]].filter((s) => s < MAX).length;
-        const hiddenMultiDay = [...colSlots[col]].filter((s) => s >= MAX).length;
-
         // Fill slots after all multi-day/all-day events so they always appear first
         const takenArr = [...colSlots[col]];
         const afterMultiDay = takenArr.length > 0 ? Math.max(...takenArr) + 1 : 0;
-        const freeSlots = [];
-        for (let s = afterMultiDay; s < MAX; s++) {
-          freeSlots.push(s);
-        }
 
         const dayEvs = singleByCol[col];
-        let hidden = hiddenMultiDay;
 
-        dayEvs.forEach((ev, i) => {
-          if (i < freeSlots.length) {
-            const slot = freeSlots[i];
+        if (MAX === Infinity) {
+          // Unlimited mode: show all events without any limit
+          dayEvs.forEach((ev, i) => {
+            const slot = afterMultiDay + i;
+            maxSlotUsed = Math.max(maxSlotUsed, slot);
             const topCss = `calc(var(--cal-header-day-height) + ${slot} * (var(--cal-event-height) + var(--cal-event-gap)) + 4px)`;
             const color = ev.color || 'var(--cal-event-bg)';
             const timeStr = fmtTime(ev.start, this._opts.locale, this._opts.use24Hour);
@@ -810,24 +820,78 @@
                 ${timeHtml}
                 <span class="uc-event-title">${esc(ev.title)}</span>
               </div>`;
-          } else {
-            hidden++;
+          });
+        } else {
+          // Limited mode: respect MAX limit and show "+N more" link
+          const hiddenMultiDay = [...colSlots[col]].filter((s) => s >= MAX).length;
+          const freeSlots = [];
+          for (let s = afterMultiDay; s < MAX; s++) {
+            freeSlots.push(s);
           }
-        });
 
-        if (hidden > 0) {
-          const topCss = `calc(var(--cal-header-day-height) + ${MAX} * (var(--cal-event-height) + var(--cal-event-gap)) + 2px)`;
-          barsHtml += `
+          let hidden = hiddenMultiDay;
+
+          dayEvs.forEach((ev, i) => {
+            if (i < freeSlots.length) {
+              const slot = freeSlots[i];
+              maxSlotUsed = Math.max(maxSlotUsed, slot);
+              const topCss = `calc(var(--cal-header-day-height) + ${slot} * (var(--cal-event-height) + var(--cal-event-gap)) + 4px)`;
+              const color = ev.color || 'var(--cal-event-bg)';
+              const timeStr = fmtTime(ev.start, this._opts.locale, this._opts.use24Hour);
+              const timeHtml = this._opts.showTimeInItems
+                ? `<span class="uc-event-time">${esc(timeStr)}</span>`
+                : '';
+              const tooltipAttr = this._opts.showTooltips
+                ? `data-tooltip="${esc(ev.tooltip || ev.description || ev.title)}"`
+                : '';
+              barsHtml += `
+              <div class="uc-event-bar"
+                   style="left:calc(${left}% + 2px);width:calc(${cw}% - 4px);top:${topCss};background:${esc(color)};"
+                   data-event-id="${esc(ev.id)}" data-action="event-click"
+                   ${tooltipAttr}>
+                ${timeHtml}
+                <span class="uc-event-title">${esc(ev.title)}</span>
+              </div>`;
+            } else {
+              hidden++;
+            }
+          });
+
+          if (hidden > 0) {
+            const topCss = `calc(var(--cal-header-day-height) + ${MAX} * (var(--cal-event-height) + var(--cal-event-gap)) + 2px)`;
+            barsHtml += `
             <div class="uc-more-link"
                  style="left:calc(${left}% + 2px);width:calc(${cw}% - 4px);top:${topCss};"
                  data-date="${date.toISOString()}" data-action="more-click">
               +${hidden} more
             </div>`;
+          }
         }
       }
 
+      // Track max slot from multi-day events too
+      for (const { slot } of layout) {
+        // In unlimited mode, track all slots; otherwise only track visible slots
+        if (MAX === Infinity || slot < MAX) {
+          maxSlotUsed = Math.max(maxSlotUsed, slot);
+        }
+      }
+
+      // Calculate row height - only needed for unlimited mode where rows expand dynamically
+      let rowStyle = '';
+      if (MAX === Infinity) {
+        // Unlimited mode: use actual content height or minimum base height
+        if (maxSlotUsed >= 0) {
+          rowStyle = ` style="min-height: calc(var(--cal-header-day-height) + ${maxSlotUsed + 1} * (var(--cal-event-height) + var(--cal-event-gap)) + 8px);"`;
+        } else {
+          // Empty row in unlimited mode - set a reasonable minimum
+          rowStyle = ` style="min-height: 80px;"`;
+        }
+      }
+      // Limited mode: let CSS --cal-cell-min-height control row height (no inline style needed)
+
       return `
-        <div class="uc-week-row">
+        <div class="uc-week-row"${rowStyle}>
           <div class="uc-week-cells">${cellsHtml}</div>
           <div class="uc-week-events">${barsHtml}</div>
         </div>`;
@@ -1108,7 +1172,9 @@
           if (!this._opts.enabledViews.includes('day')) break;
           const date = new Date(actionEl.dataset.date);
           this._date = startOfDay(date);
-          this.setView('day');
+          this._view = 'day';
+          if (this._opts.onViewChange) this._opts.onViewChange('day');
+          this._fetchAndRender();
           break;
         }
 
@@ -1117,7 +1183,9 @@
           if (!this._opts.enabledViews.includes('day')) break;
           const date = new Date(actionEl.dataset.date);
           this._date = startOfDay(date);
-          this.setView('day');
+          this._view = 'day';
+          if (this._opts.onViewChange) this._opts.onViewChange('day');
+          this._fetchAndRender();
           break;
         }
 

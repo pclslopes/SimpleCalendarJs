@@ -406,6 +406,12 @@ const calendar = new SimpleCalendarJs('#calendar', {
               <td><code>true</code></td>
               <td>Show/hide calendar outer border</td>
             </tr>
+            <tr>
+              <td><code>maxEventsPerCell</code></td>
+              <td>Number</td>
+              <td><code>3</code></td>
+              <td>Maximum events per cell in month view before showing "+N more". Set to <code>0</code> for unlimited (show all events)</td>
+            </tr>
           </tbody>
         </table>
       </div>
@@ -1212,7 +1218,7 @@ export class CalendarDemoComponent {
   </div>
 
   <div class="footer">
-    <p>SimpleCalendarJs v3.0.2 — A zero-dependency JavaScript calendar component</p>
+    <p>SimpleCalendarJs v3.0.3 — A zero-dependency JavaScript calendar component</p>
   </div>
 
 </body>
