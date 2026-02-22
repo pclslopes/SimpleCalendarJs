@@ -855,19 +855,99 @@
 }
 
 /* ===== HOVER STATES for empty slots ===== */
-.uc-time-col:hover {
+/* Removed hover effects from time columns to avoid background color changes */
+
+/* ===== LIST VIEW ===== */
+
+.uc-list-view {
+  padding: 0;
+  overflow: visible;
+}
+
+.uc-list-empty {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  min-height: 300px;
+  color: var(--cal-text-muted);
+  font-size: 14px;
+}
+
+.uc-list-date-group {
+  margin-bottom: 24px;
+  overflow: visible;
+}
+
+.uc-list-date-group:last-child {
+  margin-bottom: 0;
+}
+
+.uc-list-events {
+  background: var(--cal-bg);
+  overflow: visible;
+}
+
+.uc-list-event {
+  display: flex;
+  align-items: flex-start;
+  gap: 12px;
+  padding: 12px 16px;
+  border-bottom: 1px solid var(--cal-border);
+  cursor: pointer;
+  transition: background var(--cal-transition);
+  position: relative;
+  overflow: visible;
+}
+
+.uc-list-date-header {
+  font-size: 14px;
+  font-weight: 600;
+  color: var(--cal-text);
+  padding: 12px 16px;
+  background: var(--cal-bg-secondary);
+  border-bottom: 1px solid var(--cal-border);
+  position: sticky;
+  top: 0;
+  z-index: 1;
+  overflow: visible;
+}
+
+.uc-list-event:hover {
   background: var(--cal-hover);
 }
 
-.uc-time-col.uc-today:hover {
-  background: color-mix(in srgb, var(--cal-today-bg) 80%, var(--cal-hover-strong));
+.uc-list-event:last-child {
+  border-bottom: none;
 }
 
-/* Fallback if color-mix isn't supported */
-@supports not (color: color-mix(in srgb, red 50%, blue)) {
-  .uc-time-col.uc-today:hover {
-    background: var(--cal-today-bg);
-  }
+.uc-list-event-indicator {
+  width: 8px;
+  height: 8px;
+  border-radius: 50%;
+  margin-top: 4px;
+  flex-shrink: 0;
+}
+
+.uc-list-event-time {
+  font-size: 13px;
+  font-weight: 500;
+  color: var(--cal-text-secondary);
+  min-width: 80px;
+  flex-shrink: 0;
+}
+
+.uc-list-event-content {
+  flex: 1;
+  min-width: 0;
+}
+
+.uc-list-event-title {
+  font-size: 14px;
+  font-weight: 500;
+  color: var(--cal-text);
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
 }
 
 /* ===== TOOLTIPS ===== */

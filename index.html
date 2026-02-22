@@ -586,6 +586,7 @@
           <button class="seg-btn active" data-val="month">Month</button>
           <button class="seg-btn" data-val="week">Week</button>
           <button class="seg-btn" data-val="day">Day</button>
+          <button class="seg-btn" data-val="list">List</button>
         </div>
       </div>
 
@@ -721,6 +722,12 @@
       </div>
 
       <div class="option-group">
+        <span class="option-label">List Days Forward</span>
+        <input type="number" class="option-select" id="opt-list-days" min="1" max="365" value="30" style="width: 80px; padding: 6px 10px;">
+        <span style="font-size: 11px; color: var(--text-muted); margin-left: 8px;">(days to show in list view)</span>
+      </div>
+
+      <div class="option-group">
         <span class="option-label">Show Toolbar</span>
         <div class="option-toggle-row">
           <button class="opt-toggle-track on" id="opt-show-toolbar" role="switch" aria-checked="true">
@@ -794,6 +801,10 @@
           <div class="checkbox-row" data-view="day">
             <div class="opt-checkbox checked"></div>
             <span class="checkbox-label">Day</span>
+          </div>
+          <div class="checkbox-row" data-view="list">
+            <div class="opt-checkbox checked"></div>
+            <span class="checkbox-label">List</span>
           </div>
         </div>
       </div>
@@ -973,13 +984,14 @@
       showBorder: true,
       showTooltips: true,
       maxEventsPerCell: 3,
+      listDaysForward: 30,
       showToolbar: true,
       showTodayButton: true,
       showNavigation: true,
       showTitle: true,
       showYearPicker: true,
       showViewSwitcher: true,
-      enabledViews: ['month', 'week', 'day'],
+      enabledViews: ['month', 'week', 'day', 'list'],
     };
 
     let cal = null;
@@ -1188,6 +1200,20 @@
       }
       opts.maxEventsPerCell = value;
       log('opt', 'tag-opt', `maxEventsPerCell → ${opts.maxEventsPerCell}${value === 0 ? ' (unlimited)' : ''}`);
+      createCalendar();
+    });
+
+    // List Days Forward
+    const listDaysInput = document.getElementById('opt-list-days');
+
+    listDaysInput.addEventListener('change', () => {
+      const value = parseInt(listDaysInput.value, 10);
+      if (isNaN(value) || value < 1) {
+        listDaysInput.value = opts.listDaysForward;
+        return;
+      }
+      opts.listDaysForward = value;
+      log('opt', 'tag-opt', `listDaysForward → ${opts.listDaysForward} days`);
       createCalendar();
     });
 

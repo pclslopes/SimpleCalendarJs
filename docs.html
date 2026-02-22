@@ -276,6 +276,7 @@
       <a href="#options">Options</a>
       <a href="#callbacks">Callbacks</a>
       <a href="#tooltips">Tooltips</a>
+      <a href="#listview">List View</a>
       <a href="#methods">Methods</a>
       <a href="#theming">Theming</a>
       <a href="#react">React</a>
@@ -706,6 +707,55 @@ new SimpleCalendarJs('#calendar', {
       </div>
     </section>
 
+    <!-- List View -->
+    <section id="listview" class="section">
+      <h2>List View</h2>
+      <p>Display upcoming events in a chronological list format. Perfect for mobile devices and quick overview of upcoming events.</p>
+
+      <h3>Basic Usage</h3>
+      <pre><code>const calendar = new SimpleCalendarJs('#calendar', {
+  defaultView: 'list',              // Start in list view
+  enabledViews: ['month', 'week', 'day', 'list'], // Include list in views
+  listDaysForward: 30              // Show next 30 days (default)
+});</code></pre>
+
+      <h3>Features</h3>
+      <ul>
+        <li>Shows events from current date/time forward</li>
+        <li>Groups events by date with sticky headers</li>
+        <li>Color-coded event indicators</li>
+        <li>Mobile-friendly design</li>
+        <li>Configurable range with <code>listDaysForward</code> option</li>
+      </ul>
+
+      <h3>Behavior</h3>
+      <div class="card">
+        <h4>Upcoming Events View</h4>
+        <p>List view always displays events from the current date/time forward, unlike other views which are navigable:</p>
+        <ul>
+          <li><strong>No navigation buttons</strong>: List view doesn't have previous/next navigation</li>
+          <li><strong>No "Today" button</strong>: Already showing upcoming events from now</li>
+          <li><strong>Date range title</strong>: Shows the range being displayed (e.g., "Feb 22 - Mar 24, 2026")</li>
+          <li><strong>Multi-day events</strong>: Active multi-day events appear under today's date, not their start date</li>
+        </ul>
+      </div>
+
+      <h3>Configuration Example</h3>
+      <pre><code>// Show next 90 days in list view
+new SimpleCalendarJs('#calendar', {
+  defaultView: 'list',
+  enabledViews: ['month', 'list'],  // Only month and list views
+  listDaysForward: 90,
+  fetchEvents: async (start, end) => {
+    // Your event fetching logic
+  }
+});</code></pre>
+
+      <div class="note">
+        <p><strong>Note:</strong> List view is opt-in. Add <code>'list'</code> to the <code>enabledViews</code> array to enable it.</p>
+      </div>
+    </section>
+
     <!-- Methods -->
     <section id="methods" class="section">
       <h2>Methods</h2>
@@ -742,6 +792,11 @@ new SimpleCalendarJs('#calendar', {
               <td>Jump to today's date</td>
             </tr>
             <tr>
+              <td><code>refresh()</code></td>
+              <td>-</td>
+              <td>Clear event cache and re-fetch events</td>
+            </tr>
+            <tr>
               <td><code>destroy()</code></td>
               <td>-</td>
               <td>Remove calendar and cleanup event listeners</td>
@@ -765,8 +820,53 @@ calendar.goToDate(new Date(2024, 5, 15));
 // Go to today
 calendar.goToToday();
 
+// Refresh calendar (clear cache and re-fetch)
+calendar.refresh();
+
 // Cleanup when done
 calendar.destroy();</code></pre>
+
+      <h3>Event Caching</h3>
+      <p>SimpleCalendarJs intelligently caches fetched events to minimize unnecessary network requests:</p>
+      <ul>
+        <li><strong>Smart fetch strategy</strong>: Always fetches the <strong>full month grid</strong> (including leading/trailing days), regardless of current view</li>
+        <li><strong>Automatic caching</strong>: Events are cached by date range after each fetch</li>
+        <li><strong>Efficient reuse</strong>: View switches and navigation within the cached range use cached data (no spinner, instant display)</li>
+        <li><strong>Fetch only when needed</strong>: New data is fetched only when the required range extends beyond the cache</li>
+        <li><strong>Manual refresh</strong>: Call <code>calendar.refresh()</code> when events change externally (added, updated, or deleted)</li>
+      </ul>
+
+      <p><strong>How it works:</strong></p>
+      <ul>
+        <li>When in <strong>month/week/day views</strong>: Fetches the full month grid for the current date context</li>
+        <li>When in <strong>list view</strong>: Fetches the specific forward range (configurable with <code>listDaysForward</code>)</li>
+        <li>Subsequent navigation within the same month uses cached data</li>
+        <li>Navigation to a different month triggers a new fetch for that month's full grid</li>
+      </ul>
+
+      <pre><code>// Month view Feb 2026: Fetches Jan 28 - Mar 1 (full month grid)
+calendar.setView('month');  // ✓ Fetch: Jan 28 - Mar 1
+
+// Switch to week view (Feb 20-26): Already in cache, no fetch
+calendar.setView('week');   // ✗ No fetch (instant)
+
+// Switch to day view (Feb 22): Already in cache, no fetch
+calendar.setView('day');    // ✗ No fetch (instant)
+
+// Navigate next week (Feb 27 - Mar 5): Extends beyond cache
+// Fetches March's full month grid (Mar 1 - Apr 5)
+calendar.navigate(1);       // ✓ Fetch: Mar 1 - Apr 5
+
+// Navigate next week (Mar 6-12): Already in March's cache
+calendar.navigate(1);       // ✗ No fetch (instant)
+
+// Navigate previous week (Feb 27 - Mar 5): Partially outside cache
+// Fetches February's full month grid (Jan 28 - Mar 1)
+calendar.navigate(-1);      // ✓ Fetch: Jan 28 - Mar 1
+
+// After external event changes, refresh to clear cache
+addEventToDatabase(newEvent);
+calendar.refresh();         // ✓ Fetch (clears cache)</code></pre>
     </section>
 
     <!-- Theming -->

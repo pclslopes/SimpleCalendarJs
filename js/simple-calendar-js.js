@@ -65,6 +65,14 @@
     return new Date(v);
   }
 
+  /** Format date as YYYY-MM-DD */
+  function formatDate(d) {
+    const year = d.getFullYear();
+    const month = String(d.getMonth() + 1).padStart(2, '0');
+    const day = String(d.getDate()).padStart(2, '0');
+    return `${year}-${month}-${day}`;
+  }
+
   /**
    * Returns the 7-day week containing `date`, starting on weekStartsOn.
    * weekStartsOn: 0=Sunday, 1=Monday
@@ -154,40 +162,40 @@
      ============================================================ */
 
   const TRANSLATIONS = {
-    'en-US': { today: 'Today', month: 'Month', week: 'Week', day: 'Day' },
-    'en-GB': { today: 'Today', month: 'Month', week: 'Week', day: 'Day' },
-    'es-ES': { today: 'Hoy', month: 'Mes', week: 'Semana', day: 'Día' },
-    'es-MX': { today: 'Hoy', month: 'Mes', week: 'Semana', day: 'Día' },
-    'fr-FR': { today: 'Aujourd\'hui', month: 'Mois', week: 'Semaine', day: 'Jour' },
-    'fr-CA': { today: 'Aujourd\'hui', month: 'Mois', week: 'Semaine', day: 'Jour' },
-    'de-DE': { today: 'Heute', month: 'Monat', week: 'Woche', day: 'Tag' },
-    'it-IT': { today: 'Oggi', month: 'Mese', week: 'Settimana', day: 'Giorno' },
-    'pt-PT': { today: 'Hoje', month: 'Mês', week: 'Semana', day: 'Dia' },
-    'pt-BR': { today: 'Hoje', month: 'Mês', week: 'Semana', day: 'Dia' },
-    'nl-NL': { today: 'Vandaag', month: 'Maand', week: 'Week', day: 'Dag' },
-    'pl-PL': { today: 'Dzisiaj', month: 'Miesiąc', week: 'Tydzień', day: 'Dzień' },
-    'ru-RU': { today: 'Сегодня', month: 'Месяц', week: 'Неделя', day: 'День' },
-    'tr-TR': { today: 'Bugün', month: 'Ay', week: 'Hafta', day: 'Gün' },
-    'sv-SE': { today: 'Idag', month: 'Månad', week: 'Vecka', day: 'Dag' },
-    'da-DK': { today: 'I dag', month: 'Måned', week: 'Uge', day: 'Dag' },
-    'fi-FI': { today: 'Tänään', month: 'Kuukausi', week: 'Viikko', day: 'Päivä' },
-    'no-NO': { today: 'I dag', month: 'Måned', week: 'Uke', day: 'Dag' },
-    'cs-CZ': { today: 'Dnes', month: 'Měsíc', week: 'Týden', day: 'Den' },
-    'hu-HU': { today: 'Ma', month: 'Hónap', week: 'Hét', day: 'Nap' },
-    'ro-RO': { today: 'Astăzi', month: 'Lună', week: 'Săptămână', day: 'Zi' },
-    'el-GR': { today: 'Σήμερα', month: 'Μήνας', week: 'Εβδομάδα', day: 'Ημέρα' },
-    'ja-JP': { today: '今日', month: '月', week: '週', day: '日' },
-    'ko-KR': { today: '오늘', month: '월', week: '주', day: '일' },
-    'zh-CN': { today: '今天', month: '月', week: '周', day: '日' },
-    'zh-TW': { today: '今天', month: '月', week: '週', day: '日' },
-    'ar-SA': { today: 'اليوم', month: 'شهر', week: 'أسبوع', day: 'يوم' },
-    'he-IL': { today: 'היום', month: 'חודש', week: 'שבוע', day: 'יום' },
-    'hi-IN': { today: 'आज', month: 'महीना', week: 'सप्ताह', day: 'दिन' },
-    'th-TH': { today: 'วันนี้', month: 'เดือน', week: 'สัปดาห์', day: 'วัน' },
-    'vi-VN': { today: 'Hôm nay', month: 'Tháng', week: 'Tuần', day: 'Ngày' },
-    'id-ID': { today: 'Hari ini', month: 'Bulan', week: 'Minggu', day: 'Hari' },
-    'ms-MY': { today: 'Hari ini', month: 'Bulan', week: 'Minggu', day: 'Hari' },
-    'uk-UA': { today: 'Сьогодні', month: 'Місяць', week: 'Тиждень', day: 'День' },
+    'en-US': { today: 'Today', month: 'Month', week: 'Week', day: 'Day', list: 'List' },
+    'en-GB': { today: 'Today', month: 'Month', week: 'Week', day: 'Day', list: 'List' },
+    'es-ES': { today: 'Hoy', month: 'Mes', week: 'Semana', day: 'Día', list: 'Lista' },
+    'es-MX': { today: 'Hoy', month: 'Mes', week: 'Semana', day: 'Día', list: 'Lista' },
+    'fr-FR': { today: 'Aujourd\'hui', month: 'Mois', week: 'Semaine', day: 'Jour', list: 'Liste' },
+    'fr-CA': { today: 'Aujourd\'hui', month: 'Mois', week: 'Semaine', day: 'Jour', list: 'Liste' },
+    'de-DE': { today: 'Heute', month: 'Monat', week: 'Woche', day: 'Tag', list: 'Liste' },
+    'it-IT': { today: 'Oggi', month: 'Mese', week: 'Settimana', day: 'Giorno', list: 'Elenco' },
+    'pt-PT': { today: 'Hoje', month: 'Mês', week: 'Semana', day: 'Dia', list: 'Lista' },
+    'pt-BR': { today: 'Hoje', month: 'Mês', week: 'Semana', day: 'Dia', list: 'Lista' },
+    'nl-NL': { today: 'Vandaag', month: 'Maand', week: 'Week', day: 'Dag', list: 'Lijst' },
+    'pl-PL': { today: 'Dzisiaj', month: 'Miesiąc', week: 'Tydzień', day: 'Dzień', list: 'Lista' },
+    'ru-RU': { today: 'Сегодня', month: 'Месяц', week: 'Неделя', day: 'День', list: 'Список' },
+    'tr-TR': { today: 'Bugün', month: 'Ay', week: 'Hafta', day: 'Gün', list: 'Liste' },
+    'sv-SE': { today: 'Idag', month: 'Månad', week: 'Vecka', day: 'Dag', list: 'Lista' },
+    'da-DK': { today: 'I dag', month: 'Måned', week: 'Uge', day: 'Dag', list: 'Liste' },
+    'fi-FI': { today: 'Tänään', month: 'Kuukausi', week: 'Viikko', day: 'Päivä', list: 'Lista' },
+    'no-NO': { today: 'I dag', month: 'Måned', week: 'Uke', day: 'Dag', list: 'Liste' },
+    'cs-CZ': { today: 'Dnes', month: 'Měsíc', week: 'Týden', day: 'Den', list: 'Seznam' },
+    'hu-HU': { today: 'Ma', month: 'Hónap', week: 'Hét', day: 'Nap', list: 'Lista' },
+    'ro-RO': { today: 'Astăzi', month: 'Lună', week: 'Săptămână', day: 'Zi', list: 'Listă' },
+    'el-GR': { today: 'Σήμερα', month: 'Μήνας', week: 'Εβδομάδα', day: 'Ημέρα', list: 'Λίστα' },
+    'ja-JP': { today: '今日', month: '月', week: '週', day: '日', list: 'リスト' },
+    'ko-KR': { today: '오늘', month: '월', week: '주', day: '일', list: '목록' },
+    'zh-CN': { today: '今天', month: '月', week: '周', day: '日', list: '列表' },
+    'zh-TW': { today: '今天', month: '月', week: '週', day: '日', list: '列表' },
+    'ar-SA': { today: 'اليوم', month: 'شهر', week: 'أسبوع', day: 'يوم', list: 'قائمة' },
+    'he-IL': { today: 'היום', month: 'חודש', week: 'שבוע', day: 'יום', list: 'רשימה' },
+    'hi-IN': { today: 'आज', month: 'महीना', week: 'सप्ताह', day: 'दिन', list: 'सूची' },
+    'th-TH': { today: 'วันนี้', month: 'เดือน', week: 'สัปดาห์', day: 'วัน', list: 'รายการ' },
+    'vi-VN': { today: 'Hôm nay', month: 'Tháng', week: 'Tuần', day: 'Ngày', list: 'Danh sách' },
+    'id-ID': { today: 'Hari ini', month: 'Bulan', week: 'Minggu', day: 'Hari', list: 'Daftar' },
+    'ms-MY': { today: 'Hari ini', month: 'Bulan', week: 'Minggu', day: 'Hari', list: 'Senarai' },
+    'uk-UA': { today: 'Сьогодні', month: 'Місяць', week: 'Тиждень', day: 'День', list: 'Список' },
   };
 
   function getTranslation(locale, key) {
@@ -364,6 +372,7 @@
           showTooltips: true,
           showBorder: true,
           maxEventsPerCell: 3,
+          listDaysForward: 30,
           enabledViews: ['month', 'week', 'day'],
           fetchEvents: null,
           onEventClick: null,
@@ -377,6 +386,8 @@
       this._view = this._opts.defaultView;
       this._date = startOfDay(this._opts.defaultDate || new Date());
       this._events = [];
+      this._cachedRange = null; // Cache the last fetched date range
+      this._cachedEvents = []; // Cache the last fetched events
       this._nowInterval = null;
       this._yearPickerOpen = false;
       this._yearPickerBase = 0;
@@ -445,6 +456,16 @@
       this._fetchAndRender();
     }
 
+    /**
+     * Clear the event cache and re-fetch.
+     * Call this when events have changed externally (added, updated, or deleted).
+     */
+    refresh() {
+      this._cachedRange = null;
+      this._cachedEvents = [];
+      this._fetchAndRender();
+    }
+
     /** Tear down — removes DOM and clears the interval. */
     destroy() {
       if (this._nowInterval) clearInterval(this._nowInterval);
@@ -469,7 +490,24 @@
         const wk = getWeekDates(this._date, this._opts.weekStartsOn);
         return { start: startOfDay(wk[0]), end: endOfDay(wk[6]) };
       }
+      if (this._view === 'list') {
+        // List view: always show upcoming events from now
+        const now = new Date();
+        const endDate = new Date(now);
+        endDate.setDate(endDate.getDate() + this._opts.listDaysForward);
+        return { start: now, end: endDate };
+      }
       return { start: startOfDay(this._date), end: endOfDay(this._date) };
+    }
+
+    /** Get the full month grid range for the current date (for fetching) */
+    _getMonthGridRange() {
+      const dates = getMonthGridDates(
+        this._date.getFullYear(),
+        this._date.getMonth(),
+        this._opts.weekStartsOn
+      );
+      return { start: startOfDay(dates[0]), end: endOfDay(dates[dates.length - 1]) };
     }
 
     async _fetchAndRender() {
@@ -481,18 +519,54 @@
         return;
       }
 
-      // Show loading
+      const range = this._getRange();
+
+      // Check if the required range is fully within the cached range
+      const canUseCache =
+        this._cachedRange &&
+        this._cachedRange.start <= range.start &&
+        this._cachedRange.end >= range.end;
+
+      if (canUseCache) {
+        // Use cached events - filter for the current range
+        this._events = this._cachedEvents.filter(
+          (e) => e.end >= range.start && e.start <= range.end
+        );
+        this._renderView();
+        return;
+      }
+
+      // Need to fetch - show loading spinner
       const loadingEl = this._root.querySelector('.uc-loading');
       if (loadingEl) loadingEl.style.display = 'flex';
 
-      const range = this._getRange();
       try {
-        const raw = await this._opts.fetchEvents(range.start, range.end);
-        this._events = (raw || []).map((e) => ({
+        // Always fetch the full month grid range (except for list view)
+        // This ensures week/day views benefit from the full month cache
+        let fetchRange;
+        if (this._view === 'list') {
+          // List view is special - fetch its specific range
+          fetchRange = range;
+        } else {
+          // For month/week/day views: fetch the full month grid
+          fetchRange = this._getMonthGridRange();
+        }
+
+        const raw = await this._opts.fetchEvents(fetchRange.start, fetchRange.end);
+        const parsedEvents = (raw || []).map((e) => ({
           ...e,
           start: parseDate(e.start),
           end: parseDate(e.end),
         }));
+
+        // Update cache with the fetched range
+        this._cachedRange = { start: fetchRange.start, end: fetchRange.end };
+        this._cachedEvents = parsedEvents;
+
+        // Filter for current view's range
+        this._events = parsedEvents.filter(
+          (e) => e.end >= range.start && e.start <= range.end
+        );
       } catch (err) {
         console.error('SimpleCalendarJs fetchEvents error:', err);
         this._events = [];
@@ -526,6 +600,8 @@
         const wk = getWeekDates(this._date, this._opts.weekStartsOn);
         vc.innerHTML = this._buildWeekOrDayView(wk);
         this._scrollToBusinessHours(vc);
+      } else if (this._view === 'list') {
+        vc.innerHTML = this._buildListView();
       } else {
         vc.innerHTML = this._buildWeekOrDayView([this._date]);
         this._scrollToBusinessHours(vc);
@@ -572,11 +648,20 @@
       const todayYear = new Date().getFullYear();
 
       let titleMain;
+      let showYear = true;
+
       if (this._view === 'month') {
         titleMain = new Intl.DateTimeFormat(this._opts.locale, { month: 'long' }).format(this._date);
       } else if (this._view === 'week') {
         const wk = getWeekDates(this._date, this._opts.weekStartsOn);
         titleMain = fmtWeekRangeNoYear(wk[0], wk[6], this._opts.locale);
+      } else if (this._view === 'list') {
+        // List view: show date range "Feb 22 - Mar 24, 2026"
+        const now = new Date();
+        const endDate = new Date(now);
+        endDate.setDate(endDate.getDate() + this._opts.listDaysForward);
+        titleMain = fmtWeekRange(now, endDate, this._opts.locale);
+        showYear = false; // Year already included in range
       } else {
         titleMain = new Intl.DateTimeFormat(this._opts.locale, {
           weekday: 'long',
@@ -613,10 +698,11 @@
       const monthLabel = getTranslation(locale, 'month');
       const weekLabel = getTranslation(locale, 'week');
       const dayLabel = getTranslation(locale, 'day');
+      const listLabel = getTranslation(locale, 'list');
 
-      // Left section (navigation + today)
+      // Left section (navigation + today) - hide in list view
       let leftSection = '';
-      if (this._opts.showNavigation || this._opts.showTodayButton) {
+      if ((this._opts.showNavigation || this._opts.showTodayButton) && this._view !== 'list') {
         const navPrev = this._opts.showNavigation
           ? `<button class="uc-btn uc-nav-btn" data-action="prev" aria-label="Previous">&#8249;</button>`
           : '';
@@ -638,12 +724,14 @@
           </div>`;
       }
 
-      // Center section (title + year picker)
+      // Center section (title + year picker) - hide year in list view
       let centerSection = '';
       if (this._opts.showTitle) {
-        const yearBtn = this._opts.showYearPicker
-          ? `<button class="uc-year-btn${this._yearPickerOpen ? ' uc-open' : ''}" data-action="year-pick" aria-label="Select year">${year}</button>`
-          : year;
+        const yearBtn = showYear
+          ? (this._opts.showYearPicker
+              ? `<button class="uc-year-btn${this._yearPickerOpen ? ' uc-open' : ''}" data-action="year-pick" aria-label="Select year">${year}</button>`
+              : year)
+          : '';
         centerSection = `
           <div class="uc-toolbar-section uc-toolbar-center">
             <h2 class="uc-title">
@@ -667,6 +755,9 @@
         }
         if (enabledViews.includes('day')) {
           viewButtons.push(`<button class="uc-btn uc-view-btn${this._view === 'day' ? ' uc-active' : ''}" data-view="day">${esc(dayLabel)}</button>`);
+        }
+        if (enabledViews.includes('list')) {
+          viewButtons.push(`<button class="uc-btn uc-view-btn${this._view === 'list' ? ' uc-active' : ''}" data-view="list">${esc(listLabel)}</button>`);
         }
 
         if (viewButtons.length > 0) {
@@ -1064,6 +1155,91 @@
             </div>
           </div>
         </div>`;
+    }
+
+    /* ---- List View ---- */
+
+    _buildListView() {
+      const now = new Date();
+      const todayStart = startOfDay(now);
+      const endDate = new Date(todayStart);
+      endDate.setDate(endDate.getDate() + this._opts.listDaysForward);
+
+      // Filter events: end time must be >= now, and start must be <= endDate
+      const upcomingEvents = this._events.filter(
+        (e) => e.end >= now && e.start <= endDate
+      );
+
+      // Sort by display date (today or start date, whichever is later), then by start time
+      upcomingEvents.sort((a, b) => {
+        const aDisplay = a.start < todayStart ? todayStart : startOfDay(a.start);
+        const bDisplay = b.start < todayStart ? todayStart : startOfDay(b.start);
+        const dateDiff = aDisplay - bDisplay;
+        return dateDiff !== 0 ? dateDiff : a.start - b.start;
+      });
+
+      // Group by date - multi-day events active today show under today
+      const eventsByDate = new Map();
+      upcomingEvents.forEach((event) => {
+        // If event started before today but is still active, show it under today
+        // Otherwise show it under its actual start date
+        const displayDate = event.start < todayStart ? todayStart : startOfDay(event.start);
+        const dateKey = formatDate(displayDate);
+        if (!eventsByDate.has(dateKey)) {
+          eventsByDate.set(dateKey, []);
+        }
+        eventsByDate.get(dateKey).push(event);
+      });
+
+      // Build HTML
+      if (eventsByDate.size === 0) {
+        return `
+          <div class="uc-list-view">
+            <div class="uc-list-empty">
+              <p>No upcoming events</p>
+            </div>
+          </div>`;
+      }
+
+      let groupsHtml = '';
+      eventsByDate.forEach((events, dateKey) => {
+        const date = parseDate(dateKey);
+        const dateHeader = new Intl.DateTimeFormat(this._opts.locale, {
+          weekday: 'long',
+          year: 'numeric',
+          month: 'long',
+          day: 'numeric'
+        }).format(date);
+
+        const eventsHtml = events.map((event) => {
+          const isAllDay = isMultiDay(event);
+          const timeStr = isAllDay
+            ? 'All day'
+            : fmtTime(event.start, this._opts.locale, this._opts.use24Hour);
+
+          const color = event.color || 'var(--cal-event-bg)';
+          const tooltipAttr = this._opts.showTooltips
+            ? `data-tooltip="${esc(event.tooltip || event.description || '')}"`
+            : '';
+
+          return `
+            <div class="uc-list-event" data-event-id="${esc(event.id)}" data-action="event-click" ${tooltipAttr}>
+              <div class="uc-list-event-indicator" style="background: ${esc(color)};"></div>
+              <div class="uc-list-event-time">${esc(timeStr)}</div>
+              <div class="uc-list-event-content">
+                <div class="uc-list-event-title">${esc(event.title)}</div>
+              </div>
+            </div>`;
+        }).join('');
+
+        groupsHtml += `
+          <div class="uc-list-date-group">
+            <div class="uc-list-date-header">${esc(dateHeader)}</div>
+            <div class="uc-list-events">${eventsHtml}</div>
+          </div>`;
+      });
+
+      return `<div class="uc-list-view">${groupsHtml}</div>`;
     }
 
     _closeYearPicker() {

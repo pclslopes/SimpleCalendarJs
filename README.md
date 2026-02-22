@@ -8,7 +8,7 @@ A lightweight, zero-dependency JavaScript calendar component with internationali
 ## Features
 
 - **Zero Dependencies** - Pure vanilla JavaScript, no external libraries
-- **Three View Modes** - Month, week, and day views with smooth transitions
+- **Four View Modes** - Month, week, day, and list views with smooth transitions
 - **Full Internationalization** - Built on Intl.DateTimeFormat API for native locale support
 - **Framework Wrappers** - Official React, Vue 3, and Angular components included
 - **Module System Support** - Works as UMD (CommonJS, AMD, ES modules, or browser global)
@@ -159,7 +159,7 @@ export class CalendarComponent {
 
 | Option | Type | Default | Description |
 |--------|------|---------|-------------|
-| `defaultView` | string | `'month'` | Initial view: `'month'`, `'week'`, or `'day'` |
+| `defaultView` | string | `'month'` | Initial view: `'month'`, `'week'`, `'day'`, or `'list'` |
 | `defaultDate` | Date | `new Date()` | Initial date to display |
 | `weekStartsOn` | number | `0` | First day of week: `0` (Sunday) or `1` (Monday) |
 | `locale` | string | `'default'` | Locale code for Intl API (e.g., `'en-US'`, `'fr-FR'`, `'ja-JP'`) |
@@ -176,7 +176,8 @@ export class CalendarComponent {
 | `showYearPicker` | boolean | `true` | Enable year picker dropdown (month view) |
 | `showViewSwitcher` | boolean | `true` | Show view switcher buttons |
 | `showTooltips` | boolean | `true` | Show tooltips on hover for events |
-| `enabledViews` | string[] | `['month', 'week', 'day']` | Available view modes |
+| `listDaysForward` | number | `30` | Number of days forward to show in list view |
+| `enabledViews` | string[] | `['month', 'week', 'day']` | Available view modes. Add `'list'` to enable list view |
 | `fetchEvents` | function | `null` | Async function to fetch events: `async (start, end) => Event[]` |
 | `onEventClick` | function | `null` | Callback when event is clicked: `(event, mouseEvent) => void` |
 | `onSlotClick` | function | `null` | Callback when time slot is clicked: `(date, mouseEvent) => void` |
@@ -344,8 +345,54 @@ calendar.goToDate(new Date('2024-12-25'));
 // Jump to today
 calendar.goToToday();
 
+// Refresh calendar (clear cache and re-fetch events)
+calendar.refresh();
+
 // Cleanup (important for SPAs)
 calendar.destroy();
+```
+
+### Event Caching
+
+SimpleCalendarJs intelligently caches fetched events to minimize unnecessary network requests:
+
+- **Smart fetch strategy**: Always fetches the **full month grid** (including leading/trailing days), regardless of current view
+- **Automatic caching**: Events are cached by date range after each fetch
+- **Efficient reuse**: View switches and navigation within the cached range use cached data (no spinner, instant display)
+- **Fetch only when needed**: New data is fetched only when the required range extends beyond the cache
+- **Manual refresh**: Call `calendar.refresh()` when events change externally (added, updated, or deleted)
+
+**How it works:**
+- When in **month/week/day views**: Fetches the full month grid for the current date context
+- When in **list view**: Fetches the specific forward range (configurable with `listDaysForward`)
+- Subsequent navigation within the same month uses cached data
+- Navigation to a different month triggers a new fetch for that month's full grid
+
+**Example behavior:**
+```javascript
+// Month view Feb 2026: Fetches Jan 28 - Mar 1 (full month grid)
+calendar.setView('month');  // ✓ Fetch: Jan 28 - Mar 1
+
+// Switch to week view (Feb 20-26): Already in cache, no fetch
+calendar.setView('week');   // ✗ No fetch (instant)
+
+// Switch to day view (Feb 22): Already in cache, no fetch
+calendar.setView('day');    // ✗ No fetch (instant)
+
+// Navigate next week (Feb 27 - Mar 5): Extends beyond cache
+// Fetches March's full month grid (Mar 1 - Apr 5)
+calendar.navigate(1);       // ✓ Fetch: Mar 1 - Apr 5
+
+// Navigate next week (Mar 6-12): Already in March's cache
+calendar.navigate(1);       // ✗ No fetch (instant)
+
+// Navigate previous week (Feb 27 - Mar 5): Partially outside cache
+// Fetches February's full month grid (Jan 28 - Mar 1)
+calendar.navigate(-1);      // ✓ Fetch: Jan 28 - Mar 1
+
+// After external event changes, refresh to clear cache
+addEventToDatabase(newEvent);
+calendar.refresh();         // ✓ Fetch (clears cache)
 ```
 
 ## Internationalization
@@ -411,6 +458,39 @@ new SimpleCalendarJs('#calendar', {
 ```
 
 **Note:** Different locales may format the same option differently. For example, `'short'` in `pt-PT` might display "Sábado" while `pt-BR` displays "Sáb." - this is controlled by the browser's Intl API based on locale conventions. Use `weekdayFormat` to control the length/style consistently.
+
+### List View
+
+Display upcoming events in a chronological list format. Perfect for mobile devices and quick overview of upcoming events.
+
+```javascript
+const calendar = new SimpleCalendarJs('#calendar', {
+  defaultView: 'list',              // Start in list view
+  enabledViews: ['month', 'week', 'day', 'list'], // Include list in views
+  listDaysForward: 30              // Show next 30 days (default)
+});
+```
+
+**Features:**
+- Shows events from current date/time forward
+- Groups events by date with sticky headers
+- Color-coded event indicators
+- Mobile-friendly design
+- Configurable range with `listDaysForward` option
+
+**Example:**
+
+```javascript
+// Show next 90 days in list view
+new SimpleCalendarJs('#calendar', {
+  defaultView: 'list',
+  enabledViews: ['month', 'list'],  // Only month and list views
+  listDaysForward: 90,
+  fetchEvents: async (start, end) => {
+    // Your event fetching logic
+  }
+});
+```
 
 ## Dark Mode
 
