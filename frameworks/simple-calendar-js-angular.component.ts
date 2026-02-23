@@ -1,5 +1,5 @@
 /**
- * SimpleCalendarJs v3.0.3 — Angular Wrapper
+ * SimpleCalendarJs v3.0.4 — Angular Wrapper
  * A clean, modern, and feature-rich JavaScript calendar component with zero dependencies
  *
  * @author Pedro Lopes <simplecalendarjs@gmail.com>
@@ -50,6 +50,7 @@
  *     this.calendar.navigate(1);
  *     this.calendar.goToDate(new Date());
  *     this.calendar.goToToday();
+ *     this.calendar.refresh();
  *   }
  *
  * Example with theme switching:
@@ -110,6 +111,7 @@ const INIT_PROPS = [
   'defaultDate',
   'weekStartsOn',
   'locale',
+  'weekdayFormat',
   'use24Hour',
   'showTimeInItems',
   'showGridLines',
@@ -119,6 +121,10 @@ const INIT_PROPS = [
   'showTitle',
   'showYearPicker',
   'showViewSwitcher',
+  'showTooltips',
+  'showBorder',
+  'maxEventsPerCell',
+  'listDaysForward',
   'enabledViews',
 ];
 
@@ -142,6 +148,7 @@ export class SimpleCalendarJsComponent implements OnInit, OnDestroy, OnChanges, 
   @Input() defaultDate?: Date;
   @Input() weekStartsOn: 0 | 1 = 0;
   @Input() locale: string = 'default';
+  @Input() weekdayFormat: string = 'short';
   @Input() use24Hour: boolean = false;
   @Input() showTimeInItems: boolean = true;
   @Input() showGridLines: boolean = true;
@@ -151,6 +158,10 @@ export class SimpleCalendarJsComponent implements OnInit, OnDestroy, OnChanges, 
   @Input() showTitle: boolean = true;
   @Input() showYearPicker: boolean = true;
   @Input() showViewSwitcher: boolean = true;
+  @Input() showTooltips: boolean = true;
+  @Input() showBorder: boolean = true;
+  @Input() maxEventsPerCell: number = 3;
+  @Input() listDaysForward: number = 30;
   @Input() enabledViews: string[] = ['month', 'week', 'day'];
 
   // Callback inputs
@@ -284,6 +295,10 @@ export class SimpleCalendarJsComponent implements OnInit, OnDestroy, OnChanges, 
 
   public goToToday(): void {
     this.calendar?.goToToday();
+  }
+
+  public refresh(): void {
+    this.calendar?.refresh();
   }
 
   public getInstance(): any {

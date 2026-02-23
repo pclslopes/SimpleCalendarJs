@@ -2,7 +2,7 @@
 
 A lightweight, zero-dependency JavaScript calendar component with internationalization support and framework wrappers for React, Vue, and Angular.
 
-![Version](https://img.shields.io/badge/version-3.0.3-blue.svg)
+![Version](https://img.shields.io/badge/version-3.0.4-blue.svg)
 ![License](https://img.shields.io/badge/license-See%20LICENSE-green.svg)
 
 ## Features
@@ -224,6 +224,91 @@ const events = [
     description: 'Tech Conference 2024\nDowntown Convention Center'
   }
 ];
+```
+
+## Timezone Handling
+
+SimpleCalendarJs relies on JavaScript's native Date object for timezone handling, which means events are automatically displayed in the **user's local timezone**.
+
+### How It Works
+
+1. **Automatic Conversion**: JavaScript Date objects automatically convert to the user's browser timezone
+2. **No Configuration Needed**: The calendar has no timezone settings - it uses the browser's timezone
+3. **Backend Responsibility**: Your backend should send timezone-aware date strings
+
+### Best Practices
+
+**✓ Recommended - Send ISO 8601 strings with timezone:**
+
+```javascript
+fetchEvents: async (start, end) => {
+  const response = await fetch(`/api/events?start=${start}&end=${end}`);
+  const events = await response.json();
+
+  // Backend returns ISO 8601 strings with timezone info
+  // Example: "2024-03-15T10:00:00Z" (UTC)
+  // or: "2024-03-15T10:00:00-05:00" (EST)
+
+  return events.map(event => ({
+    ...event,
+    start: new Date(event.start), // Automatically converts to local timezone
+    end: new Date(event.end)
+  }));
+}
+```
+
+**✗ Avoid - Sending dates without timezone info:**
+
+```javascript
+// BAD: "2024-03-15T10:00:00" (no timezone)
+// JavaScript interprets this as LOCAL time, not UTC
+// This can cause issues for users in different timezones
+```
+
+### Example: Multi-Timezone Scenario
+
+**Scenario**: Your server stores events in UTC, users are in different timezones
+
+```javascript
+// Server returns (stored in UTC):
+{
+  "title": "Team Meeting",
+  "start": "2024-03-15T14:00:00Z",  // 2:00 PM UTC
+  "end": "2024-03-15T15:00:00Z"     // 3:00 PM UTC
+}
+
+// User in New York (EST, UTC-5):
+// Calendar displays: 9:00 AM - 10:00 AM
+
+// User in London (GMT, UTC+0):
+// Calendar displays: 2:00 PM - 3:00 PM
+
+// User in Tokyo (JST, UTC+9):
+// Calendar displays: 11:00 PM - 12:00 AM
+```
+
+### Important Notes
+
+- **Storage**: Always store events in UTC in your database
+- **API Format**: Send dates as ISO 8601 strings with timezone information
+- **Display**: The calendar automatically shows events in the user's local timezone
+- **No Timezone Selector**: The calendar doesn't provide UI to change timezone - it always uses the browser's timezone
+- **Time Formatting**: Uses `Intl.DateTimeFormat` which respects the user's locale and timezone
+
+### Example Backend Response
+
+```json
+{
+  "events": [
+    {
+      "id": 1,
+      "title": "Global Team Standup",
+      "start": "2024-03-15T14:00:00Z",
+      "end": "2024-03-15T14:30:00Z",
+      "description": "Daily standup - all timezones welcome"
+    }
+  ]
+}
 ```
 
 ## Tooltips

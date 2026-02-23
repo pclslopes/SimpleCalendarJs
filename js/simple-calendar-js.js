@@ -1,5 +1,5 @@
 /**
- * SimpleCalendarJs v3.0.3
+ * SimpleCalendarJs v3.0.4
  * A clean, modern, and feature-rich JavaScript calendar component with zero dependencies
  *
  * @author Pedro Lopes <simplecalendarjs@gmail.com>
@@ -162,40 +162,40 @@
      ============================================================ */
 
   const TRANSLATIONS = {
-    'en-US': { today: 'Today', month: 'Month', week: 'Week', day: 'Day', list: 'List' },
-    'en-GB': { today: 'Today', month: 'Month', week: 'Week', day: 'Day', list: 'List' },
-    'es-ES': { today: 'Hoy', month: 'Mes', week: 'Semana', day: 'Día', list: 'Lista' },
-    'es-MX': { today: 'Hoy', month: 'Mes', week: 'Semana', day: 'Día', list: 'Lista' },
-    'fr-FR': { today: 'Aujourd\'hui', month: 'Mois', week: 'Semaine', day: 'Jour', list: 'Liste' },
-    'fr-CA': { today: 'Aujourd\'hui', month: 'Mois', week: 'Semaine', day: 'Jour', list: 'Liste' },
-    'de-DE': { today: 'Heute', month: 'Monat', week: 'Woche', day: 'Tag', list: 'Liste' },
-    'it-IT': { today: 'Oggi', month: 'Mese', week: 'Settimana', day: 'Giorno', list: 'Elenco' },
-    'pt-PT': { today: 'Hoje', month: 'Mês', week: 'Semana', day: 'Dia', list: 'Lista' },
-    'pt-BR': { today: 'Hoje', month: 'Mês', week: 'Semana', day: 'Dia', list: 'Lista' },
-    'nl-NL': { today: 'Vandaag', month: 'Maand', week: 'Week', day: 'Dag', list: 'Lijst' },
-    'pl-PL': { today: 'Dzisiaj', month: 'Miesiąc', week: 'Tydzień', day: 'Dzień', list: 'Lista' },
-    'ru-RU': { today: 'Сегодня', month: 'Месяц', week: 'Неделя', day: 'День', list: 'Список' },
-    'tr-TR': { today: 'Bugün', month: 'Ay', week: 'Hafta', day: 'Gün', list: 'Liste' },
-    'sv-SE': { today: 'Idag', month: 'Månad', week: 'Vecka', day: 'Dag', list: 'Lista' },
-    'da-DK': { today: 'I dag', month: 'Måned', week: 'Uge', day: 'Dag', list: 'Liste' },
-    'fi-FI': { today: 'Tänään', month: 'Kuukausi', week: 'Viikko', day: 'Päivä', list: 'Lista' },
-    'no-NO': { today: 'I dag', month: 'Måned', week: 'Uke', day: 'Dag', list: 'Liste' },
-    'cs-CZ': { today: 'Dnes', month: 'Měsíc', week: 'Týden', day: 'Den', list: 'Seznam' },
-    'hu-HU': { today: 'Ma', month: 'Hónap', week: 'Hét', day: 'Nap', list: 'Lista' },
-    'ro-RO': { today: 'Astăzi', month: 'Lună', week: 'Săptămână', day: 'Zi', list: 'Listă' },
-    'el-GR': { today: 'Σήμερα', month: 'Μήνας', week: 'Εβδομάδα', day: 'Ημέρα', list: 'Λίστα' },
-    'ja-JP': { today: '今日', month: '月', week: '週', day: '日', list: 'リスト' },
-    'ko-KR': { today: '오늘', month: '월', week: '주', day: '일', list: '목록' },
-    'zh-CN': { today: '今天', month: '月', week: '周', day: '日', list: '列表' },
-    'zh-TW': { today: '今天', month: '月', week: '週', day: '日', list: '列表' },
-    'ar-SA': { today: 'اليوم', month: 'شهر', week: 'أسبوع', day: 'يوم', list: 'قائمة' },
-    'he-IL': { today: 'היום', month: 'חודש', week: 'שבוע', day: 'יום', list: 'רשימה' },
-    'hi-IN': { today: 'आज', month: 'महीना', week: 'सप्ताह', day: 'दिन', list: 'सूची' },
-    'th-TH': { today: 'วันนี้', month: 'เดือน', week: 'สัปดาห์', day: 'วัน', list: 'รายการ' },
-    'vi-VN': { today: 'Hôm nay', month: 'Tháng', week: 'Tuần', day: 'Ngày', list: 'Danh sách' },
-    'id-ID': { today: 'Hari ini', month: 'Bulan', week: 'Minggu', day: 'Hari', list: 'Daftar' },
-    'ms-MY': { today: 'Hari ini', month: 'Bulan', week: 'Minggu', day: 'Hari', list: 'Senarai' },
-    'uk-UA': { today: 'Сьогодні', month: 'Місяць', week: 'Тиждень', day: 'День', list: 'Список' },
+    'en-US': { today: 'Today', month: 'Month', week: 'Week', day: 'Day', list: 'List', allDay: 'All-Day' },
+    'en-GB': { today: 'Today', month: 'Month', week: 'Week', day: 'Day', list: 'List', allDay: 'All-Day' },
+    'es-ES': { today: 'Hoy', month: 'Mes', week: 'Semana', day: 'Día', list: 'Lista', allDay: 'Todo el día' },
+    'es-MX': { today: 'Hoy', month: 'Mes', week: 'Semana', day: 'Día', list: 'Lista', allDay: 'Todo el día' },
+    'fr-FR': { today: 'Aujourd\'hui', month: 'Mois', week: 'Semaine', day: 'Jour', list: 'Liste', allDay: 'Toute la journée' },
+    'fr-CA': { today: 'Aujourd\'hui', month: 'Mois', week: 'Semaine', day: 'Jour', list: 'Liste', allDay: 'Toute la journée' },
+    'de-DE': { today: 'Heute', month: 'Monat', week: 'Woche', day: 'Tag', list: 'Liste', allDay: 'Ganztägig' },
+    'it-IT': { today: 'Oggi', month: 'Mese', week: 'Settimana', day: 'Giorno', list: 'Elenco', allDay: 'Tutto il giorno' },
+    'pt-PT': { today: 'Hoje', month: 'Mês', week: 'Semana', day: 'Dia', list: 'Lista', allDay: 'Dia todo' },
+    'pt-BR': { today: 'Hoje', month: 'Mês', week: 'Semana', day: 'Dia', list: 'Lista', allDay: 'Dia todo' },
+    'nl-NL': { today: 'Vandaag', month: 'Maand', week: 'Week', day: 'Dag', list: 'Lijst', allDay: 'Hele dag' },
+    'pl-PL': { today: 'Dzisiaj', month: 'Miesiąc', week: 'Tydzień', day: 'Dzień', list: 'Lista', allDay: 'Cały dzień' },
+    'ru-RU': { today: 'Сегодня', month: 'Месяц', week: 'Неделя', day: 'День', list: 'Список', allDay: 'Весь день' },
+    'tr-TR': { today: 'Bugün', month: 'Ay', week: 'Hafta', day: 'Gün', list: 'Liste', allDay: 'Tüm gün' },
+    'sv-SE': { today: 'Idag', month: 'Månad', week: 'Vecka', day: 'Dag', list: 'Lista', allDay: 'Heldag' },
+    'da-DK': { today: 'I dag', month: 'Måned', week: 'Uge', day: 'Dag', list: 'Liste', allDay: 'Hele dagen' },
+    'fi-FI': { today: 'Tänään', month: 'Kuukausi', week: 'Viikko', day: 'Päivä', list: 'Lista', allDay: 'Koko päivä' },
+    'no-NO': { today: 'I dag', month: 'Måned', week: 'Uke', day: 'Dag', list: 'Liste', allDay: 'Hele dagen' },
+    'cs-CZ': { today: 'Dnes', month: 'Měsíc', week: 'Týden', day: 'Den', list: 'Seznam', allDay: 'Celý den' },
+    'hu-HU': { today: 'Ma', month: 'Hónap', week: 'Hét', day: 'Nap', list: 'Lista', allDay: 'Egész nap' },
+    'ro-RO': { today: 'Astăzi', month: 'Lună', week: 'Săptămână', day: 'Zi', list: 'Listă', allDay: 'Toată ziua' },
+    'el-GR': { today: 'Σήμερα', month: 'Μήνας', week: 'Εβδομάδα', day: 'Ημέρα', list: 'Λίστα', allDay: 'Ολοήμερο' },
+    'ja-JP': { today: '今日', month: '月', week: '週', day: '日', list: 'リスト', allDay: '終日' },
+    'ko-KR': { today: '오늘', month: '월', week: '주', day: '일', list: '목록', allDay: '종일' },
+    'zh-CN': { today: '今天', month: '月', week: '周', day: '日', list: '列表', allDay: '全天' },
+    'zh-TW': { today: '今天', month: '月', week: '週', day: '日', list: '列表', allDay: '全天' },
+    'ar-SA': { today: 'اليوم', month: 'شهر', week: 'أسبوع', day: 'يوم', list: 'قائمة', allDay: 'طوال اليوم' },
+    'he-IL': { today: 'היום', month: 'חודש', week: 'שבוע', day: 'יום', list: 'רשימה', allDay: 'כל היום' },
+    'hi-IN': { today: 'आज', month: 'महीना', week: 'सप्ताह', day: 'दिन', list: 'सूची', allDay: 'पूरे दिन' },
+    'th-TH': { today: 'วันนี้', month: 'เดือน', week: 'สัปดาห์', day: 'วัน', list: 'รายการ', allDay: 'ตลอดวัน' },
+    'vi-VN': { today: 'Hôm nay', month: 'Tháng', week: 'Tuần', day: 'Ngày', list: 'Danh sách', allDay: 'Cả ngày' },
+    'id-ID': { today: 'Hari ini', month: 'Bulan', week: 'Minggu', day: 'Hari', list: 'Daftar', allDay: 'Sepanjang hari' },
+    'ms-MY': { today: 'Hari ini', month: 'Bulan', week: 'Minggu', day: 'Hari', list: 'Senarai', allDay: 'Sepanjang hari' },
+    'uk-UA': { today: 'Сьогодні', month: 'Місяць', week: 'Тиждень', day: 'День', list: 'Список', allDay: 'Весь день' },
   };
 
   function getTranslation(locale, key) {
@@ -1145,7 +1145,7 @@
             <div class="uc-week-day-headers${colClass}">${headersHtml}</div>
           </div>
           <div class="uc-all-day-section">
-            <div class="uc-time-gutter-spacer uc-all-day-label">all-day</div>
+            <div class="uc-time-gutter-spacer uc-all-day-label">${getTranslation(this._opts.locale, 'allDay')}</div>
             <div class="uc-all-day-events" style="min-height:${allDayHeight}">${allDayBarsHtml}</div>
           </div>
           <div class="uc-time-body">

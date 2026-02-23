@@ -1,5 +1,5 @@
 /**
- * SimpleCalendarJs v3.0.3 — simple-calendar-js.css
+ * SimpleCalendarJs v3.0.4 — simple-calendar-js.css
  * A clean, modern, and feature-rich JavaScript calendar component with zero dependencies
  *
  * @author Pedro Lopes <simplecalendarjs@gmail.com>
@@ -96,6 +96,7 @@
   padding: 10px 14px;
   background: var(--cal-toolbar-bg);
   border-bottom: 1px solid var(--cal-border);
+  border-radius: var(--cal-radius) var(--cal-radius) 0 0;
   flex-shrink: 0;
   flex-wrap: wrap;
 }
@@ -359,12 +360,19 @@
   flex-direction: column;
 }
 
+/* If view container is first child (toolbar hidden), apply top border-radius */
+.uc-view-container:first-child .uc-month-header,
+.uc-view-container:first-child .uc-week-header {
+  border-radius: var(--cal-radius) var(--cal-radius) 0 0;
+}
+
 /* ===== MONTH VIEW ===== */
 .uc-month-view {
   display: flex;
   flex-direction: column;
   flex: 1;
   overflow: visible;
+  border-radius: 0 0 var(--cal-radius) var(--cal-radius);
 }
 
 /* Day-name header row */
@@ -406,6 +414,7 @@
 
 .uc-week-row:last-child {
   border-bottom: none;
+  border-radius: 0 0 var(--cal-radius) var(--cal-radius);
 }
 
 /* Background cells layer (day numbers + click targets) */
@@ -563,6 +572,7 @@
   flex-direction: column;
   flex: 1;
   overflow: visible;
+  border-radius: 0 0 var(--cal-radius) var(--cal-radius);
 }
 
 /* Column header row */
@@ -677,6 +687,7 @@
   overflow-y: auto;
   overflow-x: visible;
   position: relative;
+  border-radius: 0 0 var(--cal-radius) var(--cal-radius);
 }
 
 /* Scrollbar styling */
@@ -862,6 +873,7 @@
 .uc-list-view {
   padding: 0;
   overflow: visible;
+  border-radius: 0 0 var(--cal-radius) var(--cal-radius);
 }
 
 .uc-list-empty {

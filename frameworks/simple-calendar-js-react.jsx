@@ -1,5 +1,5 @@
 /**
- * SimpleCalendarJs v3.0.3 — React Wrapper
+ * SimpleCalendarJs v3.0.4 — React Wrapper
  * A clean, modern, and feature-rich JavaScript calendar component with zero dependencies
  *
  * @author Pedro Lopes <simplecalendarjs@gmail.com>
@@ -9,7 +9,7 @@
  *
  * Imperative handle (via ref):
  *   const ref = useRef();
- *   // ref.current exposes: { setView, navigate, goToDate, goToToday }
+ *   // ref.current exposes: { setView, navigate, goToDate, goToToday, refresh }
  *
  * Example with theme switching:
  *   function MyApp() {
@@ -38,6 +38,7 @@ const INIT_PROPS = [
   'defaultDate',
   'weekStartsOn',
   'locale',
+  'weekdayFormat',
   'use24Hour',
   'showTimeInItems',
   'showGridLines',
@@ -47,6 +48,10 @@ const INIT_PROPS = [
   'showTitle',
   'showYearPicker',
   'showViewSwitcher',
+  'showTooltips',
+  'showBorder',
+  'maxEventsPerCell',
+  'listDaysForward',
   'enabledViews',
 ];
 
@@ -75,6 +80,7 @@ const SimpleCalendarJsReact = forwardRef(function SimpleCalendarJsReact(props, r
       navigate: (d) => instanceRef.current?.navigate(d),
       goToDate: (d) => instanceRef.current?.goToDate(d),
       goToToday: () => instanceRef.current?.goToToday(),
+      refresh: () => instanceRef.current?.refresh(),
       getInstance: () => instanceRef.current,
     }),
     []

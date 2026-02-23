@@ -1,5 +1,5 @@
 /**
- * SimpleCalendarJs v3.0.3 — Vue 3 Wrapper
+ * SimpleCalendarJs v3.0.4 — Vue 3 Wrapper
  * A clean, modern, and feature-rich JavaScript calendar component with zero dependencies
  *
  * @author Pedro Lopes <simplecalendarjs@gmail.com>
@@ -13,6 +13,7 @@
  *   calRef.value.navigate(1);
  *   calRef.value.goToDate(new Date());
  *   calRef.value.goToToday();
+ *   calRef.value.refresh();
  *   calRef.value.getInstance(); // Get raw instance
  *
  * Example with theme switching:
@@ -47,6 +48,7 @@ const INIT_PROPS = [
   'defaultDate',
   'weekStartsOn',
   'locale',
+  'weekdayFormat',
   'use24Hour',
   'showTimeInItems',
   'showGridLines',
@@ -56,6 +58,10 @@ const INIT_PROPS = [
   'showTitle',
   'showYearPicker',
   'showViewSwitcher',
+  'showTooltips',
+  'showBorder',
+  'maxEventsPerCell',
+  'listDaysForward',
   'enabledViews',
 ];
 
@@ -71,6 +77,7 @@ export default defineComponent({
     defaultDate: { type: Date, default: null },
     weekStartsOn: { type: Number, default: 0 },
     locale: { type: String, default: 'default' },
+    weekdayFormat: { type: String, default: 'short' },
     use24Hour: { type: Boolean, default: false },
     showTimeInItems: { type: Boolean, default: true },
     showGridLines: { type: Boolean, default: true },
@@ -80,6 +87,10 @@ export default defineComponent({
     showTitle: { type: Boolean, default: true },
     showYearPicker: { type: Boolean, default: true },
     showViewSwitcher: { type: Boolean, default: true },
+    showTooltips: { type: Boolean, default: true },
+    showBorder: { type: Boolean, default: true },
+    maxEventsPerCell: { type: Number, default: 3 },
+    listDaysForward: { type: Number, default: 30 },
     enabledViews: { type: Array, default: () => ['month', 'week', 'day'] },
 
     // Callback props
@@ -194,6 +205,7 @@ export default defineComponent({
       navigate: (direction) => instanceRef.value?.navigate(direction),
       goToDate: (date) => instanceRef.value?.goToDate(date),
       goToToday: () => instanceRef.value?.goToToday(),
+      refresh: () => instanceRef.value?.refresh(),
       getInstance: () => instanceRef.value,
     });
 
