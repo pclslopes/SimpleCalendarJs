@@ -279,6 +279,7 @@
       <a href="#tooltips">Tooltips</a>
       <a href="#listview">List View</a>
       <a href="#methods">Methods</a>
+      <a href="#preferences">Preferences</a>
       <a href="#theming">Theming</a>
       <a href="#react">React</a>
       <a href="#vue">Vue</a>
@@ -954,6 +955,177 @@ addEventToDatabase(newEvent);
 calendar.refresh();         // ✓ Fetch (clears cache)</code></pre>
     </section>
 
+    <!-- Persisting User Preferences -->
+    <section id="preferences" class="section">
+      <h2>Persisting User Preferences</h2>
+      <p>The calendar doesn't include built-in persistence - this is intentionally left to your application so you have full control over how and where preferences are stored.</p>
+
+      <h3>Using LocalStorage (Persistent Across Sessions)</h3>
+      <pre><code>// Restore saved preferences or use defaults
+const savedView = localStorage.getItem('calendarView') || 'month';
+const savedDate = localStorage.getItem('calendarDate');
+
+const calendar = new SimpleCalendarJs('#calendar', {
+  defaultView: savedView,
+  defaultDate: savedDate ? new Date(savedDate) : null,
+
+  // Save view changes
+  onViewChange: (view) => {
+    localStorage.setItem('calendarView', view);
+  },
+
+  // Save navigation (current date)
+  onNavigate: (startDate) => {
+    localStorage.setItem('calendarDate', startDate.toISOString());
+  }
+});</code></pre>
+
+      <h3>Using SessionStorage (Per-Tab)</h3>
+      <pre><code>// Same as localStorage but survives only for the current tab/session
+const calendar = new SimpleCalendarJs('#calendar', {
+  defaultView: sessionStorage.getItem('calendarView') || 'month',
+  onViewChange: (view) => sessionStorage.setItem('calendarView', view),
+  onNavigate: (start) => sessionStorage.setItem('calendarDate', start.toISOString())
+});</code></pre>
+
+      <h3>Using URL Query Parameters (Shareable State)</h3>
+      <pre><code>// Read from URL
+const params = new URLSearchParams(window.location.search);
+const view = params.get('view') || 'month';
+const date = params.get('date') ? new Date(params.get('date')) : null;
+
+const calendar = new SimpleCalendarJs('#calendar', {
+  defaultView: view,
+  defaultDate: date,
+
+  onViewChange: (newView) => {
+    const url = new URL(window.location);
+    url.searchParams.set('view', newView);
+    window.history.pushState({}, '', url);
+  },
+
+  onNavigate: (startDate) => {
+    const url = new URL(window.location);
+    url.searchParams.set('date', startDate.toISOString().split('T')[0]);
+    window.history.pushState({}, '', url);
+  }
+});</code></pre>
+
+      <h3>React Example with State Hook</h3>
+      <pre><code>function MyCalendar() {
+  const [view, setView] = useState(
+    () => localStorage.getItem('calendarView') || 'month'
+  );
+
+  const [currentDate, setCurrentDate] = useState(
+    () => {
+      const saved = localStorage.getItem('calendarDate');
+      return saved ? new Date(saved) : new Date();
+    }
+  );
+
+  const handleViewChange = (newView) => {
+    setView(newView);
+    localStorage.setItem('calendarView', newView);
+  };
+
+  const handleNavigate = (startDate) => {
+    setCurrentDate(startDate);
+    localStorage.setItem('calendarDate', startDate.toISOString());
+  };
+
+  return (
+    &lt;SimpleCalendarJsReact
+      defaultView={view}
+      defaultDate={currentDate}
+      onViewChange={handleViewChange}
+      onNavigate={handleNavigate}
+      fetchEvents={fetchEvents}
+    /&gt;
+  );
+}</code></pre>
+
+      <h3>Vue Example with Composable</h3>
+      <pre><code>// composables/useCalendarPreferences.js
+import { ref, watch } from 'vue';
+
+export function useCalendarPreferences() {
+  const view = ref(localStorage.getItem('calendarView') || 'month');
+  const currentDate = ref(
+    localStorage.getItem('calendarDate')
+      ? new Date(localStorage.getItem('calendarDate'))
+      : new Date()
+  );
+
+  watch(view, (newView) => {
+    localStorage.setItem('calendarView', newView);
+  });
+
+  watch(currentDate, (newDate) => {
+    localStorage.setItem('calendarDate', newDate.toISOString());
+  });
+
+  return { view, currentDate };
+}
+
+// In component
+&lt;script setup&gt;
+import { useCalendarPreferences } from './composables/useCalendarPreferences';
+const { view, currentDate } = useCalendarPreferences();
+
+const handleViewChange = (newView) => {
+  view.value = newView;
+};
+
+const handleNavigate = (startDate) => {
+  currentDate.value = startDate;
+};
+&lt;/script&gt;
+
+&lt;template&gt;
+  &lt;SimpleCalendarJsVue
+    :defaultView="view"
+    :defaultDate="currentDate"
+    @viewChange="handleViewChange"
+    @navigate="handleNavigate"
+  /&gt;
+&lt;/template&gt;</code></pre>
+
+      <h3>Server-Side Preferences (Synced Across Devices)</h3>
+      <pre><code>// Load preferences from your API
+const preferences = await fetch('/api/user/calendar-preferences').then(r => r.json());
+
+const calendar = new SimpleCalendarJs('#calendar', {
+  defaultView: preferences.view || 'month',
+  defaultDate: preferences.lastViewedDate ? new Date(preferences.lastViewedDate) : null,
+
+  onViewChange: async (view) => {
+    // Debounce to avoid too many API calls
+    clearTimeout(window.savePreferencesTimeout);
+    window.savePreferencesTimeout = setTimeout(() => {
+      fetch('/api/user/calendar-preferences', {
+        method: 'PATCH',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ view })
+      });
+    }, 1000);
+  }
+});</code></pre>
+
+      <h3>What to Persist</h3>
+      <p>Common preferences to save:</p>
+      <ul>
+        <li><strong>View mode</strong>: <code>'month'</code>, <code>'week'</code>, <code>'day'</code>, or <code>'list'</code></li>
+        <li><strong>Current date</strong>: Last viewed date for returning to the same position</li>
+        <li><strong>Enabled views</strong>: Which view modes the user prefers to have available</li>
+        <li><strong>UI preferences</strong>: Dark mode, show/hide options</li>
+      </ul>
+
+      <div class="note">
+        <p><strong>Note</strong>: The calendar is designed to be stateless - all state management is your responsibility, giving you full flexibility over storage method, persistence duration, and privacy controls.</p>
+      </div>
+    </section>
+
     <!-- Theming -->
     <section id="theming" class="section">
       <h2>Theming</h2>
@@ -1403,7 +1575,7 @@ export class CalendarDemoComponent {
   </div>
 
   <div class="footer">
-    <p>SimpleCalendarJs v3.0.4 — A zero-dependency JavaScript calendar component</p>
+    <p>SimpleCalendarJs v3.0.5 — A zero-dependency JavaScript calendar component</p>
   </div>
 
 </body>

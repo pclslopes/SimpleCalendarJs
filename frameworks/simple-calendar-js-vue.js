@@ -1,5 +1,5 @@
 /**
- * SimpleCalendarJs v3.0.4 — Vue 3 Wrapper
+ * SimpleCalendarJs v3.0.5 — Vue 3 Wrapper
  * A clean, modern, and feature-rich JavaScript calendar component with zero dependencies
  *
  * @author Pedro Lopes <simplecalendarjs@gmail.com>

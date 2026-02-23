@@ -2,7 +2,7 @@
 
 A lightweight, zero-dependency JavaScript calendar component with internationalization support and framework wrappers for React, Vue, and Angular.
 
-![Version](https://img.shields.io/badge/version-3.0.4-blue.svg)
+![Version](https://img.shields.io/badge/version-3.0.5-blue.svg)
 ![License](https://img.shields.io/badge/license-See%20LICENSE-green.svg)
 
 ## Features
@@ -479,6 +479,190 @@ calendar.navigate(-1);      // ✓ Fetch: Jan 28 - Mar 1
 addEventToDatabase(newEvent);
 calendar.refresh();         // ✓ Fetch (clears cache)
 ```
+
+## Persisting User Preferences
+
+The calendar doesn't include built-in persistence - this is intentionally left to your application so you have full control over how and where preferences are stored. Here are common patterns:
+
+### Using LocalStorage (Persistent Across Sessions)
+
+```javascript
+// Restore saved preferences or use defaults
+const savedView = localStorage.getItem('calendarView') || 'month';
+const savedDate = localStorage.getItem('calendarDate');
+
+const calendar = new SimpleCalendarJs('#calendar', {
+  defaultView: savedView,
+  defaultDate: savedDate ? new Date(savedDate) : null,
+
+  // Save view changes
+  onViewChange: (view) => {
+    localStorage.setItem('calendarView', view);
+  },
+
+  // Save navigation (current date)
+  onNavigate: (startDate) => {
+    localStorage.setItem('calendarDate', startDate.toISOString());
+  }
+});
+```
+
+### Using SessionStorage (Per-Tab)
+
+```javascript
+// Same as localStorage but survives only for the current tab/session
+const calendar = new SimpleCalendarJs('#calendar', {
+  defaultView: sessionStorage.getItem('calendarView') || 'month',
+  onViewChange: (view) => sessionStorage.setItem('calendarView', view),
+  onNavigate: (start) => sessionStorage.setItem('calendarDate', start.toISOString())
+});
+```
+
+### Using URL Query Parameters (Shareable State)
+
+```javascript
+// Read from URL
+const params = new URLSearchParams(window.location.search);
+const view = params.get('view') || 'month';
+const date = params.get('date') ? new Date(params.get('date')) : null;
+
+const calendar = new SimpleCalendarJs('#calendar', {
+  defaultView: view,
+  defaultDate: date,
+
+  onViewChange: (newView) => {
+    const url = new URL(window.location);
+    url.searchParams.set('view', newView);
+    window.history.pushState({}, '', url);
+  },
+
+  onNavigate: (startDate) => {
+    const url = new URL(window.location);
+    url.searchParams.set('date', startDate.toISOString().split('T')[0]);
+    window.history.pushState({}, '', url);
+  }
+});
+```
+
+### React Example with State Hook
+
+```javascript
+function MyCalendar() {
+  const [view, setView] = useState(
+    () => localStorage.getItem('calendarView') || 'month'
+  );
+
+  const [currentDate, setCurrentDate] = useState(
+    () => {
+      const saved = localStorage.getItem('calendarDate');
+      return saved ? new Date(saved) : new Date();
+    }
+  );
+
+  const handleViewChange = (newView) => {
+    setView(newView);
+    localStorage.setItem('calendarView', newView);
+  };
+
+  const handleNavigate = (startDate) => {
+    setCurrentDate(startDate);
+    localStorage.setItem('calendarDate', startDate.toISOString());
+  };
+
+  return (
+    <SimpleCalendarJsReact
+      defaultView={view}
+      defaultDate={currentDate}
+      onViewChange={handleViewChange}
+      onNavigate={handleNavigate}
+      fetchEvents={fetchEvents}
+    />
+  );
+}
+```
+
+### Vue Example with Composable
+
+```javascript
+// composables/useCalendarPreferences.js
+import { ref, watch } from 'vue';
+
+export function useCalendarPreferences() {
+  const view = ref(localStorage.getItem('calendarView') || 'month');
+  const currentDate = ref(
+    localStorage.getItem('calendarDate')
+      ? new Date(localStorage.getItem('calendarDate'))
+      : new Date()
+  );
+
+  watch(view, (newView) => {
+    localStorage.setItem('calendarView', newView);
+  });
+
+  watch(currentDate, (newDate) => {
+    localStorage.setItem('calendarDate', newDate.toISOString());
+  });
+
+  return { view, currentDate };
+}
+
+// In component
+<script setup>
+import { useCalendarPreferences } from './composables/useCalendarPreferences';
+const { view, currentDate } = useCalendarPreferences();
+
+const handleViewChange = (newView) => {
+  view.value = newView;
+};
+
+const handleNavigate = (startDate) => {
+  currentDate.value = startDate;
+};
+</script>
+
+<template>
+  <SimpleCalendarJsVue
+    :defaultView="view"
+    :defaultDate="currentDate"
+    @viewChange="handleViewChange"
+    @navigate="handleNavigate"
+  />
+</template>
+```
+
+### Server-Side Preferences (Synced Across Devices)
+
+```javascript
+// Load preferences from your API
+const preferences = await fetch('/api/user/calendar-preferences').then(r => r.json());
+
+const calendar = new SimpleCalendarJs('#calendar', {
+  defaultView: preferences.view || 'month',
+  defaultDate: preferences.lastViewedDate ? new Date(preferences.lastViewedDate) : null,
+
+  onViewChange: async (view) => {
+    // Debounce to avoid too many API calls
+    clearTimeout(window.savePreferencesTimeout);
+    window.savePreferencesTimeout = setTimeout(() => {
+      fetch('/api/user/calendar-preferences', {
+        method: 'PATCH',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ view })
+      });
+    }, 1000);
+  }
+});
+```
+
+### What to Persist
+
+Common preferences to save:
+- **View mode**: `'month'`, `'week'`, `'day'`, or `'list'`
+- **Current date**: Last viewed date for returning to the same position
+- **Enabled views**: Which view modes the user prefers to have available
+- **UI preferences**: Dark mode, show/hide options
+
+**Note**: The calendar is designed to be stateless - all state management is your responsibility, giving you full flexibility over storage method, persistence duration, and privacy controls.
 
 ## Internationalization
 
