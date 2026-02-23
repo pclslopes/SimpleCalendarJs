@@ -61,6 +61,9 @@
   --cal-tooltip-radius:      6px;
   --cal-tooltip-font-size:   12px;
   --cal-tooltip-offset:      8px;
+
+  /* Loading overlay */
+  --cal-loading-bg:          rgba(255, 255, 255, 0.7);
 }
 
 /* ===== BASE CONTAINER ===== */
@@ -334,7 +337,7 @@
   display: flex;
   align-items: center;
   justify-content: center;
-  background: rgba(255, 255, 255, 0.7);
+  background: var(--cal-loading-bg);
   z-index: 100;
   pointer-events: none;
 }
@@ -1180,6 +1183,152 @@
   --cal-tooltip-bg:      #374151;
   --cal-tooltip-text:    #f9fafb;
   --cal-tooltip-border:  #4b5563;
+
+  /* Loading overlay dark mode */
+  --cal-loading-bg:      rgba(31, 41, 55, 0.7);
+}
+
+/* ===== DRAG AND DROP ===== */
+
+/* Calendar in dragging state */
+.uc-calendar.uc-dragging {
+  cursor: grabbing !important;
+  user-select: none;
+  -webkit-user-select: none;
+}
+
+.uc-calendar.uc-dragging * {
+  cursor: grabbing !important;
+}
+
+/* The floating drag element */
+.uc-dragging-element {
+  opacity: 0.8;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.3);
+  transition: none !important;
+}
+
+/* Make events grabbable when drag enabled */
+.uc-calendar[data-drag-enabled] .uc-event-bar,
+.uc-calendar[data-drag-enabled] .uc-timed-event {
+  cursor: grab;
+}
+
+.uc-calendar[data-drag-enabled] .uc-event-bar:active,
+.uc-calendar[data-drag-enabled] .uc-timed-event:active {
+  cursor: grabbing;
+}
+
+/* Dark mode support for drag element shadow */
+.uc-calendar.uc-dark .uc-dragging-element {
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.6);
+}
+
+/* Resize handle at bottom of timed events */
+.uc-resize-handle {
+  position: absolute;
+  bottom: 0;
+  left: 0;
+  right: 0;
+  height: 8px;
+  cursor: ns-resize;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  opacity: 0;
+  transition: opacity 0.2s;
+}
+
+.uc-resize-handle::after {
+  content: '';
+  width: 24px;
+  height: 3px;
+  background: rgba(255, 255, 255, 0.6);
+  border-radius: 2px;
+}
+
+.uc-timed-event:hover .uc-resize-handle {
+  opacity: 1;
+}
+
+.uc-calendar.uc-dragging .uc-resize-handle {
+  cursor: ns-resize !important;
+}
+
+/* Resize handle on right side of all-day events */
+.uc-resize-handle-right {
+  position: absolute;
+  top: 2px;
+  bottom: 2px;
+  right: 2px;
+  width: 6px;
+  cursor: ew-resize;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  opacity: 0;
+  transition: opacity 0.2s;
+}
+
+.uc-resize-handle-right::after {
+  content: '';
+  width: 2px;
+  height: 12px;
+  background: rgba(255, 255, 255, 0.6);
+  border-radius: 1px;
+}
+
+.uc-event-bar:hover .uc-resize-handle-right {
+  opacity: 1;
+}
+
+.uc-calendar.uc-dragging .uc-resize-handle-right {
+  cursor: ew-resize !important;
+}
+
+/* ===== MONTH VIEW TIMED EVENT STYLES ===== */
+
+/* List-style timed events in month view (schedule format) */
+.uc-event-bar--list {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  padding: 2px 6px;
+  background: transparent !important;
+  overflow: hidden;
+}
+
+.uc-event-dot {
+  flex-shrink: 0;
+  width: 8px;
+  height: 8px;
+  border-radius: 50%;
+}
+
+.uc-event-bar--list .uc-event-time {
+  flex-shrink: 0;
+  font-size: 11px;
+  font-weight: 500;
+  color: var(--cal-text);
+  opacity: 0.8;
+}
+
+.uc-event-bar--list .uc-event-title {
+  flex: 1;
+  font-size: 12px;
+  color: var(--cal-text);
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+/* List-style events should be grabbable */
+.uc-calendar[data-drag-enabled] .uc-event-bar--list {
+  cursor: grab;
+}
+
+.uc-calendar[data-drag-enabled] .uc-event-bar--list:active {
+  cursor: grabbing;
 }
 
 /* ===== PRINT STYLES ===== */

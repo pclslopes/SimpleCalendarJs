@@ -363,6 +363,7 @@
           use24Hour: false,
           showTimeInItems: true,
           showGridLines: true,
+          monthTimedEventStyle: 'list',
           showToolbar: true,
           showTodayButton: true,
           showNavigation: true,
@@ -374,11 +375,14 @@
           maxEventsPerCell: 3,
           listDaysForward: 30,
           enabledViews: ['month', 'week', 'day'],
+          enableDragDrop: false,
+          enableResize: false,
           fetchEvents: null,
           onEventClick: null,
           onSlotClick: null,
           onViewChange: null,
           onNavigate: null,
+          onEventDrop: null,
         },
         options
       );
@@ -392,6 +396,8 @@
       this._yearPickerOpen = false;
       this._yearPickerBase = 0;
       this._yearOutsideHandler = null;
+      this._dragState = null; // Drag and drop state
+      this._clickSuppressed = false; // Suppress click after drag
 
       this._root = document.createElement('div');
       this._root.className = 'uc-calendar';
@@ -410,6 +416,32 @@
       // Tooltip positioning handler
       this._onMouseMove = this._handleTooltipPosition.bind(this);
       this._root.addEventListener('mouseover', this._onMouseMove);
+
+      // Drag, drop, and resize listeners
+      if (this._opts.enableDragDrop || this._opts.enableResize) {
+        this._onMouseDown = this._handleDragStart.bind(this);
+        this._onMouseMoveGlobal = this._handleDragMove.bind(this);
+        this._onMouseUp = this._handleDragEnd.bind(this);
+        this._onTouchStart = this._handleDragStart.bind(this);
+        this._onTouchMove = this._handleDragMove.bind(this);
+        this._onTouchEnd = this._handleDragEnd.bind(this);
+        this._onKeyDown = this._handleDragKeyDown.bind(this);
+
+        this._root.addEventListener('mousedown', this._onMouseDown);
+        document.addEventListener('mousemove', this._onMouseMoveGlobal);
+        document.addEventListener('mouseup', this._onMouseUp);
+        this._root.addEventListener('touchstart', this._onTouchStart, { passive: true });
+        document.addEventListener('touchmove', this._onTouchMove, { passive: false });
+        document.addEventListener('touchend', this._onTouchEnd);
+        document.addEventListener('keydown', this._onKeyDown);
+
+        if (this._opts.enableDragDrop) {
+          this._root.setAttribute('data-drag-enabled', 'true');
+        }
+        if (this._opts.enableResize) {
+          this._root.setAttribute('data-resize-enabled', 'true');
+        }
+      }
 
       this._fetchAndRender();
       this._startNowUpdater();
@@ -472,6 +504,18 @@
       if (this._yearOutsideHandler) document.removeEventListener('click', this._yearOutsideHandler);
       this._root.removeEventListener('click', this._onClick);
       this._root.removeEventListener('mouseover', this._onMouseMove);
+
+      // Remove drag, drop, and resize listeners
+      if (this._opts.enableDragDrop || this._opts.enableResize) {
+        this._root.removeEventListener('mousedown', this._onMouseDown);
+        document.removeEventListener('mousemove', this._onMouseMoveGlobal);
+        document.removeEventListener('mouseup', this._onMouseUp);
+        this._root.removeEventListener('touchstart', this._onTouchStart);
+        document.removeEventListener('touchmove', this._onTouchMove);
+        document.removeEventListener('touchend', this._onTouchEnd);
+        document.removeEventListener('keydown', this._onKeyDown);
+      }
+
       this._root.remove();
     }
 
@@ -866,12 +910,16 @@
         const tooltipAttr = this._opts.showTooltips
           ? `data-tooltip="${esc(event.tooltip || event.description || event.title)}"`
           : '';
+        const resizeHandle = this._opts.enableResize && isEnd
+          ? `<div class="uc-resize-handle-right" data-action="resize-handle"></div>`
+          : '';
         barsHtml += `
           <div class="uc-event-bar${contL}${contR}"
                style="left:calc(${left}% + 2px);width:calc(${width}% - 4px);top:${topCss};background:${esc(color)};border-radius:${rl} ${rr} ${rr} ${rl};"
                data-event-id="${esc(event.id)}" data-action="event-click"
                ${tooltipAttr}>
             ${isStart ? `<span class="uc-event-title">${esc(event.title)}</span>` : '&nbsp;'}
+            ${resizeHandle}
           </div>`;
       }
 
@@ -897,13 +945,31 @@
             const topCss = `calc(var(--cal-header-day-height) + ${slot} * (var(--cal-event-height) + var(--cal-event-gap)) + 4px)`;
             const color = ev.color || 'var(--cal-event-bg)';
             const timeStr = fmtTime(ev.start, this._opts.locale, this._opts.use24Hour);
-            const timeHtml = this._opts.showTimeInItems
-              ? `<span class="uc-event-time">${esc(timeStr)}</span>`
-              : '';
             const tooltipAttr = this._opts.showTooltips
               ? `data-tooltip="${esc(ev.tooltip || ev.description || ev.title)}"`
               : '';
-            barsHtml += `
+
+            // Render based on monthTimedEventStyle option
+            if (this._opts.monthTimedEventStyle === 'list') {
+              // List style: dot, time, title
+              const timeHtml = this._opts.showTimeInItems
+                ? `<span class="uc-event-time">${esc(timeStr)}</span>`
+                : '';
+              barsHtml += `
+              <div class="uc-event-bar uc-event-bar--list"
+                   style="left:calc(${left}% + 2px);width:calc(${cw}% - 4px);top:${topCss};"
+                   data-event-id="${esc(ev.id)}" data-action="event-click"
+                   ${tooltipAttr}>
+                <span class="uc-event-dot" style="background:${esc(color)};"></span>
+                ${timeHtml}
+                <span class="uc-event-title">${esc(ev.title)}</span>
+              </div>`;
+            } else {
+              // Block style: traditional colored background
+              const timeHtml = this._opts.showTimeInItems
+                ? `<span class="uc-event-time">${esc(timeStr)}</span>`
+                : '';
+              barsHtml += `
               <div class="uc-event-bar"
                    style="left:calc(${left}% + 2px);width:calc(${cw}% - 4px);top:${topCss};background:${esc(color)};"
                    data-event-id="${esc(ev.id)}" data-action="event-click"
@@ -911,6 +977,7 @@
                 ${timeHtml}
                 <span class="uc-event-title">${esc(ev.title)}</span>
               </div>`;
+            }
           });
         } else {
           // Limited mode: respect MAX limit and show "+N more" link
@@ -929,13 +996,31 @@
               const topCss = `calc(var(--cal-header-day-height) + ${slot} * (var(--cal-event-height) + var(--cal-event-gap)) + 4px)`;
               const color = ev.color || 'var(--cal-event-bg)';
               const timeStr = fmtTime(ev.start, this._opts.locale, this._opts.use24Hour);
-              const timeHtml = this._opts.showTimeInItems
-                ? `<span class="uc-event-time">${esc(timeStr)}</span>`
-                : '';
               const tooltipAttr = this._opts.showTooltips
                 ? `data-tooltip="${esc(ev.tooltip || ev.description || ev.title)}"`
                 : '';
-              barsHtml += `
+
+              // Render based on monthTimedEventStyle option
+              if (this._opts.monthTimedEventStyle === 'list') {
+                // List style: dot, time, title
+                const timeHtml = this._opts.showTimeInItems
+                  ? `<span class="uc-event-time">${esc(timeStr)}</span>`
+                  : '';
+                barsHtml += `
+              <div class="uc-event-bar uc-event-bar--list"
+                   style="left:calc(${left}% + 2px);width:calc(${cw}% - 4px);top:${topCss};"
+                   data-event-id="${esc(ev.id)}" data-action="event-click"
+                   ${tooltipAttr}>
+                <span class="uc-event-dot" style="background:${esc(color)};"></span>
+                ${timeHtml}
+                <span class="uc-event-title">${esc(ev.title)}</span>
+              </div>`;
+              } else {
+                // Block style: traditional colored background
+                const timeHtml = this._opts.showTimeInItems
+                  ? `<span class="uc-event-time">${esc(timeStr)}</span>`
+                  : '';
+                barsHtml += `
               <div class="uc-event-bar"
                    style="left:calc(${left}% + 2px);width:calc(${cw}% - 4px);top:${topCss};background:${esc(color)};"
                    data-event-id="${esc(ev.id)}" data-action="event-click"
@@ -943,6 +1028,7 @@
                 ${timeHtml}
                 <span class="uc-event-title">${esc(ev.title)}</span>
               </div>`;
+              }
             } else {
               hidden++;
             }
@@ -1051,6 +1137,9 @@
         const tooltipAttr = this._opts.showTooltips
           ? `data-tooltip="${esc(event.tooltip || event.description || event.title)}"`
           : '';
+        const resizeHandle = this._opts.enableResize && isEnd
+          ? `<div class="uc-resize-handle-right" data-action="resize-handle"></div>`
+          : '';
 
         allDayBarsHtml += `
           <div class="uc-event-bar${contL}${contR}"
@@ -1058,6 +1147,7 @@
                data-event-id="${esc(event.id)}" data-action="event-click"
                ${tooltipAttr}>
             ${isStart ? `<span class="uc-event-title">${esc(event.title)}</span>` : '&nbsp;'}
+            ${resizeHandle}
           </div>`;
       }
 
@@ -1111,6 +1201,11 @@
                 ? `data-tooltip="${esc(event.tooltip || event.description || event.title)}"`
                 : '';
 
+              const resizeHandle = this._opts.enableResize
+                ? `<div class="uc-resize-handle" data-action="resize-handle"></div>`
+                : '';
+
+              // Week/day views always use block style
               return `
                 <div class="uc-timed-event${shortClass}"
                      style="top:${topCss};height:${heightCss};left:${leftCss};width:${widthCss};background:${esc(color)};"
@@ -1118,6 +1213,7 @@
                      ${tooltipAttr}>
                   ${timeHtml}
                   <span class="uc-event-title">${esc(event.title)}</span>
+                  ${resizeHandle}
                 </div>`;
             })
             .join('');
@@ -1254,6 +1350,12 @@
     /* ---- Interactions ---- */
 
     _handleClick(evt) {
+      // Suppress click if just finished dragging
+      if (this._clickSuppressed) {
+        this._clickSuppressed = false;
+        return;
+      }
+
       // View switcher buttons carry data-view (no data-action) — handle first
       const viewBtn = evt.target.closest('[data-view]');
       if (viewBtn) {
@@ -1416,6 +1518,707 @@
       if (rect.top < 50) {
         target.classList.add('uc-tooltip-bottom'); // Show below instead
       }
+    }
+
+    /* ---- Drag and Drop ---- */
+
+    _handleDragStart(evt) {
+      // List view doesn't support drag
+      if (this._view === 'list') return;
+
+      // Check if clicking on resize handle
+      const resizeHandle = evt.target.closest('[data-action="resize-handle"]');
+      const isResize = !!resizeHandle;
+      const isRightResize = resizeHandle && resizeHandle.classList.contains('uc-resize-handle-right');
+      const isBottomResize = resizeHandle && resizeHandle.classList.contains('uc-resize-handle');
+
+      // Only process events on draggable elements
+      const eventEl = evt.target.closest('[data-event-id][data-action="event-click"]');
+      if (!eventEl) return;
+
+      // Don't interfere with year picker or toolbar clicks
+      if (evt.target.closest('.uc-year-picker, [data-action="year-pick"], .uc-toolbar')) return;
+
+      // Get event data
+      const eventId = eventEl.dataset.eventId;
+      const event = this._events.find((e) => String(e.id) === String(eventId));
+      if (!event) return;
+
+      // Check the actual event data (month view uses uc-event-bar for all events)
+      const isAllDay = event.allDay || false;
+
+      // Check if the operation is allowed
+      if (isResize && !this._opts.enableResize) {
+        return; // Resize not enabled
+      }
+      if (!isResize && !this._opts.enableDragDrop) {
+        return; // Drag and drop not enabled
+      }
+
+      // Validate resize mode
+      if (isBottomResize && (isAllDay || (this._view !== 'week' && this._view !== 'day'))) {
+        return; // Bottom resize only for timed events in week/day
+      }
+      if (isRightResize && !isAllDay) {
+        return; // Right resize only for all-day events
+      }
+
+      // Get position
+      const pos = this._getEventPosition(evt);
+
+      // Calculate offset from element's top-left corner
+      const rect = eventEl.getBoundingClientRect();
+      const offsetX = pos.x - rect.left;
+      const offsetY = pos.y - rect.top;
+
+      // Initialize drag state (POTENTIAL_DRAG or POTENTIAL_RESIZE)
+      this._dragState = {
+        mode: isResize ? 'resize' : 'move',
+        resizeDirection: isRightResize ? 'horizontal' : (isBottomResize ? 'vertical' : null),
+        eventId: eventId,
+        originalEvent: { ...event, start: new Date(event.start), end: new Date(event.end) },
+        dragElement: null,
+        startX: pos.x,
+        startY: pos.y,
+        currentX: pos.x,
+        currentY: pos.y,
+        offsetX: offsetX,
+        offsetY: offsetY,
+        originalView: this._view,
+        isAllDay: isAllDay,
+        hasMoved: false,
+        startTime: Date.now(),
+        originalElement: eventEl, // Store reference for horizontal resize
+      };
+    }
+
+    _handleDragMove(evt) {
+      if (!this._dragState) return;
+
+      const pos = this._getEventPosition(evt);
+      this._dragState.currentX = pos.x;
+      this._dragState.currentY = pos.y;
+
+      // Calculate movement distance
+      const dx = pos.x - this._dragState.startX;
+      const dy = pos.y - this._dragState.startY;
+      const distance = Math.sqrt(dx * dx + dy * dy);
+
+      // Check transition to DRAGGING state
+      const THRESHOLD = 5;
+      const DELAY = 150;
+
+      if (!this._dragState.hasMoved) {
+        const timeSinceStart = Date.now() - this._dragState.startTime;
+
+        if (distance > THRESHOLD || timeSinceStart > DELAY) {
+          this._dragState.hasMoved = true;
+          this._createDragElement();
+          this._root.classList.add('uc-dragging');
+        } else {
+          return; // Still in POTENTIAL_DRAG
+        }
+      }
+
+      // Prevent scroll on touch
+      if (evt.type.startsWith('touch')) {
+        evt.preventDefault();
+      }
+
+      // Update drag element based on mode
+      if (this._dragState.dragElement) {
+        if (this._dragState.mode === 'resize' && this._dragState.resizeDirection === 'vertical') {
+          this._updateResizePreview(pos.x, pos.y);
+        } else if (this._dragState.mode === 'resize' && this._dragState.resizeDirection === 'horizontal') {
+          this._updateHorizontalResizePreview(pos.x);
+        } else {
+          // Move mode: update position with snap-to-grid
+          const snappedPos = this._getSnappedPosition(pos.x, pos.y);
+          if (snappedPos) {
+            this._dragState.dragElement.style.left = snappedPos.x + 'px';
+            this._dragState.dragElement.style.top = snappedPos.y + 'px';
+          } else {
+            // No snap position available, follow cursor
+            this._dragState.dragElement.style.left = pos.x - this._dragState.offsetX + 'px';
+            this._dragState.dragElement.style.top = pos.y - this._dragState.offsetY + 'px';
+          }
+        }
+      }
+    }
+
+    _getSnappedPosition(x, y) {
+      // Only snap in week/day views
+      if (this._view !== 'week' && this._view !== 'day') {
+        return null;
+      }
+
+      // Try to get drop position
+      const dropPos = this._calculateDropPosition(x, y);
+      if (!dropPos) return null;
+
+      const dragEl = this._dragState.dragElement;
+      if (!dragEl) return null;
+
+      // Snap to timed grid
+      if (!dropPos.isAllDay) {
+        const timeColumns = this._root.querySelector('.uc-time-columns');
+        if (!timeColumns) return null;
+
+        const colElements = timeColumns.querySelectorAll('.uc-time-col');
+        let targetCol = null;
+
+        // Find which column we're over
+        for (const col of colElements) {
+          const rect = col.getBoundingClientRect();
+          if (x >= rect.left && x < rect.right) {
+            targetCol = col;
+            break;
+          }
+        }
+
+        if (!targetCol) return null;
+
+        const colRect = targetCol.getBoundingClientRect();
+
+        // Calculate Y position based on the snapped time
+        const hours = dropPos.date.getHours();
+        const minutes = dropPos.date.getMinutes();
+        const totalMinutes = hours * 60 + minutes;
+
+        const hourHeight = parseFloat(getComputedStyle(this._root).getPropertyValue('--cal-hour-height')) || 60;
+        const yOffset = (totalMinutes / 60) * hourHeight;
+
+        // Update time display in drag element
+        const timeSpan = dragEl.querySelector('.uc-event-time');
+        if (timeSpan) {
+          const timeStr = fmtTime(dropPos.date, this._opts.locale, this._opts.use24Hour);
+          timeSpan.textContent = timeStr;
+        }
+
+        return {
+          x: colRect.left + 4, // 4px padding
+          y: colRect.top + yOffset,
+        };
+      }
+
+      // Snap to all-day section
+      if (dropPos.isAllDay) {
+        const allDaySection = this._root.querySelector('.uc-all-day-events');
+        if (!allDaySection) return null;
+
+        const sectionRect = allDaySection.getBoundingClientRect();
+        const weekDays = this._view === 'day' ? [this._date] : getWeekDates(this._date, this._opts.weekStartsOn);
+        const dayWidth = sectionRect.width / weekDays.length;
+
+        const relX = x - sectionRect.left;
+        const dayIndex = Math.floor(relX / dayWidth);
+
+        if (dayIndex < 0 || dayIndex >= weekDays.length) return null;
+
+        return {
+          x: sectionRect.left + dayIndex * dayWidth + 4,
+          y: sectionRect.top + 4,
+        };
+      }
+
+      return null;
+    }
+
+    _updateResizePreview(x, y) {
+      const dragEl = this._dragState.dragElement;
+      const originalEvent = this._dragState.originalEvent;
+
+      // Find the time column we're over
+      const timeColumns = this._root.querySelector('.uc-time-columns');
+      if (!timeColumns) return;
+
+      const colElements = timeColumns.querySelectorAll('.uc-time-col');
+      let targetCol = null;
+
+      for (const col of colElements) {
+        const rect = col.getBoundingClientRect();
+        if (x >= rect.left && x < rect.right) {
+          targetCol = col;
+          break;
+        }
+      }
+
+      if (!targetCol) return;
+
+      const colRect = targetCol.getBoundingClientRect();
+      const relY = Math.max(0, y - colRect.top);
+
+      const hourHeight = parseFloat(getComputedStyle(this._root).getPropertyValue('--cal-hour-height')) || 60;
+
+      // Calculate snapped time
+      const totalMinutes = Math.floor((relY / hourHeight) * 60);
+      const hours = Math.floor(totalMinutes / 60) % 24;
+      const minutes = Math.round((totalMinutes % 60) / 15) * 15;
+
+      // Calculate new end time
+      const newEnd = new Date(originalEvent.start);
+      newEnd.setHours(hours, minutes, 0, 0);
+
+      // Ensure end is after start (minimum 15 minutes)
+      if (newEnd <= originalEvent.start) {
+        newEnd.setTime(originalEvent.start.getTime() + 15 * 60 * 1000);
+      }
+
+      // Calculate new height
+      const durationMs = newEnd - originalEvent.start;
+      const durationMinutes = durationMs / (60 * 1000);
+      const newHeight = (durationMinutes / 60) * hourHeight;
+
+      // Update drag element height
+      dragEl.style.height = newHeight + 'px';
+
+      // Update time display to show end time
+      const timeSpan = dragEl.querySelector('.uc-event-time');
+      if (timeSpan) {
+        const startStr = fmtTime(originalEvent.start, this._opts.locale, this._opts.use24Hour);
+        const endStr = fmtTime(newEnd, this._opts.locale, this._opts.use24Hour);
+        timeSpan.textContent = `${startStr} - ${endStr}`;
+      }
+
+      // Store the new end time in drag state for later use
+      this._dragState.newEndTime = newEnd;
+    }
+
+    _updateHorizontalResizePreview(x) {
+      const dragEl = this._dragState.dragElement;
+      const originalEvent = this._dragState.originalEvent;
+      const originalEl = this._dragState.originalElement;
+
+      if (!originalEl) return;
+
+      const rect = originalEl.getBoundingClientRect();
+      const relX = x - rect.left;
+
+      // Calculate which day column we're over based on view
+      let newEndDate;
+
+      if (this._view === 'month') {
+        // Month view: calculate based on day cell width
+        const monthBody = this._root.querySelector('.uc-month-body');
+        if (!monthBody) return;
+
+        const monthRect = monthBody.getBoundingClientRect();
+        const cellWidth = monthRect.width / 7;
+        const absoluteX = x - monthRect.left;
+        const dayCol = Math.floor(absoluteX / cellWidth);
+
+        const dates = getMonthGridDates(
+          this._date.getFullYear(),
+          this._date.getMonth(),
+          this._opts.weekStartsOn
+        );
+
+        // Find which row the event is in
+        const eventY = rect.top - monthRect.top;
+        const rowHeight = monthRect.height / Math.ceil(dates.length / 7);
+        const row = Math.floor(eventY / rowHeight);
+
+        const dateIndex = row * 7 + dayCol;
+        if (dateIndex >= 0 && dateIndex < dates.length) {
+          newEndDate = endOfDay(dates[dateIndex]);
+        }
+      } else {
+        // Week/Day view: calculate based on day column
+        const weekDays = this._view === 'day' ? [this._date] : getWeekDates(this._date, this._opts.weekStartsOn);
+        const allDaySection = this._root.querySelector('.uc-all-day-events');
+        if (!allDaySection) return;
+
+        const sectionRect = allDaySection.getBoundingClientRect();
+        const dayWidth = sectionRect.width / weekDays.length;
+        const absoluteX = x - sectionRect.left;
+        const dayIndex = Math.floor(absoluteX / dayWidth);
+
+        if (dayIndex >= 0 && dayIndex < weekDays.length) {
+          newEndDate = endOfDay(weekDays[dayIndex]);
+        }
+      }
+
+      if (!newEndDate) return;
+
+      // Ensure end is not before start
+      if (newEndDate < originalEvent.start) {
+        newEndDate = endOfDay(originalEvent.start);
+      }
+
+      // Calculate new width
+      const newWidth = relX + 20; // Add some buffer
+
+      // Update drag element width
+      dragEl.style.width = Math.max(newWidth, 60) + 'px';
+
+      // Store the new end date in drag state
+      this._dragState.newEndDate = newEndDate;
+    }
+
+    _handleDragEnd(evt) {
+      if (!this._dragState) return;
+
+      const wasDragging = this._dragState.hasMoved;
+
+      if (!wasDragging) {
+        // Was a click, not a drag
+        this._dragState = null;
+        return;
+      }
+
+      // Prevent click event
+      evt.preventDefault();
+      evt.stopPropagation();
+      this._clickSuppressed = true;
+      setTimeout(() => {
+        this._clickSuppressed = false;
+      }, 10);
+
+      // Handle resize vs move
+      if (this._dragState.mode === 'resize' && this._dragState.resizeDirection === 'vertical') {
+        // Vertical resize mode: update end time only
+        if (this._dragState.newEndTime) {
+          this._performResize(this._dragState.newEndTime);
+        }
+      } else if (this._dragState.mode === 'resize' && this._dragState.resizeDirection === 'horizontal') {
+        // Horizontal resize mode: update end date only
+        if (this._dragState.newEndDate) {
+          this._performHorizontalResize(this._dragState.newEndDate);
+        }
+      } else {
+        // Move mode: calculate drop position
+        const pos = this._getEventPosition(evt);
+        const dropPosition = this._calculateDropPosition(pos.x, pos.y);
+
+        if (dropPosition) {
+          this._performDrop(dropPosition);
+        }
+      }
+
+      // Cleanup
+      this._cleanupDrag();
+    }
+
+    _handleDragKeyDown(evt) {
+      if (!this._dragState || !this._dragState.hasMoved) return;
+
+      if (evt.key === 'Escape') {
+        this._cleanupDrag();
+      }
+    }
+
+    _getEventPosition(evt) {
+      if (evt.type.startsWith('touch')) {
+        const touch = evt.touches[0] || evt.changedTouches[0];
+        return { x: touch.clientX, y: touch.clientY };
+      }
+      return { x: evt.clientX, y: evt.clientY };
+    }
+
+    _createDragElement() {
+      const originalEl = this._root.querySelector(`[data-event-id="${this._dragState.eventId}"]`);
+      if (!originalEl) return;
+
+      const dragEl = originalEl.cloneNode(true);
+      dragEl.classList.add('uc-dragging-element');
+
+      const rect = originalEl.getBoundingClientRect();
+
+      dragEl.style.position = 'fixed';
+      dragEl.style.pointerEvents = 'none';
+      dragEl.style.zIndex = '10000';
+      dragEl.style.opacity = '0.8';
+      dragEl.style.width = originalEl.offsetWidth + 'px';
+
+      if (this._dragState.mode === 'resize') {
+        // For resize, position at original location (we'll change height)
+        dragEl.style.left = rect.left + 'px';
+        dragEl.style.top = rect.top + 'px';
+        dragEl.style.height = originalEl.offsetHeight + 'px';
+      } else {
+        // For move, position with offset
+        dragEl.style.left = this._dragState.currentX - this._dragState.offsetX + 'px';
+        dragEl.style.top = this._dragState.currentY - this._dragState.offsetY + 'px';
+      }
+
+      document.body.appendChild(dragEl);
+      this._dragState.dragElement = dragEl;
+    }
+
+    _cleanupDrag() {
+      if (this._dragState && this._dragState.dragElement) {
+        this._dragState.dragElement.remove();
+      }
+      this._root.classList.remove('uc-dragging');
+      this._dragState = null;
+    }
+
+    _calculateDropPosition(x, y) {
+      // Try all-day section first (week/day views)
+      if (this._view === 'week' || this._view === 'day') {
+        const allDayPos = this._calculateAllDayDropPosition(x, y);
+        if (allDayPos) return allDayPos;
+
+        const timedPos = this._calculateTimedDropPosition(x, y);
+        if (timedPos) return timedPos;
+      }
+
+      // Try month view
+      if (this._view === 'month') {
+        return this._calculateMonthDropPosition(x, y);
+      }
+
+      return null;
+    }
+
+    _calculateMonthDropPosition(x, y) {
+      // Find month grid
+      const monthBody = this._root.querySelector('.uc-month-body');
+      if (!monthBody) return null;
+
+      const rect = monthBody.getBoundingClientRect();
+      const relX = x - rect.left;
+      const relY = y - rect.top;
+
+      // Calculate grid position
+      const colWidth = rect.width / 7;
+      const rowCount = monthBody.querySelectorAll('.uc-week-row').length;
+      const rowHeight = rect.height / rowCount;
+
+      const col = Math.floor(relX / colWidth);
+      const row = Math.floor(relY / rowHeight);
+
+      // Map to date
+      const dates = getMonthGridDates(
+        this._date.getFullYear(),
+        this._date.getMonth(),
+        this._opts.weekStartsOn
+      );
+      const dateIndex = row * 7 + col;
+
+      if (col < 0 || col >= 7 || dateIndex < 0 || dateIndex >= dates.length) {
+        return null;
+      }
+
+      return {
+        date: dates[dateIndex],
+        isMonthView: true, // Indicates month view drop (preserve original type)
+      };
+    }
+
+    _calculateTimedDropPosition(x, y) {
+      const timeColumns = this._root.querySelector('.uc-time-columns');
+      if (!timeColumns) return null;
+
+      const colElements = timeColumns.querySelectorAll('.uc-time-col');
+      let targetCol = null;
+
+      for (const col of colElements) {
+        const rect = col.getBoundingClientRect();
+        if (x >= rect.left && x < rect.right) {
+          targetCol = col;
+          break;
+        }
+      }
+
+      if (!targetCol) return null;
+
+      const colRect = targetCol.getBoundingClientRect();
+      const relY = Math.max(0, y - colRect.top);
+
+      const hourHeight =
+        parseFloat(getComputedStyle(this._root).getPropertyValue('--cal-hour-height')) || 60;
+
+      const totalMinutes = Math.floor((relY / hourHeight) * 60);
+      const hours = Math.floor(totalMinutes / 60) % 24;
+      const minutes = Math.round((totalMinutes % 60) / 15) * 15;
+
+      const dateStr = targetCol.dataset.date;
+      if (!dateStr) return null;
+
+      const date = new Date(dateStr);
+      date.setHours(hours, minutes, 0, 0);
+
+      return {
+        date: date,
+        isAllDay: false,
+      };
+    }
+
+    _calculateAllDayDropPosition(x, y) {
+      const allDaySection = this._root.querySelector('.uc-all-day-events');
+      if (!allDaySection) return null;
+
+      const sectionRect = allDaySection.getBoundingClientRect();
+      if (y < sectionRect.top || y > sectionRect.bottom) return null;
+
+      const weekDays =
+        this._view === 'day' ? [this._date] : getWeekDates(this._date, this._opts.weekStartsOn);
+      const dayWidth = sectionRect.width / weekDays.length;
+
+      const relX = x - sectionRect.left;
+      const dayIndex = Math.floor(relX / dayWidth);
+
+      if (dayIndex < 0 || dayIndex >= weekDays.length) return null;
+
+      return {
+        date: startOfDay(weekDays[dayIndex]),
+        isAllDay: true,
+      };
+    }
+
+    _performDrop(dropPosition) {
+      const originalEvent = this._dragState.originalEvent;
+      const oldStart = new Date(originalEvent.start);
+      const oldEnd = new Date(originalEvent.end);
+
+      let newStart, newEnd, finalAllDay;
+
+      // Check if original event was all-day or timed
+      const wasAllDay = originalEvent.allDay || this._dragState.isAllDay;
+
+      if (dropPosition.isMonthView) {
+        // Dropping in month view - preserve original type
+        if (wasAllDay) {
+          // Keep as all-day
+          const durationDays = dayDiff(oldStart, oldEnd);
+          newStart = startOfDay(dropPosition.date);
+          newEnd = endOfDay(addDays(dropPosition.date, Math.max(0, durationDays)));
+          finalAllDay = true;
+        } else {
+          // Keep as timed - preserve time
+          const durationMs = oldEnd - oldStart;
+          newStart = new Date(dropPosition.date);
+          newStart.setHours(oldStart.getHours(), oldStart.getMinutes(), oldStart.getSeconds(), oldStart.getMilliseconds());
+          newEnd = new Date(newStart.getTime() + durationMs);
+          finalAllDay = false;
+        }
+      } else if (dropPosition.isAllDay) {
+        // Dropping in week/day all-day section - convert to all-day
+        const durationDays = Math.max(0, Math.ceil((oldEnd - oldStart) / 86400000));
+        newStart = startOfDay(dropPosition.date);
+        newEnd = endOfDay(addDays(dropPosition.date, durationDays));
+        finalAllDay = true;
+      } else {
+        // Dropping in week/day time grid - use specific time
+        newStart = dropPosition.date;
+
+        // If converting from all-day to timed, use 1 hour default duration
+        if (wasAllDay) {
+          newEnd = new Date(newStart.getTime() + 60 * 60 * 1000); // 1 hour
+        } else {
+          // Preserve duration for timed events
+          const durationMs = oldEnd - oldStart;
+          newEnd = new Date(newStart.getTime() + durationMs);
+        }
+        finalAllDay = false;
+      }
+
+      // Update event in arrays
+      const eventIndex = this._events.findIndex((e) => String(e.id) === String(this._dragState.eventId));
+      if (eventIndex >= 0) {
+        this._events[eventIndex].start = newStart;
+        this._events[eventIndex].end = newEnd;
+        this._events[eventIndex].allDay = finalAllDay;
+      }
+
+      // Update cached events
+      const cachedIndex = this._cachedEvents.findIndex(
+        (e) => String(e.id) === String(this._dragState.eventId)
+      );
+      if (cachedIndex >= 0) {
+        this._cachedEvents[cachedIndex].start = newStart;
+        this._cachedEvents[cachedIndex].end = newEnd;
+        this._cachedEvents[cachedIndex].allDay = finalAllDay;
+      }
+
+      // Fire callback
+      if (this._opts.onEventDrop) {
+        this._opts.onEventDrop(
+          eventIndex >= 0 ? this._events[eventIndex] : null,
+          oldStart,
+          oldEnd,
+          newStart,
+          newEnd
+        );
+      }
+
+      // Re-render
+      this._renderView();
+    }
+
+    _performResize(newEnd) {
+      const originalEvent = this._dragState.originalEvent;
+      const oldStart = new Date(originalEvent.start);
+      const oldEnd = new Date(originalEvent.end);
+
+      // Keep start time the same, only update end time
+      const newStart = oldStart;
+
+      // Update event in arrays
+      const eventIndex = this._events.findIndex((e) => String(e.id) === String(this._dragState.eventId));
+      if (eventIndex >= 0) {
+        this._events[eventIndex].end = newEnd;
+      }
+
+      // Update cached events
+      const cachedIndex = this._cachedEvents.findIndex(
+        (e) => String(e.id) === String(this._dragState.eventId)
+      );
+      if (cachedIndex >= 0) {
+        this._cachedEvents[cachedIndex].end = newEnd;
+      }
+
+      // Update source data in demo
+      if (this._opts.onEventDrop) {
+        this._opts.onEventDrop(
+          eventIndex >= 0 ? this._events[eventIndex] : null,
+          oldStart,
+          oldEnd,
+          newStart,
+          newEnd
+        );
+      }
+
+      // Re-render
+      this._renderView();
+    }
+
+    _performHorizontalResize(newEnd) {
+      const originalEvent = this._dragState.originalEvent;
+      const oldStart = new Date(originalEvent.start);
+      const oldEnd = new Date(originalEvent.end);
+
+      // Keep start date the same, only update end date
+      const newStart = oldStart;
+
+      // Update event in arrays
+      const eventIndex = this._events.findIndex((e) => String(e.id) === String(this._dragState.eventId));
+      if (eventIndex >= 0) {
+        this._events[eventIndex].end = newEnd;
+      }
+
+      // Update cached events
+      const cachedIndex = this._cachedEvents.findIndex(
+        (e) => String(e.id) === String(this._dragState.eventId)
+      );
+      if (cachedIndex >= 0) {
+        this._cachedEvents[cachedIndex].end = newEnd;
+      }
+
+      // Fire callback
+      if (this._opts.onEventDrop) {
+        this._opts.onEventDrop(
+          eventIndex >= 0 ? this._events[eventIndex] : null,
+          oldStart,
+          oldEnd,
+          newStart,
+          newEnd
+        );
+      }
+
+      // Re-render
+      this._renderView();
     }
 
     _startNowUpdater() {

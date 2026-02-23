@@ -178,11 +178,15 @@ export class CalendarComponent {
 | `showTooltips` | boolean | `true` | Show tooltips on hover for events |
 | `listDaysForward` | number | `30` | Number of days forward to show in list view |
 | `enabledViews` | string[] | `['month', 'week', 'day']` | Available view modes. Add `'list'` to enable list view |
+| `enableDragDrop` | boolean | `false` | Enable drag and drop to move events |
+| `enableResize` | boolean | `false` | Enable resizing events to change duration |
+| `monthTimedEventStyle` | string | `'list'` | Display style for timed events in month view: `'list'` (schedule format) or `'block'` (traditional blocks) |
 | `fetchEvents` | function | `null` | Async function to fetch events: `async (start, end) => Event[]` |
 | `onEventClick` | function | `null` | Callback when event is clicked: `(event, mouseEvent) => void` |
 | `onSlotClick` | function | `null` | Callback when time slot is clicked: `(date, mouseEvent) => void` |
 | `onViewChange` | function | `null` | Callback when view changes: `(view) => void` |
 | `onNavigate` | function | `null` | Callback when date range changes: `(startDate, endDate) => void` |
+| `onEventDrop` | function | `null` | Callback when event is dropped: `(event, oldStart, oldEnd, newStart, newEnd) => void` |
 
 ## Event Object Format
 
@@ -413,6 +417,142 @@ Tooltips use CSS custom properties and can be customized:
 - Tooltips display **plain text only** (no HTML rendering)
 - Special characters are automatically escaped for security
 - Maximum width is 250px by default (can be customized via CSS variables)
+
+## Drag and Drop
+
+SimpleCalendarJs supports drag and drop for moving events and resizing them to change their duration.
+
+### Configuration
+
+```javascript
+const calendar = new SimpleCalendarJs('#calendar', {
+  enableDragDrop: true,  // Enable moving events
+  enableResize: true,     // Enable resizing events
+
+  onEventDrop: (event, oldStart, oldEnd, newStart, newEnd) => {
+    // Detect if this is a move or resize
+    const isMoved = oldStart.getTime() !== newStart.getTime();
+    const isResized = oldEnd.getTime() !== newEnd.getTime() && !isMoved;
+
+    if (isMoved) {
+      console.log(`Event "${event.title}" moved to ${newStart}`);
+    } else if (isResized) {
+      console.log(`Event "${event.title}" resized to end at ${newEnd}`);
+    }
+
+    // Update your backend
+    await fetch(`/api/events/${event.id}`, {
+      method: 'PATCH',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({
+        start: newStart.toISOString(),
+        end: newEnd.toISOString(),
+        allDay: event.allDay
+      })
+    });
+  }
+});
+```
+
+### Moving Events (`enableDragDrop`)
+
+**How It Works:**
+- **Drag Initiation**: Click and hold on an event, then move at least 5px or wait 150ms
+- **Visual Feedback**: The event follows your cursor while dragging
+- **Snap to Grid**: Events snap to 15-minute intervals in week/day views
+- **Drop**: Release to drop the event at the new date/time
+- **Cancel**: Press ESC to cancel the drag operation
+- **Duration Preservation**: Events maintain their duration when moved
+- **Touch Support**: Full support for mobile/tablet touch gestures
+
+**Cross-Boundary Conversion:**
+
+When dragging events between different sections:
+
+**Timed Event → All-Day Section (Week/Day Views):**
+- Converts to an all-day event
+- Preserves the day span
+
+**All-Day Event → Timed Section (Week/Day Views):**
+- Converts to a timed event
+- Default duration: 1 hour
+- Snaps to the time slot where dropped
+
+**Month View:**
+- Events maintain their original type (all-day stays all-day, timed stays timed)
+- Timed events preserve their original time of day
+
+### Resizing Events (`enableResize`)
+
+**Horizontal Resize (All-Day Events):**
+- **Visual Indicator**: Small vertical line appears on the right edge when hovering
+- **How It Works**: Drag the right edge to change the number of days the event spans
+- **Available In**: Month view, week/day all-day sections
+- **Minimum**: 1 day
+
+**Vertical Resize (Timed Events):**
+- **Visual Indicator**: Small horizontal line appears at the bottom when hovering
+- **How It Works**: Drag the bottom edge to change the end time
+- **Available In**: Week/day timed sections
+- **Snap to Grid**: 15-minute intervals
+- **Minimum**: 15 minutes
+- **Live Feedback**: Time display updates to show start and end times as you drag
+
+### Callback Parameters
+
+The `onEventDrop` callback receives the same parameters for both move and resize operations:
+
+| Parameter | Type | Description |
+|-----------|------|-------------|
+| `event` | Object | The updated event object (with new start/end) |
+| `oldStart` | Date | Original start date/time |
+| `oldEnd` | Date | Original end date/time |
+| `newStart` | Date | New start date/time |
+| `newEnd` | Date | New end date/time |
+
+**Detecting Operation Type:**
+- **Move**: `oldStart !== newStart`
+- **Resize**: `oldStart === newStart` and `oldEnd !== newEnd`
+
+### Important Notes
+
+- The calendar updates the event internally before firing the callback
+- You **must** update your backend in the `onEventDrop` callback
+- If the backend update fails, call `calendar.refresh()` to revert to the previous state
+- Both features are disabled in list view (read-only)
+- You can enable one, both, or neither feature independently
+
+## Month View Timed Event Display Style
+
+The `monthTimedEventStyle` option controls how timed events are displayed in month view:
+
+### List Style (Default: `'list'`)
+Schedule-style display with horizontal layout:
+- **Colored dot**: Shows event color as a small circle
+- **Time**: Displays start time (if `showTimeInItems` is enabled)
+- **Title**: Event title truncated with ellipsis if too long
+- **Compact**: Clean, minimal appearance similar to schedule apps
+
+```javascript
+const calendar = new SimpleCalendarJs('#calendar', {
+  monthTimedEventStyle: 'list',  // Default
+  showTimeInItems: true           // Shows time next to dot
+});
+```
+
+### Block Style (`'block'`)
+Traditional calendar block display:
+- **Colored Background**: Full event background in event color
+- **Time Display**: Start time shown inside block (if enabled)
+- **Classic Look**: Traditional calendar appearance
+
+```javascript
+const calendar = new SimpleCalendarJs('#calendar', {
+  monthTimedEventStyle: 'block'
+});
+```
+
+**Note**: This option only affects timed events in month view. All-day events always display as blocks, and week/day views always use block style with duration-based heights.
 
 ## API Methods
 
@@ -869,6 +1009,9 @@ Example with a complete brand color scheme:
 - `--cal-tooltip-bg`, `--cal-tooltip-text`, `--cal-tooltip-border` - Tooltip colors
 - `--cal-tooltip-max-width`, `--cal-tooltip-padding`, `--cal-tooltip-radius` - Tooltip sizing
 - `--cal-tooltip-font-size`, `--cal-tooltip-offset` - Tooltip typography
+
+**Loading Overlay:**
+- `--cal-loading-bg` - Loading spinner overlay background (default: `rgba(255, 255, 255, 0.7)` in light mode, `rgba(31, 41, 55, 0.7)` in dark mode)
 
 All styles are scoped under `.uc-calendar` to prevent conflicts with your existing CSS.
 

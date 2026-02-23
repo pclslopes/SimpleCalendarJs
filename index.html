@@ -250,11 +250,6 @@
       overflow: auto;
     }
 
-    #cal {
-      flex: 1;
-      min-height: 580px;
-    }
-
     /* ---- Log panel ---- */
     .log-panel {
       background: #fff;
@@ -788,6 +783,34 @@
       </div>
 
       <div class="option-group">
+        <span class="option-label">Enable Drag & Drop</span>
+        <div style="display:flex;align-items:center;gap:8px;">
+          <button class="opt-toggle-track" id="opt-enable-drag" role="switch" aria-checked="false">
+            <span class="opt-toggle-thumb"></span>
+          </button>
+          <span class="opt-toggle-label" id="opt-enable-drag-label">Off</span>
+        </div>
+      </div>
+
+      <div class="option-group">
+        <span class="option-label">Enable Resize</span>
+        <div style="display:flex;align-items:center;gap:8px;">
+          <button class="opt-toggle-track" id="opt-enable-resize" role="switch" aria-checked="false">
+            <span class="opt-toggle-thumb"></span>
+          </button>
+          <span class="opt-toggle-label" id="opt-enable-resize-label">Off</span>
+        </div>
+      </div>
+
+      <div class="option-group">
+        <span class="option-label">Month Timed Event Style</span>
+        <select class="option-select" id="opt-month-timed-style">
+          <option value="list" selected>List (dot + time + title)</option>
+          <option value="block">Block (colored background)</option>
+        </select>
+      </div>
+
+      <div class="option-group">
         <span class="option-label">Enabled Views</span>
         <div class="checkbox-group">
           <div class="checkbox-row" data-view="month">
@@ -992,6 +1015,9 @@
       showYearPicker: true,
       showViewSwitcher: true,
       enabledViews: ['month', 'week', 'day', 'list'],
+      enableDragDrop: false,
+      enableResize: false,
+      monthTimedEventStyle: 'list',
     };
 
     let cal = null;
@@ -1025,6 +1051,24 @@
         },
         onNavigate: (start, end) => {
           log('nav', 'tag-nav', `Navigated → ${fmtFull(start)} – ${fmtFull(end)}`);
+        },
+        onEventDrop: (event, oldStart, oldEnd, newStart, newEnd) => {
+          // Detect if this is a resize (start unchanged) or move (start changed)
+          const isResize = oldStart.getTime() === newStart.getTime();
+
+          if (isResize) {
+            log('drop', 'tag-event', `Resized "${event.title}" from ${fmt(oldEnd)} to ${fmt(newEnd)}`);
+          } else {
+            log('drop', 'tag-event', `Moved "${event.title}" from ${fmtFull(oldStart)} to ${fmtFull(newStart)}`);
+          }
+
+          // Update the source data so fetchEvents returns updated data
+          const sourceEvent = SAMPLE_EVENTS.find(e => e.id === event.id);
+          if (sourceEvent) {
+            sourceEvent.start = newStart.toISOString();
+            sourceEvent.end = newEnd.toISOString();
+            sourceEvent.allDay = event.allDay;
+          }
         },
       });
 
@@ -1292,6 +1336,39 @@
       toggleShowViewSwitcher.setAttribute('aria-checked', opts.showViewSwitcher);
       labelShowViewSwitcher.textContent = opts.showViewSwitcher ? 'On' : 'Off';
       log('opt', 'tag-opt', `showViewSwitcher → ${opts.showViewSwitcher}`);
+      createCalendar();
+    });
+
+    // Enable Drag & Drop
+    const toggleEnableDrag = document.getElementById('opt-enable-drag');
+    const labelEnableDrag  = document.getElementById('opt-enable-drag-label');
+
+    toggleEnableDrag.addEventListener('click', () => {
+      opts.enableDragDrop = !opts.enableDragDrop;
+      toggleEnableDrag.classList.toggle('on', opts.enableDragDrop);
+      toggleEnableDrag.setAttribute('aria-checked', opts.enableDragDrop);
+      labelEnableDrag.textContent = opts.enableDragDrop ? 'On' : 'Off';
+      log('opt', 'tag-opt', `enableDragDrop → ${opts.enableDragDrop}`);
+      createCalendar();
+    });
+
+    // Enable Resize
+    const toggleEnableResize = document.getElementById('opt-enable-resize');
+    const labelEnableResize  = document.getElementById('opt-enable-resize-label');
+
+    toggleEnableResize.addEventListener('click', () => {
+      opts.enableResize = !opts.enableResize;
+      toggleEnableResize.classList.toggle('on', opts.enableResize);
+      toggleEnableResize.setAttribute('aria-checked', opts.enableResize);
+      labelEnableResize.textContent = opts.enableResize ? 'On' : 'Off';
+      log('opt', 'tag-opt', `enableResize → ${opts.enableResize}`);
+      createCalendar();
+    });
+
+    // Month Timed Event Style
+    document.getElementById('opt-month-timed-style').addEventListener('change', e => {
+      opts.monthTimedEventStyle = e.target.value;
+      log('opt', 'tag-opt', `monthTimedEventStyle → "${opts.monthTimedEventStyle}"`);
       createCalendar();
     });
 

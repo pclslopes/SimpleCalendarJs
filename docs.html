@@ -277,6 +277,8 @@
       <a href="#callbacks">Callbacks</a>
       <a href="#timezones">Timezones</a>
       <a href="#tooltips">Tooltips</a>
+      <a href="#dragdrop">Drag and Drop</a>
+      <a href="#timed-event-style">Timed Event Style</a>
       <a href="#listview">List View</a>
       <a href="#methods">Methods</a>
       <a href="#preferences">Preferences</a>
@@ -480,6 +482,24 @@ const calendar = new SimpleCalendarJs('#calendar', {
               <td><code>true</code></td>
               <td>Show/hide event tooltips on hover</td>
             </tr>
+            <tr>
+              <td><code>enableDragDrop</code></td>
+              <td>Boolean</td>
+              <td><code>false</code></td>
+              <td>Enable drag and drop to move events</td>
+            </tr>
+            <tr>
+              <td><code>enableResize</code></td>
+              <td>Boolean</td>
+              <td><code>false</code></td>
+              <td>Enable resizing events to change duration</td>
+            </tr>
+            <tr>
+              <td><code>monthTimedEventStyle</code></td>
+              <td>String</td>
+              <td><code>'list'</code></td>
+              <td>Display style for timed events in month view: <code>'list'</code> (schedule format) or <code>'block'</code> (traditional blocks)</td>
+            </tr>
           </tbody>
         </table>
       </div>
@@ -563,6 +583,11 @@ new SimpleCalendarJs('#calendar', {
               <td><code>onNavigate</code></td>
               <td><code>(start: Date, end: Date)</code></td>
               <td>Called when navigating to a different date range</td>
+            </tr>
+            <tr>
+              <td><code>onEventDrop</code></td>
+              <td><code>(event: Object, oldStart: Date, oldEnd: Date, newStart: Date, newEnd: Date)</code></td>
+              <td>Called when an event is dropped after being dragged</td>
             </tr>
           </tbody>
         </table>
@@ -790,6 +815,188 @@ new SimpleCalendarJs('#calendar', {
 
       <div class="note">
         <p><strong>Limitations:</strong> Tooltips display plain text only (no HTML rendering). Special characters are automatically escaped for security. Maximum width is 250px by default (customizable via CSS variables).</p>
+      </div>
+    </section>
+
+    <!-- Drag and Drop -->
+    <section id="dragdrop" class="section">
+      <h2>Drag and Drop</h2>
+      <p>SimpleCalendarJs supports drag and drop for moving events and resizing them to change their duration.</p>
+
+      <h3>Configuration</h3>
+      <pre><code>const calendar = new SimpleCalendarJs('#calendar', {
+  enableDragDrop: true,  // Enable moving events
+  enableResize: true,     // Enable resizing events
+
+  onEventDrop: (event, oldStart, oldEnd, newStart, newEnd) => {
+    // Detect if this is a move or resize
+    const isMoved = oldStart.getTime() !== newStart.getTime();
+    const isResized = oldEnd.getTime() !== newEnd.getTime() && !isMoved;
+
+    if (isMoved) {
+      console.log(`Event "${event.title}" moved to ${newStart}`);
+    } else if (isResized) {
+      console.log(`Event "${event.title}" resized to end at ${newEnd}`);
+    }
+
+    // Update your backend
+    await fetch(`/api/events/${event.id}`, {
+      method: 'PATCH',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({
+        start: newStart.toISOString(),
+        end: newEnd.toISOString(),
+        allDay: event.allDay
+      })
+    });
+  }
+});</code></pre>
+
+      <h3>Moving Events (<code>enableDragDrop</code>)</h3>
+      <p><strong>How It Works:</strong></p>
+      <ul>
+        <li><strong>Drag Initiation:</strong> Click and hold on an event, then move at least 5px or wait 150ms</li>
+        <li><strong>Visual Feedback:</strong> The event follows your cursor while dragging</li>
+        <li><strong>Snap to Grid:</strong> Events snap to 15-minute intervals in week/day views</li>
+        <li><strong>Drop:</strong> Release to drop the event at the new date/time</li>
+        <li><strong>Cancel:</strong> Press ESC to cancel the drag operation</li>
+        <li><strong>Duration Preservation:</strong> Events maintain their duration when moved</li>
+        <li><strong>Touch Support:</strong> Full support for mobile/tablet touch gestures</li>
+      </ul>
+
+      <p><strong>Cross-Boundary Conversion:</strong></p>
+      <p>When dragging events between different sections:</p>
+
+      <p><strong>Timed Event → All-Day Section (Week/Day Views):</strong></p>
+      <ul>
+        <li>Converts to an all-day event</li>
+        <li>Preserves the day span</li>
+      </ul>
+
+      <p><strong>All-Day Event → Timed Section (Week/Day Views):</strong></p>
+      <ul>
+        <li>Converts to a timed event</li>
+        <li>Default duration: 1 hour</li>
+        <li>Snaps to the time slot where dropped</li>
+      </ul>
+
+      <p><strong>Month View:</strong></p>
+      <ul>
+        <li>Events maintain their original type (all-day stays all-day, timed stays timed)</li>
+        <li>Timed events preserve their original time of day</li>
+      </ul>
+
+      <h3>Resizing Events (<code>enableResize</code>)</h3>
+
+      <p><strong>Horizontal Resize (All-Day Events):</strong></p>
+      <ul>
+        <li><strong>Visual Indicator:</strong> Small vertical line appears on the right edge when hovering</li>
+        <li><strong>How It Works:</strong> Drag the right edge to change the number of days the event spans</li>
+        <li><strong>Available In:</strong> Month view, week/day all-day sections</li>
+        <li><strong>Minimum:</strong> 1 day</li>
+      </ul>
+
+      <p><strong>Vertical Resize (Timed Events):</strong></p>
+      <ul>
+        <li><strong>Visual Indicator:</strong> Small horizontal line appears at the bottom when hovering</li>
+        <li><strong>How It Works:</strong> Drag the bottom edge to change the end time</li>
+        <li><strong>Available In:</strong> Week/day timed sections</li>
+        <li><strong>Snap to Grid:</strong> 15-minute intervals</li>
+        <li><strong>Minimum:</strong> 15 minutes</li>
+        <li><strong>Live Feedback:</strong> Time display updates to show start and end times as you drag</li>
+      </ul>
+
+      <h3>Callback Parameters</h3>
+      <p>The <code>onEventDrop</code> callback receives the same parameters for both move and resize operations:</p>
+
+      <table>
+        <thead>
+          <tr>
+            <th>Parameter</th>
+            <th>Type</th>
+            <th>Description</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr>
+            <td><code>event</code></td>
+            <td>Object</td>
+            <td>The updated event object (with new start/end)</td>
+          </tr>
+          <tr>
+            <td><code>oldStart</code></td>
+            <td>Date</td>
+            <td>Original start date/time</td>
+          </tr>
+          <tr>
+            <td><code>oldEnd</code></td>
+            <td>Date</td>
+            <td>Original end date/time</td>
+          </tr>
+          <tr>
+            <td><code>newStart</code></td>
+            <td>Date</td>
+            <td>New start date/time</td>
+          </tr>
+          <tr>
+            <td><code>newEnd</code></td>
+            <td>Date</td>
+            <td>New end date/time</td>
+          </tr>
+        </tbody>
+      </table>
+
+      <p><strong>Detecting Operation Type:</strong></p>
+      <ul>
+        <li><strong>Move:</strong> <code>oldStart !== newStart</code></li>
+        <li><strong>Resize:</strong> <code>oldStart === newStart</code> and <code>oldEnd !== newEnd</code></li>
+      </ul>
+
+      <div class="note">
+        <p><strong>Important Notes:</strong></p>
+        <ul>
+          <li>The calendar updates the event internally before firing the callback</li>
+          <li>You <strong>must</strong> update your backend in the <code>onEventDrop</code> callback</li>
+          <li>If the backend update fails, call <code>calendar.refresh()</code> to revert to the previous state</li>
+          <li>Both features are disabled in list view (read-only)</li>
+          <li>You can enable one, both, or neither feature independently</li>
+        </ul>
+      </div>
+    </section>
+
+    <!-- Month View Timed Event Display Style -->
+    <section id="timed-event-style" class="section">
+      <h2>Month View Timed Event Display Style</h2>
+      <p>The <code>monthTimedEventStyle</code> option controls how timed events are displayed in month view:</p>
+
+      <h3>List Style (Default: <code>'list'</code>)</h3>
+      <p>Schedule-style display with horizontal layout:</p>
+      <ul>
+        <li><strong>Colored dot</strong>: Shows event color as a small circle</li>
+        <li><strong>Time</strong>: Displays start time (if <code>showTimeInItems</code> is enabled)</li>
+        <li><strong>Title</strong>: Event title truncated with ellipsis if too long</li>
+        <li><strong>Compact</strong>: Clean, minimal appearance similar to schedule apps</li>
+      </ul>
+
+      <pre><code>const calendar = new SimpleCalendarJs('#calendar', {
+  monthTimedEventStyle: 'list',  // Default
+  showTimeInItems: true           // Shows time next to dot
+});</code></pre>
+
+      <h3>Block Style (<code>'block'</code>)</h3>
+      <p>Traditional calendar block display:</p>
+      <ul>
+        <li><strong>Colored Background</strong>: Full event background in event color</li>
+        <li><strong>Time Display</strong>: Start time shown inside block (if enabled)</li>
+        <li><strong>Classic Look</strong>: Traditional calendar appearance</li>
+      </ul>
+
+      <pre><code>const calendar = new SimpleCalendarJs('#calendar', {
+  monthTimedEventStyle: 'block'
+});</code></pre>
+
+      <div class="note">
+        <p><strong>Note:</strong> This option only affects timed events in month view. All-day events always display as blocks, and week/day views always use block style with duration-based heights.</p>
       </div>
     </section>
 
@@ -1269,6 +1476,11 @@ calendar._root.classList.toggle('uc-dark', isDark);</code></pre>
               <td><code>--cal-tooltip-*</code></td>
               <td>Tooltips</td>
               <td>Tooltip colors, sizing, typography</td>
+            </tr>
+            <tr>
+              <td><code>--cal-loading-bg</code></td>
+              <td>Loading</td>
+              <td>Loading spinner overlay background (default: <code>rgba(255, 255, 255, 0.7)</code> in light mode, <code>rgba(31, 41, 55, 0.7)</code> in dark mode)</td>
             </tr>
           </tbody>
         </table>
