@@ -2,8 +2,8 @@
 
 A lightweight, zero-dependency JavaScript calendar component with internationalization support and framework wrappers for React, Vue, and Angular.
 
-![Version](https://img.shields.io/badge/version-3.0.5-blue.svg)
-![License](https://img.shields.io/badge/license-See%20LICENSE-green.svg)
+[![npm version](https://img.shields.io/npm/v/simple-calendar-js)](https://www.npmjs.com/package/simple-calendar-js)
+[![license](https://img.shields.io/npm/l/simple-calendar-js)](LICENSE)
 
 ## Features
 
@@ -17,7 +17,7 @@ A lightweight, zero-dependency JavaScript calendar component with internationali
 - **Responsive Design** - Adapts to any screen size
 - **Customizable Styling** - CSS custom properties for easy theming
 - **Accessible** - Semantic HTML with proper ARIA attributes
-- **Small Bundle Size** - ~22KB minified JS, ~14KB minified CSS
+- **Small Bundle Size** - ~42KB minified JS + ~20KB CSS (~15KB total gzipped)
 
 ## Installation
 
@@ -1130,6 +1130,7 @@ For commercial licensing inquiries: simplecalendarjs@gmail.com
 
 - **Documentation**: [docs.html](docs.html)
 - **Demo**: [index.html](index.html)
+- **Changelog**: [CHANGELOG.md](CHANGELOG.md)
 - **Repository**: [github.com/pclslopes/SimpleCalendarJs](https://github.com/pclslopes/SimpleCalendarJs)
 - **NPM**: [npmjs.com/package/simple-calendar-js](https://www.npmjs.com/package/simple-calendar-js)
 - **Website**: [simplecalendarjs.com](https://www.simplecalendarjs.com)
