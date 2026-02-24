@@ -1,5 +1,5 @@
 /**
- * SimpleCalendarJs v3.0.5
+ * SimpleCalendarJs v3.0.6
  * A clean, modern, and feature-rich JavaScript calendar component with zero dependencies
  *
  * @author Pedro Lopes <simplecalendarjs@gmail.com>
@@ -372,7 +372,7 @@
           showViewSwitcher: true,
           showTooltips: true,
           showBorder: true,
-          maxEventsPerCell: 3,
+          maxEventsPerCell: -1,
           listDaysForward: 30,
           enabledViews: ['month', 'week', 'day'],
           enableDragDrop: false,
@@ -442,6 +442,9 @@
           this._root.setAttribute('data-resize-enabled', 'true');
         }
       }
+
+      // Build the shell once during initialization
+      this._root.innerHTML = this._buildShell();
 
       this._fetchAndRender();
       this._startNowUpdater();
@@ -555,8 +558,8 @@
     }
 
     async _fetchAndRender() {
-      // Build the shell immediately (updates toolbar title + clears view)
-      this._root.innerHTML = this._buildShell();
+      // Update toolbar only (don't rebuild entire shell)
+      this._updateToolbar();
 
       if (!this._opts.fetchEvents) {
         this._renderView();
@@ -630,6 +633,10 @@
         this._root.classList.add('uc-unlimited-events');
         // Remove cell min-height override for unlimited mode
         this._root.style.removeProperty('--cal-cell-min-height');
+      } else if (this._opts.maxEventsPerCell === -1) {
+        this._root.classList.remove('uc-unlimited-events');
+        // Auto-calculate mode: use default CSS value, don't override
+        this._root.style.removeProperty('--cal-cell-min-height');
       } else {
         this._root.classList.remove('uc-unlimited-events');
         // Set cell min-height based on maxEventsPerCell to match maximum row height
@@ -683,6 +690,18 @@
         </div>
         <div class="uc-view-container"></div>
       `;
+    }
+
+    _updateToolbar() {
+      const toolbar = this._root.querySelector('.uc-toolbar');
+      if (toolbar) {
+        const temp = document.createElement('div');
+        temp.innerHTML = this._buildToolbar();
+        const newToolbar = temp.firstElementChild;
+        if (newToolbar) {
+          toolbar.replaceWith(newToolbar);
+        }
+      }
     }
 
     _buildToolbar() {
@@ -857,7 +876,24 @@
 
     _buildWeekRow(weekDates, allEvents) {
       const curMonth = this._date.getMonth();
-      const MAX = this._opts.maxEventsPerCell === 0 ? Infinity : this._opts.maxEventsPerCell;
+
+      // Calculate MAX based on maxEventsPerCell option
+      let MAX;
+      if (this._opts.maxEventsPerCell === 0) {
+        MAX = Infinity; // Show all events
+      } else if (this._opts.maxEventsPerCell === -1) {
+        // Auto-calculate based on cell height
+        // Get the computed cell min-height (default is 112px from CSS)
+        const computedStyle = getComputedStyle(this._root);
+        const cellMinHeight = parseInt(computedStyle.getPropertyValue('--cal-cell-min-height') || '112');
+        // Formula: (cellHeight - headerHeight - moreLink) / eventHeightWithGap
+        // cellHeight - 30 (header) - 28 (+N more space) / 24 (event + gap)
+        MAX = Math.floor((cellMinHeight - 30 - 28) / 24);
+        // Ensure at least 1 event is shown
+        MAX = Math.max(1, MAX);
+      } else {
+        MAX = this._opts.maxEventsPerCell; // Use specified number
+      }
 
       // Separate multi-day from single-day events
       const multiDay = allEvents.filter(isMultiDay);
@@ -1146,7 +1182,7 @@
                style="left:calc(${left}% + 2px);width:calc(${width}% - 4px);top:${topCss};background:${esc(color)};border-radius:${rl} ${rr} ${rr} ${rl};"
                data-event-id="${esc(event.id)}" data-action="event-click"
                ${tooltipAttr}>
-            ${isStart ? `<span class="uc-event-title">${esc(event.title)}</span>` : '&nbsp;'}
+            <span class="uc-event-title">${esc(event.title)}</span>
             ${resizeHandle}
           </div>`;
       }

@@ -168,7 +168,7 @@ export class CalendarComponent {
 | `showTimeInItems` | boolean | `true` | Show time in event items |
 | `showGridLines` | boolean | `true` | Show calendar grid lines |
 | `showBorder` | boolean | `true` | Show calendar outer border |
-| `maxEventsPerCell` | number | `3` | Maximum events per cell in month view before showing "+N more". Set to `0` for unlimited (show all events) |
+| `maxEventsPerCell` | number | `-1` | Maximum events per cell in month view. `-1` = auto-calculate based on cell height (responsive), `0` = unlimited (show all events), `1+` = show exactly that number |
 | `showToolbar` | boolean | `true` | Show the toolbar |
 | `showTodayButton` | boolean | `true` | Show "Today" button |
 | `showNavigation` | boolean | `true` | Show prev/next navigation arrows |

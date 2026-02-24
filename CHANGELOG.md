@@ -7,6 +7,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+No unreleased changes yet.
+
 ## [3.0.6] - 2026-02-24
 
 ### Added
@@ -17,6 +19,22 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Touch support for drag and drop on mobile/tablet devices
 - Visual feedback during drag operations with 15-minute snap-to-grid in week/day views
 - Cross-boundary conversion (timed ↔ all-day events when dragging between sections)
+- Auto-calculate feature for `maxEventsPerCell`: set to `-1` to automatically calculate how many events fit based on cell height
+
+### Changed
+- **`maxEventsPerCell` default changed from `3` to `-1`** (auto-calculate mode)
+  - `-1` = Auto-calculate based on cell height (responsive, adapts to calendar size)
+  - `0` = Show all events, cells expand infinitely
+  - `1+` = Show exactly that number, rest in "+N more"
+- Week, day, and list views now have a max-height of 650px and scroll content while keeping headers and toolbar fixed in place
+- Month view maintains its natural expanding height based on number of weeks and events per cell
+- All scrollable views use consistent custom scrollbar styling
+- Calendar adapts to container height: if you set a custom height on the container div, week/day/list views will respect it
+- Week/day view all-day events now always display titles on continuation segments (matches day view behavior)
+
+### Fixed
+- List view sticky date headers now have opaque background to prevent events showing through when scrolling
+- Calendar no longer rebuilds entire shell during event fetching, preventing layout shift and page content jumping
 
 ## [3.0.5] - 2026-02-23
 

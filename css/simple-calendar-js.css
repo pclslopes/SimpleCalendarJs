@@ -1,5 +1,5 @@
 /**
- * SimpleCalendarJs v3.0.5 — simple-calendar-js.css
+ * SimpleCalendarJs v3.0.6 — simple-calendar-js.css
  * A clean, modern, and feature-rich JavaScript calendar component with zero dependencies
  *
  * @author Pedro Lopes <simplecalendarjs@gmail.com>
@@ -13,6 +13,7 @@
 /* ===== CUSTOM PROPERTIES (Theming Tokens) ===== */
 :root {
   --cal-bg:                  #ffffff;
+  --cal-bg-secondary:        #f9fafb;
   --cal-text:                #111827;
   --cal-text-subtle:         #6b7280;
   --cal-text-muted:          #9ca3af;
@@ -74,11 +75,10 @@
   background: var(--cal-bg);
   border: 1px solid var(--cal-border);
   border-radius: var(--cal-radius);
-  overflow: visible;
+  overflow: hidden;
   display: flex;
   flex-direction: column;
   position: relative;
-  min-height: 500px;
   -webkit-font-smoothing: antialiased;
 }
 
@@ -573,8 +573,8 @@
 .uc-day-view {
   display: flex;
   flex-direction: column;
-  flex: 1;
-  overflow: visible;
+  max-height: 650px;
+  overflow: hidden;
   border-radius: 0 0 var(--cal-radius) var(--cal-radius);
 }
 
@@ -875,8 +875,24 @@
 
 .uc-list-view {
   padding: 0;
-  overflow: visible;
+  max-height: 650px;
+  overflow-y: auto;
+  overflow-x: hidden;
   border-radius: 0 0 var(--cal-radius) var(--cal-radius);
+}
+
+/* Scrollbar styling for list view */
+.uc-list-view::-webkit-scrollbar {
+  width: 6px;
+}
+
+.uc-list-view::-webkit-scrollbar-track {
+  background: transparent;
+}
+
+.uc-list-view::-webkit-scrollbar-thumb {
+  background: var(--cal-border-strong);
+  border-radius: 3px;
 }
 
 .uc-list-empty {
@@ -1167,6 +1183,7 @@
 .uc-calendar.uc-dark,
 .uc-dark .uc-calendar {
   --cal-bg:              #1f2937;
+  --cal-bg-secondary:    #111827;
   --cal-text:            #f9fafb;
   --cal-text-subtle:     #9ca3af;
   --cal-text-muted:      #6b7280;

@@ -414,8 +414,8 @@ const calendar = new SimpleCalendarJs('#calendar', {
             <tr>
               <td><code>maxEventsPerCell</code></td>
               <td>Number</td>
-              <td><code>3</code></td>
-              <td>Maximum events per cell in month view before showing "+N more". Set to <code>0</code> for unlimited (show all events)</td>
+              <td><code>-1</code></td>
+              <td>Maximum events per cell in month view. <code>-1</code> = auto-calculate based on cell height (responsive), <code>0</code> = unlimited (show all events), <code>1+</code> = show exactly that number</td>
             </tr>
           </tbody>
         </table>

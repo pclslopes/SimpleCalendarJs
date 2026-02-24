@@ -712,8 +712,8 @@
 
       <div class="option-group">
         <span class="option-label">Max Events Per Cell</span>
-        <input type="number" class="option-select" id="opt-max-events" min="0" max="20" value="3" style="width: 80px; padding: 6px 10px;">
-        <span style="font-size: 11px; color: var(--text-muted); margin-left: 8px;">(0 = unlimited)</span>
+        <input type="number" class="option-select" id="opt-max-events" min="-1" max="20" value="-1" style="width: 80px; padding: 6px 10px;">
+        <span style="font-size: 11px; color: var(--text-muted); margin-left: 8px;">(-1 = auto, 0 = unlimited)</span>
       </div>
 
       <div class="option-group">
@@ -1006,7 +1006,7 @@
       showGridLines: true,
       showBorder: true,
       showTooltips: true,
-      maxEventsPerCell: 3,
+      maxEventsPerCell: -1,
       listDaysForward: 30,
       showToolbar: true,
       showTodayButton: true,
@@ -1238,12 +1238,13 @@
 
     maxEventsInput.addEventListener('change', () => {
       const value = parseInt(maxEventsInput.value, 10);
-      if (isNaN(value) || value < 0) {
+      if (isNaN(value) || value < -1) {
         maxEventsInput.value = opts.maxEventsPerCell;
         return;
       }
       opts.maxEventsPerCell = value;
-      log('opt', 'tag-opt', `maxEventsPerCell → ${opts.maxEventsPerCell}${value === 0 ? ' (unlimited)' : ''}`);
+      const modeLabel = value === 0 ? ' (unlimited)' : value === -1 ? ' (auto)' : '';
+      log('opt', 'tag-opt', `maxEventsPerCell → ${opts.maxEventsPerCell}${modeLabel}`);
       createCalendar();
     });
 
