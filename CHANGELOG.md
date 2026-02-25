@@ -9,6 +9,12 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 No unreleased changes yet.
 
+## [3.0.8] - 2026-02-25
+
+### Changed
+- Updated framework wrappers (React, Vue, Angular) to v3.0.8
+- Removed `maxEventsPerCell` prop from all framework wrappers (deprecated in v3.0.7)
+
 ## [3.0.7] - 2026-02-25
 
 ### Breaking Changes

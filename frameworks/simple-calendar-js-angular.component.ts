@@ -1,5 +1,5 @@
 /**
- * SimpleCalendarJs v3.0.5 — Angular Wrapper
+ * SimpleCalendarJs v3.0.8 — Angular Wrapper
  * A clean, modern, and feature-rich JavaScript calendar component with zero dependencies
  *
  * @author Pedro Lopes <simplecalendarjs@gmail.com>
@@ -123,7 +123,6 @@ const INIT_PROPS = [
   'showViewSwitcher',
   'showTooltips',
   'showBorder',
-  'maxEventsPerCell',
   'listDaysForward',
   'enabledViews',
 ];
@@ -160,7 +159,6 @@ export class SimpleCalendarJsComponent implements OnInit, OnDestroy, OnChanges, 
   @Input() showViewSwitcher: boolean = true;
   @Input() showTooltips: boolean = true;
   @Input() showBorder: boolean = true;
-  @Input() maxEventsPerCell: number = 3;
   @Input() listDaysForward: number = 30;
   @Input() enabledViews: string[] = ['month', 'week', 'day'];
 

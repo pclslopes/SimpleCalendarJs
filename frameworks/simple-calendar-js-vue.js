@@ -1,5 +1,5 @@
 /**
- * SimpleCalendarJs v3.0.5 — Vue 3 Wrapper
+ * SimpleCalendarJs v3.0.8 — Vue 3 Wrapper
  * A clean, modern, and feature-rich JavaScript calendar component with zero dependencies
  *
  * @author Pedro Lopes <simplecalendarjs@gmail.com>
@@ -60,7 +60,6 @@ const INIT_PROPS = [
   'showViewSwitcher',
   'showTooltips',
   'showBorder',
-  'maxEventsPerCell',
   'listDaysForward',
   'enabledViews',
 ];
@@ -89,7 +88,6 @@ export default defineComponent({
     showViewSwitcher: { type: Boolean, default: true },
     showTooltips: { type: Boolean, default: true },
     showBorder: { type: Boolean, default: true },
-    maxEventsPerCell: { type: Number, default: 3 },
     listDaysForward: { type: Number, default: 30 },
     enabledViews: { type: Array, default: () => ['month', 'week', 'day'] },
 
