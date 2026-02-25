@@ -109,7 +109,8 @@
       display: flex;
       flex-direction: row;
       gap: 0;
-      overflow: hidden;
+      overflow-y: hidden;
+      overflow-x: visible;
     }
 
     /* ---- Options sidebar ---- */
@@ -247,7 +248,9 @@
       padding: 20px;
       gap: 16px;
       min-width: 0;
-      overflow: auto;
+      overflow-y: auto;
+      overflow-x: visible;
+      position: relative;
     }
 
     /* ---- Log panel ---- */
@@ -558,7 +561,7 @@
 
     <!-- Calendar + log -->
     <div class="content-area">
-      <div id="cal"></div>
+      <div id="cal" style="height: 600px; max-width: 100%;"></div>
 
       <div class="log-panel">
         <div class="log-header">
@@ -711,12 +714,6 @@
       </div>
 
       <div class="option-group">
-        <span class="option-label">Max Events Per Cell</span>
-        <input type="number" class="option-select" id="opt-max-events" min="-1" max="20" value="-1" style="width: 80px; padding: 6px 10px;">
-        <span style="font-size: 11px; color: var(--text-muted); margin-left: 8px;">(-1 = auto, 0 = unlimited)</span>
-      </div>
-
-      <div class="option-group">
         <span class="option-label">List Days Forward</span>
         <input type="number" class="option-select" id="opt-list-days" min="1" max="365" value="30" style="width: 80px; padding: 6px 10px;">
         <span style="font-size: 11px; color: var(--text-muted); margin-left: 8px;">(days to show in list view)</span>
@@ -850,6 +847,13 @@
     }
 
     const SAMPLE_EVENTS = [
+      // Previous month events
+      { id: 'prev1', title: 'Training Workshop',    start: d(-25),      end: d(-23),      allDay: true,  color: '#8b5cf6', tooltip: 'Skills development workshop' },
+      { id: 'prev2', title: 'Client Meeting',       start: d(-20, 14, 0), end: d(-20, 15, 30), color: '#0891b2', description: 'Q&A session with key client' },
+      { id: 'prev3', title: 'Team Building',        start: d(-18),      end: d(-18),      allDay: true,  color: '#059669', tooltip: 'Monthly team activity' },
+      { id: 'prev4', title: 'Code Sprint',          start: d(-15, 9, 0), end: d(-15, 17, 0), color: '#4f46e5', description: 'Feature development sprint' },
+
+      // Current month events
       { id: 'md1', title: 'Engineering Offsite',  start: d(-2),       end: d(2),        allDay: true,  color: '#7c3aed', tooltip: 'Team building and strategic planning\nLocation: Mountain View Resort' },
       { id: 'md2', title: 'Company All-Hands',    start: d(5),        end: d(7),        allDay: true,  color: '#0891b2', description: 'Quarterly company-wide meeting\nMain Office Auditorium' },
       { id: 'md3', title: 'Product Launch Week',  start: d(10),       end: d(15),       allDay: true,  color: '#dc2626', tooltip: 'Major product release v3.0\nPR campaign and demos' },
@@ -882,6 +886,12 @@
       { id: 'ov3', title: 'Workshop C',           start: d(6, 11, 0), end: d(6, 12, 0),  color: '#0891b2' },
       { id: 'ov4', title: 'Workshop D',           start: d(6, 13, 0), end: d(6, 14, 0),  color: '#059669' },
       { id: 'ov5', title: 'Workshop E',           start: d(6, 14, 0), end: d(6, 15, 0),  color: '#d97706' },
+
+      // Next month events
+      { id: 'next1', title: 'Strategy Session',     start: d(20),       end: d(22),       allDay: true,  color: '#7c3aed', tooltip: 'Q3 planning and strategy' },
+      { id: 'next2', title: 'Customer Visit',       start: d(25, 10, 0), end: d(25, 16, 0), color: '#dc2626', description: 'Site visit from major client' },
+      { id: 'next3', title: 'Tech Conference',      start: d(28),       end: d(30),       allDay: true,  color: '#4f46e5', tooltip: 'Annual tech conference attendance' },
+      { id: 'next4', title: 'Team Offsite',         start: d(35),       end: d(37),       allDay: true,  color: '#059669', description: 'Summer team retreat' },
     ];
 
     /* ============================================================
@@ -1006,7 +1016,6 @@
       showGridLines: true,
       showBorder: true,
       showTooltips: true,
-      maxEventsPerCell: -1,
       listDaysForward: 30,
       showToolbar: true,
       showTodayButton: true,
@@ -1230,21 +1239,6 @@
       toggleShowTooltips.setAttribute('aria-checked', opts.showTooltips);
       labelShowTooltips.textContent = opts.showTooltips ? 'On' : 'Off';
       log('opt', 'tag-opt', `showTooltips → ${opts.showTooltips}`);
-      createCalendar();
-    });
-
-    // Max Events Per Cell
-    const maxEventsInput = document.getElementById('opt-max-events');
-
-    maxEventsInput.addEventListener('change', () => {
-      const value = parseInt(maxEventsInput.value, 10);
-      if (isNaN(value) || value < -1) {
-        maxEventsInput.value = opts.maxEventsPerCell;
-        return;
-      }
-      opts.maxEventsPerCell = value;
-      const modeLabel = value === 0 ? ' (unlimited)' : value === -1 ? ' (auto)' : '';
-      log('opt', 'tag-opt', `maxEventsPerCell → ${opts.maxEventsPerCell}${modeLabel}`);
       createCalendar();
     });
 

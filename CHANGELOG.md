@@ -9,6 +9,54 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 No unreleased changes yet.
 
+## [3.0.7] - 2026-02-25
+
+### Breaking Changes
+- **Removed `maxEventsPerCell` option** - Calendar now always automatically calculates optimal event display based on available space
+  - Month view cells intelligently adapt to container height
+  - Events are automatically limited based on cell height with "+N more" indicator
+  - Cells flex naturally when container is resized
+  - Simplified API - no manual configuration needed
+
+### Added
+- **Mobile-responsive view switcher** - View buttons transform into compact dropdown menu at screen widths ≤640px
+  - Single icon button (⊞) replaces four view buttons to save toolbar space
+  - Dropdown includes all view options (Month, Week, Day, List) plus Today button
+  - Today button in dropdown shows active state when calendar displays today's date
+  - Automatic breakpoint at 640px width
+- **List view toolbar controls** - Navigation and Today buttons now visible in list view but appear disabled (grayed out)
+  - Maintains visual consistency across all views
+  - Clear indication that navigation doesn't apply to list view
+  - Applies to both desktop toolbar and mobile dropdown
+
+### Changed
+- **Toolbar layout system** - Replaced flexbox with CSS Grid for more stable button positioning
+  - Three equal columns (left buttons, center title, right buttons)
+  - Buttons no longer switch positions or overflow at narrow widths
+  - Date title abbreviates with ellipsis instead of wrapping to new line
+  - Removed all responsive media queries that caused layout shifts
+- **Uniform row heights in month view** - All week rows maintain consistent height in natural sizing mode
+  - Pre-calculates maximum event slots across entire month
+  - Empty rows no longer appear shorter than rows with events
+  - Improved visual consistency and polish
+- **Overflow management** - Strategic use of `overflow-x: clip` prevents horizontal scrollbars while maintaining tooltip visibility
+  - Tooltips can still escape calendar boundaries (via parent `overflow-x: visible`)
+  - No unwanted scrollbars in month, week, or day views
+- **Compact toolbar styling** - Reduced button padding and gaps to maximize space efficiency
+  - All buttons: 4px vertical × 6px horizontal padding (was 5px × 10px)
+  - Toolbar gap: 4px (was 8px)
+  - Font sizes: title 14px, buttons 12px
+- Calendar now always uses `height: 100%` to fill parent container
+- Month view cells flex to fit available space instead of using fixed min-height
+- All views consistently respect container dimensions
+- Removed `--cal-cell-min-height` CSS custom property (no longer needed)
+
+### Fixed
+- Toolbar buttons no longer disappear or overflow off-screen at narrow widths
+- Date title no longer jumps to new line when calendar is resized
+- Horizontal scrollbars no longer appear in month/week/day views
+- Tooltips display correctly on all edges without being clipped
+
 ## [3.0.6] - 2026-02-24
 
 ### Added

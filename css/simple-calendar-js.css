@@ -1,5 +1,5 @@
 /**
- * SimpleCalendarJs v3.0.6 — simple-calendar-js.css
+ * SimpleCalendarJs v3.0.7 — simple-calendar-js.css
  * A clean, modern, and feature-rich JavaScript calendar component with zero dependencies
  *
  * @author Pedro Lopes <simplecalendarjs@gmail.com>
@@ -40,7 +40,6 @@
 
   --cal-time-col-width:      64px;
   --cal-hour-height:         60px;
-  --cal-cell-min-height:     112px;
   --cal-event-height:        22px;
   --cal-event-gap:           2px;
   --cal-header-day-height:   30px;
@@ -75,9 +74,11 @@
   background: var(--cal-bg);
   border: 1px solid var(--cal-border);
   border-radius: var(--cal-radius);
-  overflow: hidden;
+  overflow-x: visible;
+  overflow-y: hidden;
   display: flex;
   flex-direction: column;
+  height: 100%;
   position: relative;
   -webkit-font-smoothing: antialiased;
 }
@@ -92,16 +93,15 @@
 
 /* ===== TOOLBAR ===== */
 .uc-toolbar {
-  display: flex;
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) minmax(0, 1fr) minmax(0, 1fr);
   align-items: center;
-  justify-content: space-between;
   gap: 8px;
-  padding: 10px 14px;
+  padding: 8px 10px;
   background: var(--cal-toolbar-bg);
   border-bottom: 1px solid var(--cal-border);
   border-radius: var(--cal-radius) var(--cal-radius) 0 0;
   flex-shrink: 0;
-  flex-wrap: wrap;
 }
 
 .uc-toolbar-section {
@@ -110,26 +110,41 @@
   gap: 4px;
 }
 
+.uc-toolbar-left {
+  justify-self: start;
+  min-width: 0;
+}
+
+.uc-toolbar-right {
+  justify-self: end;
+  min-width: 0;
+}
+
 .uc-toolbar-center {
-  flex: 1;
-  display: flex;
-  justify-content: center;
-  position: relative;
+  justify-self: center;
+  min-width: 0;
+  overflow: hidden;
 }
 
 .uc-title {
-  font-size: 15px;
+  font-size: 14px;
   font-weight: 600;
   color: var(--cal-text);
   white-space: nowrap;
   letter-spacing: -0.01em;
-  display: flex;
+  display: inline-flex;
   align-items: baseline;
-  gap: 5px;
+  gap: 4px;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  min-width: 0;
 }
 
 .uc-title-main {
   text-transform: capitalize;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  flex-shrink: 1;
 }
 
 /* Clickable year button inside the title */
@@ -138,7 +153,7 @@
   border: none;
   font: inherit;
   font-weight: 600;
-  font-size: 15px;
+  font-size: 14px;
   color: var(--cal-primary);
   cursor: pointer;
   padding: 1px 4px;
@@ -148,6 +163,7 @@
   text-decoration-style: dotted;
   text-underline-offset: 2px;
   transition: background var(--cal-transition), color var(--cal-transition);
+  flex-shrink: 0;
 }
 
 .uc-year-btn:hover,
@@ -246,8 +262,8 @@
   background: var(--cal-bg);
   color: var(--cal-text);
   border-radius: 6px;
-  padding: 5px 10px;
-  font-size: 13px;
+  padding: 4px 6px;
+  font-size: 12px;
   font-family: inherit;
   font-weight: 500;
   cursor: pointer;
@@ -271,10 +287,16 @@
   outline-offset: 2px;
 }
 
+.uc-btn:disabled {
+  opacity: 0.4;
+  cursor: not-allowed;
+  pointer-events: none;
+}
+
 /* Navigation arrow buttons */
 .uc-nav-btn {
   font-size: 18px;
-  padding: 4px 8px;
+  padding: 4px 6px;
   line-height: 1;
   border-color: transparent;
   background: transparent;
@@ -286,7 +308,7 @@
 
 /* Today button */
 .uc-today-btn {
-  padding: 5px 12px;
+  padding: 4px 6px;
 }
 
 .uc-today-btn.uc-active {
@@ -311,7 +333,8 @@
   background: transparent;
   color: var(--cal-text-subtle);
   font-weight: 500;
-  padding: 5px 11px;
+  padding: 4px 6px;
+  font-size: 12px;
 }
 
 .uc-view-btn:last-child {
@@ -328,6 +351,100 @@
   background: var(--cal-primary-light);
   color: var(--cal-primary);
   font-weight: 600;
+}
+
+/* View dropdown (for mobile) */
+.uc-view-dropdown {
+  display: none;
+  position: relative;
+}
+
+.uc-view-dropdown-btn {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 4px 8px;
+  font-size: 16px;
+}
+
+.uc-view-icon {
+  line-height: 1;
+}
+
+.uc-dropdown-menu {
+  display: none;
+  position: absolute;
+  top: calc(100% + 4px);
+  right: 0;
+  background: var(--cal-bg);
+  border: 1px solid var(--cal-border);
+  border-radius: 6px;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+  z-index: 1000;
+  min-width: 120px;
+  overflow: hidden;
+}
+
+.uc-view-dropdown.uc-open .uc-dropdown-menu {
+  display: block;
+}
+
+.uc-dropdown-item {
+  display: block;
+  width: 100%;
+  padding: 8px 12px;
+  background: transparent;
+  border: none;
+  color: var(--cal-text);
+  font-size: 13px;
+  font-family: inherit;
+  text-align: left;
+  cursor: pointer;
+  transition: background var(--cal-transition);
+}
+
+.uc-dropdown-item:hover {
+  background: var(--cal-hover-strong);
+}
+
+.uc-dropdown-item.uc-active {
+  background: var(--cal-primary-light);
+  color: var(--cal-primary);
+  font-weight: 600;
+}
+
+.uc-dropdown-item:disabled {
+  opacity: 0.4;
+  cursor: not-allowed;
+  pointer-events: none;
+}
+
+.uc-dropdown-separator {
+  height: 1px;
+  background: var(--cal-border);
+  margin: 4px 0;
+}
+
+/* Show regular buttons on desktop, dropdown on mobile */
+@media (min-width: 641px) {
+  .uc-view-switcher {
+    display: flex;
+  }
+  .uc-view-dropdown {
+    display: none;
+  }
+}
+
+@media (max-width: 640px) {
+  .uc-view-switcher {
+    display: none;
+  }
+  .uc-view-dropdown {
+    display: block;
+  }
+  .uc-today-btn {
+    display: none;
+  }
 }
 
 /* ===== LOADING SPINNER ===== */
@@ -358,6 +475,7 @@
 /* ===== VIEW CONTAINER ===== */
 .uc-view-container {
   flex: 1;
+  min-height: 0;
   overflow: visible;
   display: flex;
   flex-direction: column;
@@ -374,8 +492,17 @@
   display: flex;
   flex-direction: column;
   flex: 1;
-  overflow: visible;
+  min-height: 0;
+  overflow-x: clip;
+  overflow-y: visible;
   border-radius: 0 0 var(--cal-radius) var(--cal-radius);
+}
+
+/* When height-constrained, clip overflow vertically */
+.uc-calendar[data-height-constrained="true"] .uc-month-view,
+.uc-calendar[data-height-constrained="true"] .uc-month-body {
+  overflow-y: hidden;
+  overflow-x: clip;
 }
 
 /* Day-name header row */
@@ -404,14 +531,17 @@
   flex: 1;
   display: flex;
   flex-direction: column;
-  overflow: visible;
+  min-height: 0;
+  overflow-x: clip;
+  overflow-y: visible;
 }
 
 /* Each week row */
 .uc-week-row {
   flex: 1;
   position: relative;
-  min-height: var(--cal-cell-min-height);
+  min-height: 0;
+  overflow: visible;
   border-bottom: 1px solid var(--cal-border);
 }
 
@@ -427,6 +557,7 @@
   display: grid;
   grid-template-columns: repeat(7, 1fr);
   z-index: 1;
+  overflow: visible;
 }
 
 .uc-day-cell {
@@ -434,7 +565,6 @@
   padding: 4px 6px 4px 6px;
   cursor: pointer;
   transition: background var(--cal-transition);
-  min-height: var(--cal-cell-min-height);
 }
 
 .uc-day-cell:last-child {
@@ -573,9 +703,17 @@
 .uc-day-view {
   display: flex;
   flex-direction: column;
-  max-height: 650px;
-  overflow: hidden;
+  flex: 1;
+  min-height: 0;
+  overflow-x: clip;
+  overflow-y: visible;
   border-radius: 0 0 var(--cal-radius) var(--cal-radius);
+}
+
+/* In natural sizing mode (no height constraint), limit max height */
+.uc-calendar:not([data-height-constrained="true"]) .uc-week-view,
+.uc-calendar:not([data-height-constrained="true"]) .uc-day-view {
+  max-height: 650px;
 }
 
 /* Column header row */
@@ -687,8 +825,9 @@
 /* ===== SCROLLABLE TIME BODY ===== */
 .uc-time-body {
   flex: 1;
+  min-height: 0;
   overflow-y: auto;
-  overflow-x: visible;
+  overflow-x: clip;
   position: relative;
   border-radius: 0 0 var(--cal-radius) var(--cal-radius);
 }
@@ -713,6 +852,7 @@
   flex-direction: row;
   height: calc(24 * var(--cal-hour-height));
   position: relative;
+  max-width: 100%;
 }
 
 /* Time gutter — hour labels */
@@ -875,10 +1015,16 @@
 
 .uc-list-view {
   padding: 0;
-  max-height: 650px;
+  flex: 1;
+  min-height: 0;
   overflow-y: auto;
   overflow-x: hidden;
   border-radius: 0 0 var(--cal-radius) var(--cal-radius);
+}
+
+/* In natural sizing mode (no height constraint), limit max height and scroll */
+.uc-calendar:not([data-height-constrained="true"]) .uc-list-view {
+  max-height: 650px;
 }
 
 /* Scrollbar styling for list view */
@@ -1015,7 +1161,7 @@
   word-wrap: break-word;
   text-align: left;
 
-  z-index: 1000;
+  z-index: 99999;
   pointer-events: none;
 
   opacity: 0;
@@ -1095,24 +1241,6 @@
 
 /* ===== RESPONSIVE ===== */
 @media (max-width: 768px) {
-  .uc-toolbar {
-    padding: 8px 10px;
-  }
-
-  .uc-title {
-    font-size: 14px;
-  }
-
-  .uc-toolbar-center {
-    order: -1;
-    width: 100%;
-    flex: none;
-  }
-
-  .uc-toolbar-section {
-    justify-content: center;
-  }
-
   .uc-view-btn {
     padding: 5px 8px;
     font-size: 12px;
@@ -1121,7 +1249,6 @@
   :root {
     --cal-time-col-width: 52px;
     --cal-hour-height: 52px;
-    --cal-cell-min-height: 88px;
     --cal-event-height: 20px;
   }
 
@@ -1141,15 +1268,6 @@
   }
 }
 
-@media (max-width: 480px) {
-  .uc-today-btn {
-    display: none;
-  }
-
-  .uc-toolbar-section.uc-toolbar-right {
-    gap: 2px;
-  }
-}
 
 /* ===== NO GRID LINES =====
    Add class="uc-no-grid" to remove all grid lines */

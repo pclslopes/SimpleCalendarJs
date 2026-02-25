@@ -3,7 +3,7 @@
 A lightweight, zero-dependency JavaScript calendar component with internationalization support and framework wrappers for React, Vue, and Angular.
 
 [![npm version](https://img.shields.io/npm/v/simple-calendar-js)](https://www.npmjs.com/package/simple-calendar-js)
-[![license](https://img.shields.io/npm/l/simple-calendar-js)](LICENSE)
+[![license](https://img.shields.io/npm/l/simple-calendar-js)](https://unpkg.com/simple-calendar-js/LICENSE)
 
 ## Features
 
@@ -17,7 +17,7 @@ A lightweight, zero-dependency JavaScript calendar component with internationali
 - **Responsive Design** - Adapts to any screen size
 - **Customizable Styling** - CSS custom properties for easy theming
 - **Accessible** - Semantic HTML with proper ARIA attributes
-- **Small Bundle Size** - ~42KB minified JS + ~20KB CSS (~15KB total gzipped)
+- **Small Bundle Size** - ~45KB minified JS + ~22KB CSS (~16KB total gzipped)
 
 ## Installation
 
@@ -168,7 +168,6 @@ export class CalendarComponent {
 | `showTimeInItems` | boolean | `true` | Show time in event items |
 | `showGridLines` | boolean | `true` | Show calendar grid lines |
 | `showBorder` | boolean | `true` | Show calendar outer border |
-| `maxEventsPerCell` | number | `-1` | Maximum events per cell in month view. `-1` = auto-calculate based on cell height (responsive), `0` = unlimited (show all events), `1+` = show exactly that number |
 | `showToolbar` | boolean | `true` | Show the toolbar |
 | `showTodayButton` | boolean | `true` | Show "Today" button |
 | `showNavigation` | boolean | `true` | Show prev/next navigation arrows |
@@ -1125,12 +1124,3 @@ This project is available for personal, educational, and non-commercial use.
 **Commercial use requires a separate license.** See [LICENSE](LICENSE) file for full terms.
 
 For commercial licensing inquiries: simplecalendarjs@gmail.com
-
-## Links
-
-- **Documentation**: [docs.html](docs.html)
-- **Demo**: [index.html](index.html)
-- **Changelog**: [CHANGELOG.md](CHANGELOG.md)
-- **Repository**: [github.com/pclslopes/SimpleCalendarJs](https://github.com/pclslopes/SimpleCalendarJs)
-- **NPM**: [npmjs.com/package/simple-calendar-js](https://www.npmjs.com/package/simple-calendar-js)
-- **Website**: [simplecalendarjs.com](https://www.simplecalendarjs.com)

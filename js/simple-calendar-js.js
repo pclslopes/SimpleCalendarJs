@@ -1,5 +1,5 @@
 /**
- * SimpleCalendarJs v3.0.6
+ * SimpleCalendarJs v3.0.7
  * A clean, modern, and feature-rich JavaScript calendar component with zero dependencies
  *
  * @author Pedro Lopes <simplecalendarjs@gmail.com>
@@ -372,7 +372,6 @@
           showViewSwitcher: true,
           showTooltips: true,
           showBorder: true,
-          maxEventsPerCell: -1,
           listDaysForward: 30,
           enabledViews: ['month', 'week', 'day'],
           enableDragDrop: false,
@@ -446,6 +445,16 @@
       // Build the shell once during initialization
       this._root.innerHTML = this._buildShell();
 
+      // Watch for resize and re-render to recalculate event layout
+      this._resizeObserver = new ResizeObserver(() => {
+        // Debounce to avoid excessive re-renders
+        if (this._resizeTimeout) clearTimeout(this._resizeTimeout);
+        this._resizeTimeout = setTimeout(() => {
+          this._renderView();
+        }, 100);
+      });
+      this._resizeObserver.observe(this._root);
+
       this._fetchAndRender();
       this._startNowUpdater();
     }
@@ -504,6 +513,8 @@
     /** Tear down — removes DOM and clears the interval. */
     destroy() {
       if (this._nowInterval) clearInterval(this._nowInterval);
+      if (this._resizeTimeout) clearTimeout(this._resizeTimeout);
+      if (this._resizeObserver) this._resizeObserver.disconnect();
       if (this._yearOutsideHandler) document.removeEventListener('click', this._yearOutsideHandler);
       this._root.removeEventListener('click', this._onClick);
       this._root.removeEventListener('mouseover', this._onMouseMove);
@@ -628,21 +639,14 @@
       const vc = this._root.querySelector('.uc-view-container');
       if (!vc) return;
 
-      // Update unlimited events class and cell min-height
-      if (this._opts.maxEventsPerCell === 0) {
-        this._root.classList.add('uc-unlimited-events');
-        // Remove cell min-height override for unlimited mode
-        this._root.style.removeProperty('--cal-cell-min-height');
-      } else if (this._opts.maxEventsPerCell === -1) {
-        this._root.classList.remove('uc-unlimited-events');
-        // Auto-calculate mode: use default CSS value, don't override
-        this._root.style.removeProperty('--cal-cell-min-height');
+      // Check if parent container has explicit height constraint (for all views)
+      const parentEl = this._root.parentElement;
+      const hasExplicitHeight = parentEl && parentEl.style.height && parentEl.style.height !== 'auto' && parentEl.style.height !== '';
+
+      if (hasExplicitHeight) {
+        this._root.setAttribute('data-height-constrained', 'true');
       } else {
-        this._root.classList.remove('uc-unlimited-events');
-        // Set cell min-height based on maxEventsPerCell to match maximum row height
-        // Formula: header height (30) + (max events * (event height + gap: 24)) + space for "+N more" (28)
-        const cellMinHeight = 30 + this._opts.maxEventsPerCell * 24 + 28;
-        this._root.style.setProperty('--cal-cell-min-height', `${cellMinHeight}px`);
+        this._root.removeAttribute('data-height-constrained');
       }
 
       if (this._view === 'month') {
@@ -763,11 +767,14 @@
       const dayLabel = getTranslation(locale, 'day');
       const listLabel = getTranslation(locale, 'list');
 
-      // Left section (navigation + today) - hide in list view
+      // Left section (navigation + today)
       let leftSection = '';
-      if ((this._opts.showNavigation || this._opts.showTodayButton) && this._view !== 'list') {
+      if (this._opts.showNavigation || this._opts.showTodayButton) {
+        const isListView = this._view === 'list';
+        const disabledAttr = isListView ? ' disabled' : '';
+
         const navPrev = this._opts.showNavigation
-          ? `<button class="uc-btn uc-nav-btn" data-action="prev" aria-label="Previous">&#8249;</button>`
+          ? `<button class="uc-btn uc-nav-btn" data-action="prev" aria-label="Previous"${disabledAttr}>&#8249;</button>`
           : '';
 
         // Check if we're viewing today
@@ -776,10 +783,10 @@
         const todayActiveClass = isViewingToday ? ' uc-active' : '';
 
         const todayBtn = this._opts.showTodayButton
-          ? `<button class="uc-btn uc-today-btn${todayActiveClass}" data-action="today">${esc(todayLabel)}</button>`
+          ? `<button class="uc-btn uc-today-btn${todayActiveClass}" data-action="today"${disabledAttr}>${esc(todayLabel)}</button>`
           : '';
         const navNext = this._opts.showNavigation
-          ? `<button class="uc-btn uc-nav-btn" data-action="next" aria-label="Next">&#8250;</button>`
+          ? `<button class="uc-btn uc-nav-btn" data-action="next" aria-label="Next"${disabledAttr}>&#8250;</button>`
           : '';
         leftSection = `
           <div class="uc-toolbar-section uc-toolbar-left">
@@ -810,24 +817,47 @@
       if (this._opts.showViewSwitcher) {
         const enabledViews = this._opts.enabledViews;
         const viewButtons = [];
+        const dropdownOptions = [];
+
         if (enabledViews.includes('month')) {
           viewButtons.push(`<button class="uc-btn uc-view-btn${this._view === 'month' ? ' uc-active' : ''}" data-view="month">${esc(monthLabel)}</button>`);
+          dropdownOptions.push(`<button class="uc-dropdown-item${this._view === 'month' ? ' uc-active' : ''}" data-view="month">${esc(monthLabel)}</button>`);
         }
         if (enabledViews.includes('week')) {
           viewButtons.push(`<button class="uc-btn uc-view-btn${this._view === 'week' ? ' uc-active' : ''}" data-view="week">${esc(weekLabel)}</button>`);
+          dropdownOptions.push(`<button class="uc-dropdown-item${this._view === 'week' ? ' uc-active' : ''}" data-view="week">${esc(weekLabel)}</button>`);
         }
         if (enabledViews.includes('day')) {
           viewButtons.push(`<button class="uc-btn uc-view-btn${this._view === 'day' ? ' uc-active' : ''}" data-view="day">${esc(dayLabel)}</button>`);
+          dropdownOptions.push(`<button class="uc-dropdown-item${this._view === 'day' ? ' uc-active' : ''}" data-view="day">${esc(dayLabel)}</button>`);
         }
         if (enabledViews.includes('list')) {
           viewButtons.push(`<button class="uc-btn uc-view-btn${this._view === 'list' ? ' uc-active' : ''}" data-view="list">${esc(listLabel)}</button>`);
+          dropdownOptions.push(`<button class="uc-dropdown-item${this._view === 'list' ? ' uc-active' : ''}" data-view="list">${esc(listLabel)}</button>`);
         }
 
         if (viewButtons.length > 0) {
+          // Add Today button to dropdown with separator
+          const todayLabel = getTranslation(locale, 'today');
+          const isToday = isSameDay(this._date, new Date());
+          const todayActiveClass = isToday ? ' uc-active' : '';
+          const isListView = this._view === 'list';
+          const disabledAttr = isListView ? ' disabled' : '';
+          dropdownOptions.push(`<div class="uc-dropdown-separator"></div>`);
+          dropdownOptions.push(`<button class="uc-dropdown-item${todayActiveClass}" data-action="today"${disabledAttr}>${esc(todayLabel)}</button>`);
+
           rightSection = `
             <div class="uc-toolbar-section uc-toolbar-right">
               <div class="uc-view-switcher">
                 ${viewButtons.join('')}
+              </div>
+              <div class="uc-view-dropdown">
+                <button class="uc-btn uc-view-dropdown-btn" aria-label="View options">
+                  <span class="uc-view-icon">⊞</span>
+                </button>
+                <div class="uc-dropdown-menu">
+                  ${dropdownOptions.join('')}
+                </div>
               </div>
             </div>`;
         }
@@ -864,7 +894,77 @@
       const weeks = [];
       for (let i = 0; i < dates.length; i += 7) weeks.push(dates.slice(i, i + 7));
 
-      const body = weeks.map((wk) => this._buildWeekRow(wk, normEvents)).join('');
+      // Auto-calculate MAX based on container height constraint
+      let maxEvents;
+
+      // Check if parent container has explicit height constraint (inline style only)
+      const parentEl = this._root.parentElement;
+      const hasExplicitHeight = parentEl && parentEl.style.height && parentEl.style.height !== 'auto' && parentEl.style.height !== '';
+
+      if (hasExplicitHeight) {
+        // Container is height-constrained: calculate based on parent's available space
+        const parentHeight = parentEl.clientHeight;
+        const toolbar = this._root.querySelector('.uc-toolbar');
+        const monthHeader = this._root.querySelector('.uc-month-header');
+
+        const toolbarHeight = toolbar ? toolbar.offsetHeight : 50;
+        const headerHeight = monthHeader ? monthHeader.offsetHeight : 36;
+        const borderHeight = 2; // 1px top + 1px bottom
+
+        // Available height for month body
+        const bodyHeight = parentHeight - toolbarHeight - headerHeight - borderHeight;
+        const numWeeks = weeks.length;
+        const cellHeight = Math.floor(bodyHeight / numWeeks);
+
+        // Formula: (cellHeight - headerHeight - moreLink) / eventHeightWithGap
+        // cellHeight - 30 (header) - 28 (+N more space) / 24 (event + gap)
+        const MAX = Math.floor((cellHeight - 30 - 28) / 24);
+        // Allow 0 so all events can be hidden when space is very limited
+        maxEvents = Math.max(0, MAX);
+      } else {
+        // Container is naturally sized: show all events
+        maxEvents = Infinity;
+      }
+
+      // Calculate cell height for constrained mode
+      const cellHeight = hasExplicitHeight
+        ? Math.floor((parentEl.clientHeight - (this._root.querySelector('.uc-toolbar')?.offsetHeight || 50) - (this._root.querySelector('.uc-month-header')?.offsetHeight || 36) - 2) / weeks.length)
+        : null;
+
+      // In unlimited mode, calculate max slot across all weeks for uniform row heights
+      let uniformRowHeight = null;
+      if (!hasExplicitHeight && maxEvents === Infinity) {
+        let maxSlotAcrossAllWeeks = -1;
+        weeks.forEach((wk) => {
+          const weekEvents = normEvents.filter((e) =>
+            wk.some((date) => e.start <= endOfDay(date) && e.end >= startOfDay(date))
+          );
+          const multiDay = weekEvents.filter(isMultiDay);
+          const layout = layoutMultiDayForWeek(multiDay, wk);
+          layout.forEach(({ slot }) => {
+            maxSlotAcrossAllWeeks = Math.max(maxSlotAcrossAllWeeks, slot);
+          });
+          // Also check single-day events
+          wk.forEach((date) => {
+            const singleDay = weekEvents.filter((e) => !isMultiDay(e) && isSameDay(e.start, date));
+            const occupiedSlots = layout.filter((item) => {
+              const { startCol, endCol } = item;
+              const colIndex = wk.findIndex((d) => isSameDay(d, date));
+              return colIndex >= startCol && colIndex <= endCol;
+            }).length;
+            const singleDaySlots = occupiedSlots + singleDay.length;
+            maxSlotAcrossAllWeeks = Math.max(maxSlotAcrossAllWeeks, singleDaySlots - 1);
+          });
+        });
+
+        if (maxSlotAcrossAllWeeks >= 0) {
+          uniformRowHeight = `calc(var(--cal-header-day-height) + ${maxSlotAcrossAllWeeks + 1} * (var(--cal-event-height) + var(--cal-event-gap)) + 8px)`;
+        } else {
+          uniformRowHeight = '80px';
+        }
+      }
+
+      const body = weeks.map((wk) => this._buildWeekRow(wk, normEvents, maxEvents, cellHeight, uniformRowHeight)).join('');
 
       return `
         <div class="uc-month-view">
@@ -874,26 +974,8 @@
       `;
     }
 
-    _buildWeekRow(weekDates, allEvents) {
+    _buildWeekRow(weekDates, allEvents, MAX, cellHeight = null, uniformRowHeight = null) {
       const curMonth = this._date.getMonth();
-
-      // Calculate MAX based on maxEventsPerCell option
-      let MAX;
-      if (this._opts.maxEventsPerCell === 0) {
-        MAX = Infinity; // Show all events
-      } else if (this._opts.maxEventsPerCell === -1) {
-        // Auto-calculate based on cell height
-        // Get the computed cell min-height (default is 112px from CSS)
-        const computedStyle = getComputedStyle(this._root);
-        const cellMinHeight = parseInt(computedStyle.getPropertyValue('--cal-cell-min-height') || '112');
-        // Formula: (cellHeight - headerHeight - moreLink) / eventHeightWithGap
-        // cellHeight - 30 (header) - 28 (+N more space) / 24 (event + gap)
-        MAX = Math.floor((cellMinHeight - 30 - 28) / 24);
-        // Ensure at least 1 event is shown
-        MAX = Math.max(1, MAX);
-      } else {
-        MAX = this._opts.maxEventsPerCell; // Use specified number
-      }
 
       // Separate multi-day from single-day events
       const multiDay = allEvents.filter(isMultiDay);
@@ -1090,18 +1172,16 @@
         }
       }
 
-      // Calculate row height - only needed for unlimited mode where rows expand dynamically
+      // Calculate row height
       let rowStyle = '';
-      if (MAX === Infinity) {
-        // Unlimited mode: use actual content height or minimum base height
-        if (maxSlotUsed >= 0) {
-          rowStyle = ` style="min-height: calc(var(--cal-header-day-height) + ${maxSlotUsed + 1} * (var(--cal-event-height) + var(--cal-event-gap)) + 8px);"`;
-        } else {
-          // Empty row in unlimited mode - set a reasonable minimum
-          rowStyle = ` style="min-height: 80px;"`;
-        }
+      if (cellHeight !== null) {
+        // Height-constrained mode: enforce exact height
+        rowStyle = ` style="height: ${cellHeight}px;"`;
+      } else if (uniformRowHeight !== null) {
+        // Unlimited mode with uniform row height: all rows same height
+        rowStyle = ` style="min-height: ${uniformRowHeight};"`;
       }
-      // Limited mode: let CSS --cal-cell-min-height control row height (no inline style needed)
+      // Natural sizing mode (no cellHeight, no uniformRowHeight): let flex handle it with CSS min-height
 
       return `
         <div class="uc-week-row"${rowStyle}>
@@ -1392,10 +1472,36 @@
         return;
       }
 
+      // View dropdown toggle
+      const dropdownBtn = evt.target.closest('.uc-view-dropdown-btn');
+      if (dropdownBtn) {
+        evt.stopPropagation();
+        const dropdown = dropdownBtn.parentElement;
+        const isOpen = dropdown.classList.contains('uc-open');
+
+        // Close all dropdowns first
+        this._root.querySelectorAll('.uc-view-dropdown.uc-open').forEach(d => d.classList.remove('uc-open'));
+
+        if (!isOpen) {
+          dropdown.classList.add('uc-open');
+          // Close when clicking outside
+          this._dropdownOutsideHandler = (e) => {
+            if (!e.target.closest('.uc-view-dropdown')) {
+              dropdown.classList.remove('uc-open');
+              document.removeEventListener('click', this._dropdownOutsideHandler);
+            }
+          };
+          setTimeout(() => document.addEventListener('click', this._dropdownOutsideHandler), 0);
+        }
+        return;
+      }
+
       // View switcher buttons carry data-view (no data-action) — handle first
       const viewBtn = evt.target.closest('[data-view]');
       if (viewBtn) {
         this.setView(viewBtn.dataset.view);
+        // Close dropdown if open
+        this._root.querySelectorAll('.uc-view-dropdown.uc-open').forEach(d => d.classList.remove('uc-open'));
         return;
       }
 
@@ -1415,6 +1521,8 @@
 
         case 'today':
           this.goToToday();
+          // Close dropdown if open
+          this._root.querySelectorAll('.uc-view-dropdown.uc-open').forEach(d => d.classList.remove('uc-open'));
           break;
 
         case 'year-pick': {

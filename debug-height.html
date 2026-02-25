@@ -1,0 +1,78 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Debug Height Detection</title>
+  <style>
+    body { margin: 20px; font-family: monospace; }
+    .test-container { background: #f0f0f0; padding: 20px; margin: 20px 0; }
+    #cal { border: 2px solid red; }
+  </style>
+  <link rel="stylesheet" href="css/simple-calendar-js.css" />
+</head>
+<body>
+  <h1>Height Detection Debug</h1>
+  
+  <div class="test-container">
+    <h2>No explicit height (should show all events)</h2>
+    <div id="cal"></div>
+  </div>
+
+  <div id="debug"></div>
+
+  <script src="js/simple-calendar-js.js"></script>
+  <script>
+    const events = [
+      {
+        id: 'e1',
+        title: 'Event 1',
+        start: new Date(2026, 1, 10, 9, 0),
+        end: new Date(2026, 1, 10, 10, 0),
+        color: '#3b82f6'
+      },
+      {
+        id: 'e2',
+        title: 'Event 2',
+        start: new Date(2026, 1, 10, 11, 0),
+        end: new Date(2026, 1, 10, 12, 0),
+        color: '#8b5cf6'
+      },
+      {
+        id: 'e3',
+        title: 'Multi-day',
+        start: new Date(2026, 1, 5, 0, 0),
+        end: new Date(2026, 1, 12, 23, 59),
+        color: '#ef4444'
+      }
+    ];
+
+    const cal = new SimpleCalendarJs('#cal', {
+      defaultView: 'month',
+      defaultDate: new Date(2026, 1, 1),
+      fetchEvents: async () => events
+    });
+
+    setTimeout(() => {
+      const calEl = document.getElementById('cal');
+      const parentEl = calEl.parentElement;
+      const computedStyle = getComputedStyle(parentEl);
+      const heightValue = computedStyle.height;
+      const hasExplicitHeight = heightValue && heightValue !== 'auto' && parentEl.clientHeight > 0;
+      
+      const debug = document.getElementById('debug');
+      debug.innerHTML = `
+        <h3>Debug Info:</h3>
+        <pre>
+Parent element: ${parentEl.className}
+Parent computed height: ${heightValue}
+Parent clientHeight: ${parentEl.clientHeight}px
+Has explicit height: ${hasExplicitHeight}
+Calendar element height: ${calEl.clientHeight}px
+Calendar data-height-constrained: ${calEl.getAttribute('data-height-constrained')}
+        </pre>
+      `;
+    }, 500);
+  </script>
+</body>
+</html>

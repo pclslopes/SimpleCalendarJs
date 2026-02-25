@@ -1,0 +1,106 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>SimpleCalendarJs — Fullscreen Test</title>
+  <link rel="stylesheet" href="css/simple-calendar-js.css" />
+  <style>
+    *, *::before, *::after {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+    }
+
+    html, body {
+      height: 100%;
+      width: 100%;
+      font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', system-ui, sans-serif;
+      overflow: hidden;
+    }
+  </style>
+</head>
+<body>
+  <div id="cal" style="height: 100vh; width: 100vw;"></div>
+
+  <script src="js/simple-calendar-js.js"></script>
+  <script>
+    // Generate sample events
+    function generateEvents() {
+      const events = [];
+      const today = new Date();
+      const year = today.getFullYear();
+      const month = today.getMonth();
+
+      // Multi-day events
+      events.push({
+        id: 'evt-1',
+        title: 'Conference Week',
+        start: new Date(year, month, 5, 0, 0),
+        end: new Date(year, month, 9, 23, 59),
+        color: '#ef4444'
+      });
+
+      events.push({
+        id: 'evt-2',
+        title: 'Vacation',
+        start: new Date(year, month, 15, 0, 0),
+        end: new Date(year, month, 22, 23, 59),
+        color: '#10b981'
+      });
+
+      // Timed events
+      for (let day = 1; day <= 28; day++) {
+        const numEvents = Math.floor(Math.random() * 4) + 1;
+        for (let i = 0; i < numEvents; i++) {
+          const hour = 9 + Math.floor(Math.random() * 8);
+          const duration = [0.5, 1, 1.5, 2][Math.floor(Math.random() * 4)];
+          const start = new Date(year, month, day, hour, 0);
+          const end = new Date(year, month, day, hour + Math.floor(duration), (duration % 1) * 60);
+
+          events.push({
+            id: `evt-${day}-${i}`,
+            title: `Event ${day}-${i + 1}`,
+            start,
+            end,
+            color: ['#3b82f6', '#8b5cf6', '#ec4899', '#f59e0b'][Math.floor(Math.random() * 4)]
+          });
+        }
+      }
+
+      return events;
+    }
+
+    const events = generateEvents();
+
+    const cal = new SimpleCalendarJs('#cal', {
+      defaultView: 'month',
+      defaultDate: new Date(),
+      weekStartsOn: 0,
+      locale: 'en-US',
+      fetchEvents: async (start, end) => {
+        // Simulate network delay
+        await new Promise(r => setTimeout(r, 100));
+        return events.filter(e => e.start < end && e.end > start);
+      },
+      onEventClick: (event) => {
+        console.log('Event clicked:', event);
+      },
+      onDateClick: (date) => {
+        console.log('Date clicked:', date);
+      }
+    });
+
+    // Keyboard shortcut to switch views
+    document.addEventListener('keydown', (e) => {
+      if (e.key === 'm') cal.changeView('month');
+      if (e.key === 'w') cal.changeView('week');
+      if (e.key === 'd') cal.changeView('day');
+      if (e.key === 'l') cal.changeView('list');
+    });
+
+    console.log('Fullscreen calendar test loaded');
+    console.log('Keyboard shortcuts: m=month, w=week, d=day, l=list');
+  </script>
+</body>
+</html>
