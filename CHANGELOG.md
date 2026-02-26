@@ -9,6 +9,12 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 No unreleased changes yet.
 
+## [3.0.9] - 2026-02-25
+
+### Fixed
+- Year picker dropdown not opening due to `overflow: hidden` on toolbar center
+- Changed toolbar center to `overflow: visible` to allow year picker display
+
 ## [3.0.8] - 2026-02-25
 
 ### Changed

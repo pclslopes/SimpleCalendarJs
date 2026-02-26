@@ -1,5 +1,5 @@
 /**
- * SimpleCalendarJs v3.0.8 — simple-calendar-js.css
+ * SimpleCalendarJs v3.0.9 — simple-calendar-js.css
  * A clean, modern, and feature-rich JavaScript calendar component with zero dependencies
  *
  * @author Pedro Lopes <simplecalendarjs@gmail.com>
@@ -123,7 +123,8 @@
 .uc-toolbar-center {
   justify-self: center;
   min-width: 0;
-  overflow: hidden;
+  overflow: visible;
+  position: relative;
 }
 
 .uc-title {
@@ -135,9 +136,8 @@
   display: inline-flex;
   align-items: baseline;
   gap: 4px;
-  overflow: hidden;
-  text-overflow: ellipsis;
   min-width: 0;
+  max-width: 100%;
 }
 
 .uc-title-main {

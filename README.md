@@ -1121,6 +1121,6 @@ export class AppComponent {
 
 This project is available for personal, educational, and non-commercial use.
 
-**Commercial use requires a separate license.** See [LICENSE](LICENSE) file for full terms.
+**Commercial use requires a separate license.** See [LICENSE](https://unpkg.com/simple-calendar-js/LICENSE) file for full terms.
 
-For commercial licensing inquiries: simplecalendarjs@gmail.com
+For commercial licensing inquiries: simplecalendarjs@gmail.com or visit [www.simplecalendarjs.com](https://www.simplecalendarjs.com)
