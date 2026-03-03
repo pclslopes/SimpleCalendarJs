@@ -829,6 +829,16 @@
       </div>
 
       <div class="option-group">
+        <span class="option-label">Show Event Border</span>
+        <div style="display:flex;align-items:center;gap:8px;">
+          <button class="opt-toggle-track" id="opt-show-event-border" role="switch" aria-checked="false">
+            <span class="opt-toggle-thumb"></span>
+          </button>
+          <span class="opt-toggle-label" id="opt-show-event-border-label">Off</span>
+        </div>
+      </div>
+
+      <div class="option-group">
         <span class="option-label">Fixed Height (600px)</span>
         <div style="display:flex;align-items:center;gap:8px;">
           <button class="opt-toggle-track on" id="opt-fixed-height" role="switch" aria-checked="true">
@@ -1441,6 +1451,19 @@
       toggleAllowHtml.setAttribute('aria-checked', opts.allowHtmlInEvents);
       labelAllowHtml.textContent = opts.allowHtmlInEvents ? 'On' : 'Off';
       log('opt', 'tag-opt', `allowHtmlInEvents → ${opts.allowHtmlInEvents}`);
+      createCalendar();
+    });
+
+    // Show Event Border
+    const toggleShowEventBorder = document.getElementById('opt-show-event-border');
+    const labelShowEventBorder  = document.getElementById('opt-show-event-border-label');
+
+    toggleShowEventBorder.addEventListener('click', () => {
+      opts.showEventBorder = !opts.showEventBorder;
+      toggleShowEventBorder.classList.toggle('on', opts.showEventBorder);
+      toggleShowEventBorder.setAttribute('aria-checked', opts.showEventBorder);
+      labelShowEventBorder.textContent = opts.showEventBorder ? 'On' : 'Off';
+      log('opt', 'tag-opt', `showEventBorder → ${opts.showEventBorder}`);
       createCalendar();
     });
 

@@ -32,6 +32,14 @@ No unreleased changes yet.
   - Three alignment options: `'left'` (default), `'center'`, `'right'`
   - Allows customization of calendar appearance to match design preferences
   - Applied only to month view, does not affect week or day views
+- **Event borders** - New `showEventBorder` option displays borders around all-day and block-style events
+  - Border color automatically darkens from event background using HSL color space with adaptive darkening
+  - Light colors (70%+ lightness) darken by 50%, medium colors by 35%, dark colors by 25%
+  - Ensures visible borders even on very light event backgrounds
+  - Per-event override via `borderColor` property for custom border colors
+  - Applied to multi-day events, block-style timed events in month view, and all events in week/day views
+  - List-style timed events in month view remain borderless (dot indicator only)
+  - Default: `false` (backward compatible)
 
 ### Changed
 - **Variable row heights in month view** - Month view rows now have individual heights based on their event content

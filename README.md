@@ -184,6 +184,7 @@ export class CalendarComponent {
 | `allowHtmlInEvents` | boolean | `false` | Allow basic HTML tags in event titles (sanitized for security). Supports: `<b>`, `<i>`, `<strong>`, `<em>`, `<span>`, `<br>` with `class` attribute for icons |
 | `monthTimedEventStyle` | string | `'list'` | Display style for timed events in month view: `'list'` (schedule format) or `'block'` (traditional blocks) |
 | `monthDayNumberAlign` | string | `'left'` | Horizontal alignment of day numbers in month view cells: `'left'`, `'center'`, or `'right'` |
+| `showEventBorder` | boolean | `false` | Display borders around events. Border color adaptively darkens from event background (light colors darken more for visibility), or use event's `borderColor` property |
 | `fetchEvents` | function | `null` | Async function to fetch events: `async (start, end) => Event[]` |
 | `onEventClick` | function | `null` | Callback when event is clicked: `(event, mouseEvent) => void` |
 | `onSlotClick` | function | `null` | Callback when time slot is clicked: `(date, mouseEvent) => void` |

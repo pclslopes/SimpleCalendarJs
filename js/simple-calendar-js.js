@@ -375,6 +375,56 @@
     return rgbToHex(newRgb.r, newRgb.g, newRgb.b);
   }
 
+  /**
+   * Darken a color by reducing its lightness in HSL space.
+   * Used for auto-generating border colors from event background colors.
+   * Adapts darkening amount based on original lightness for better visibility.
+   *
+   * @param {string} hexColor - Color in hex format
+   * @param {number} amount - Base amount to darken (0-100), default 25 (ignored, auto-calculated)
+   * @returns {string} Darkened hex color
+   */
+  function darkenColor(hexColor, amount = 25) {
+    // If it's a CSS variable or not a hex color, return a default dark border
+    if (!hexColor || hexColor.startsWith('var(') || !hexColor.match(/^#?[0-9A-Fa-f]{6}$/)) {
+      return '#4a5568';
+    }
+
+    // Remove # if present
+    hexColor = hexColor.replace('#', '');
+    hexColor = '#' + hexColor;
+
+    // Convert to RGB
+    const rgb = hexToRgb(hexColor);
+
+    // Convert to HSL
+    const hsl = rgbToHsl(rgb.r, rgb.g, rgb.b);
+
+    // Adaptive darkening based on lightness
+    // Light colors need more darkening to create visible borders
+    let darkenAmount;
+    if (hsl.l > 70) {
+      // Very light colors: darken significantly (45-50%)
+      darkenAmount = 50;
+    } else if (hsl.l > 50) {
+      // Medium-light colors: darken moderately (35%)
+      darkenAmount = 35;
+    } else {
+      // Darker colors: darken less (25%)
+      darkenAmount = 25;
+    }
+
+    // Darken by reducing lightness
+    hsl.l = Math.max(0, hsl.l - darkenAmount);
+
+    // Slightly increase saturation for richer color
+    hsl.s = Math.min(100, hsl.s + 10);
+
+    // Convert back to hex
+    const newRgb = hslToRgb(hsl.h, hsl.s, hsl.l);
+    return rgbToHex(newRgb.r, newRgb.g, newRgb.b);
+  }
+
   /* ============================================================
      TRANSLATIONS
      ============================================================ */
@@ -598,6 +648,7 @@
           autoContrastText: false,
           contrastLevel: 'high',
           allowHtmlInEvents: false,
+          showEventBorder: false,
           fetchEvents: null,
           onEventClick: null,
           onSlotClick: null,
@@ -1212,6 +1263,8 @@
 
         const color = event.color || 'var(--cal-event-bg)';
         const textColor = event.textColor || (this._opts.autoContrastText ? getContrastColor(color, this._opts.contrastLevel) : 'var(--cal-event-text)');
+        const borderColor = event.borderColor || (this._opts.showEventBorder ? darkenColor(color, 25) : 'transparent');
+        const borderStyle = this._opts.showEventBorder ? `border:1px solid ${esc(borderColor)};` : '';
         const rl = isStart ? 'var(--cal-event-border-radius)' : '0';
         const rr = isEnd ? 'var(--cal-event-border-radius)' : '0';
         const contL = !isStart ? ' uc-continues-left' : '';
@@ -1225,7 +1278,7 @@
           : '';
         barsHtml += `
           <div class="uc-event-bar${contL}${contR}"
-               style="left:calc(${left}% + 2px);width:calc(${width}% - 4px);top:${topCss};background:${esc(color)};color:${esc(textColor)};border-radius:${rl} ${rr} ${rr} ${rl};"
+               style="left:calc(${left}% + 2px);width:calc(${width}% - 4px);top:${topCss};background:${esc(color)};color:${esc(textColor)};${borderStyle}border-radius:${rl} ${rr} ${rr} ${rl};"
                data-event-id="${esc(event.id)}" data-action="event-click"
                ${tooltipAttr}>
             ${isStart ? `<span class="uc-event-title">${getEventTitleHtml(event.title, this._opts.allowHtmlInEvents, event.allowHtml)}</span>` : '&nbsp;'}
@@ -1277,12 +1330,14 @@
               </div>`;
             } else {
               // Block style: traditional colored background
+              const borderColor = ev.borderColor || (this._opts.showEventBorder ? darkenColor(color, 25) : 'transparent');
+              const borderStyle = this._opts.showEventBorder ? `border:1px solid ${esc(borderColor)};` : '';
               const timeHtml = this._opts.showTimeInItems
                 ? `<span class="uc-event-time">${esc(timeStr)}</span>`
                 : '';
               barsHtml += `
               <div class="uc-event-bar"
-                   style="left:calc(${left}% + 2px);width:calc(${cw}% - 4px);top:${topCss};background:${esc(color)};color:${esc(textColor)};"
+                   style="left:calc(${left}% + 2px);width:calc(${cw}% - 4px);top:${topCss};background:${esc(color)};color:${esc(textColor)};${borderStyle}"
                    data-event-id="${esc(ev.id)}" data-action="event-click"
                    ${tooltipAttr}>
                 ${timeHtml}
@@ -1329,12 +1384,14 @@
               </div>`;
               } else {
                 // Block style: traditional colored background
+                const borderColor = ev.borderColor || (this._opts.showEventBorder ? darkenColor(color, 25) : 'transparent');
+                const borderStyle = this._opts.showEventBorder ? `border:1px solid ${esc(borderColor)};` : '';
                 const timeHtml = this._opts.showTimeInItems
                   ? `<span class="uc-event-time">${esc(timeStr)}</span>`
                   : '';
                 barsHtml += `
               <div class="uc-event-bar"
-                   style="left:calc(${left}% + 2px);width:calc(${cw}% - 4px);top:${topCss};background:${esc(color)};color:${esc(textColor)};"
+                   style="left:calc(${left}% + 2px);width:calc(${cw}% - 4px);top:${topCss};background:${esc(color)};color:${esc(textColor)};${borderStyle}"
                    data-event-id="${esc(ev.id)}" data-action="event-click"
                    ${tooltipAttr}>
                 ${timeHtml}
@@ -1444,6 +1501,8 @@
         const topCss = `calc(${slot} * (var(--cal-event-height) + 3px) + 2px)`;
         const color = event.color || 'var(--cal-event-bg)';
         const textColor = event.textColor || (this._opts.autoContrastText ? getContrastColor(color, this._opts.contrastLevel) : 'var(--cal-event-text)');
+        const borderColor = event.borderColor || (this._opts.showEventBorder ? darkenColor(color, 25) : 'transparent');
+        const borderStyle = this._opts.showEventBorder ? `border:1px solid ${esc(borderColor)};` : '';
         const rl = isStart ? 'var(--cal-event-border-radius)' : '0';
         const rr = isEnd ? 'var(--cal-event-border-radius)' : '0';
         const contL = !isStart ? ' uc-continues-left' : '';
@@ -1457,7 +1516,7 @@
 
         allDayBarsHtml += `
           <div class="uc-event-bar${contL}${contR}"
-               style="left:calc(${left}% + 2px);width:calc(${width}% - 4px);top:${topCss};background:${esc(color)};color:${esc(textColor)};border-radius:${rl} ${rr} ${rr} ${rl};"
+               style="left:calc(${left}% + 2px);width:calc(${width}% - 4px);top:${topCss};background:${esc(color)};color:${esc(textColor)};${borderStyle}border-radius:${rl} ${rr} ${rr} ${rl};"
                data-event-id="${esc(event.id)}" data-action="event-click"
                ${tooltipAttr}>
             <span class="uc-event-title">${getEventTitleHtml(event.title, this._opts.allowHtmlInEvents, event.allowHtml)}</span>
@@ -1505,6 +1564,8 @@
               const widthCss = `calc(${cw}% - 2px)`;
               const color = event.color || 'var(--cal-event-bg)';
               const textColor = event.textColor || (this._opts.autoContrastText ? getContrastColor(color, this._opts.contrastLevel) : 'var(--cal-event-text)');
+              const borderColor = event.borderColor || (this._opts.showEventBorder ? darkenColor(color, 25) : 'transparent');
+              const borderStyle = this._opts.showEventBorder ? `border:1px solid ${esc(borderColor)};` : '';
               const timeStr = fmtTime(event.start, locale, use24Hour);
               const actualDur = em - sm;
               const isShort = actualDur <= 60;
@@ -1523,7 +1584,7 @@
               // Week/day views always use block style
               return `
                 <div class="uc-timed-event${shortClass}"
-                     style="top:${topCss};height:${heightCss};left:${leftCss};width:${widthCss};background:${esc(color)};color:${esc(textColor)};"
+                     style="top:${topCss};height:${heightCss};left:${leftCss};width:${widthCss};background:${esc(color)};color:${esc(textColor)};${borderStyle}"
                      data-event-id="${esc(event.id)}" data-action="event-click"
                      ${tooltipAttr}>
                   ${timeHtml}
