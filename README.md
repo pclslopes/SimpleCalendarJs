@@ -26,21 +26,21 @@ A lightweight, zero-dependency JavaScript calendar component with internationali
 <table>
   <tr>
     <td width="50%">
-      <img src="https://raw.githubusercontent.com/pclslopes/SimpleCalendarJs/main/screenshots/Screenshot01-MonthView.png" alt="Month View" />
+      <img src="https://github.com/pclslopes/SimpleCalendarJs/raw/main/screenshots/Screenshot01-MonthView.png" alt="Month View" />
       <p align="center"><strong>Month View</strong></p>
     </td>
     <td width="50%">
-      <img src="https://raw.githubusercontent.com/pclslopes/SimpleCalendarJs/main/screenshots/Screenshot02-WeekView.png" alt="Week View" />
+      <img src="https://github.com/pclslopes/SimpleCalendarJs/raw/main/screenshots/Screenshot02-WeekView.png" alt="Week View" />
       <p align="center"><strong>Week View</strong></p>
     </td>
   </tr>
   <tr>
     <td width="50%">
-      <img src="https://raw.githubusercontent.com/pclslopes/SimpleCalendarJs/main/screenshots/Screenshot03-DayView.png" alt="Day View" />
+      <img src="https://github.com/pclslopes/SimpleCalendarJs/raw/main/screenshots/Screenshot03-DayView.png" alt="Day View" />
       <p align="center"><strong>Day View</strong></p>
     </td>
     <td width="50%">
-      <img src="https://raw.githubusercontent.com/pclslopes/SimpleCalendarJs/main/screenshots/Screenshot04-ListView.png" alt="List View" />
+      <img src="https://github.com/pclslopes/SimpleCalendarJs/raw/main/screenshots/Screenshot04-ListView.png" alt="List View" />
       <p align="center"><strong>List View</strong></p>
     </td>
   </tr>
@@ -51,11 +51,11 @@ A lightweight, zero-dependency JavaScript calendar component with internationali
 <table>
   <tr>
     <td width="50%">
-      <img src="https://raw.githubusercontent.com/pclslopes/SimpleCalendarJs/main/screenshots/Screenshot05-Resize.png" alt="Drag and Drop" />
+      <img src="https://github.com/pclslopes/SimpleCalendarJs/raw/main/screenshots/Screenshot05-Resize.png" alt="Drag and Drop" />
       <p align="center"><strong>Drag & Drop Events</strong></p>
     </td>
     <td width="50%">
-      <img src="https://raw.githubusercontent.com/pclslopes/SimpleCalendarJs/main/screenshots/Screenshot06-Resize.png" alt="Resize Events" />
+      <img src="https://github.com/pclslopes/SimpleCalendarJs/raw/main/screenshots/Screenshot06-Resize.png" alt="Resize Events" />
       <p align="center"><strong>Resize Events</strong></p>
     </td>
   </tr>
