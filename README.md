@@ -179,6 +179,8 @@ export class CalendarComponent {
 | `enabledViews` | string[] | `['month', 'week', 'day']` | Available view modes. Add `'list'` to enable list view |
 | `enableDragDrop` | boolean | `false` | Enable drag and drop to move events |
 | `enableResize` | boolean | `false` | Enable resizing events to change duration |
+| `autoContrastText` | boolean | `false` | Automatically calculate contrasting text color (black/white) based on event background color for better readability |
+| `allowHtmlInEvents` | boolean | `false` | Allow basic HTML tags in event titles (sanitized for security). Supports: `<b>`, `<i>`, `<strong>`, `<em>`, `<span>`, `<br>` with `class` attribute for icons |
 | `monthTimedEventStyle` | string | `'list'` | Display style for timed events in month view: `'list'` (schedule format) or `'block'` (traditional blocks) |
 | `fetchEvents` | function | `null` | Async function to fetch events: `async (start, end) => Event[]` |
 | `onEventClick` | function | `null` | Callback when event is clicked: `(event, mouseEvent) => void` |
@@ -194,11 +196,13 @@ Events returned by `fetchEvents` should follow this structure:
 ```typescript
 interface CalendarEvent {
   id: string | number;           // Unique identifier
-  title: string;                 // Event title
+  title: string;                 // Event title (can contain HTML if allowHtmlInEvents is enabled)
   start: Date;                   // Start date/time
   end?: Date;                    // End date/time (optional, defaults to start)
   allDay?: boolean;              // All-day event flag (optional)
-  color?: string;                // Custom color (hex, optional)
+  color?: string;                // Custom background color (hex, optional)
+  textColor?: string;            // Custom text color (hex, optional) - overrides autoContrastText
+  allowHtml?: boolean;           // Override global allowHtmlInEvents setting for this event (optional)
   description?: string;          // Event description (also used for tooltip if tooltip not provided)
   tooltip?: string;              // Custom tooltip text shown on hover (overrides description)
   [key: string]: any;            // Any additional custom properties
@@ -552,6 +556,237 @@ const calendar = new SimpleCalendarJs('#calendar', {
 ```
 
 **Note**: This option only affects timed events in month view. All-day events always display as blocks, and week/day views always use block style with duration-based heights.
+
+## Auto-Contrast Text Color
+
+SimpleCalendarJs can automatically calculate the best text color (black or white) for event text based on the background color, ensuring optimal readability.
+
+### How It Works
+
+When `autoContrastText` is enabled, the calendar uses the WCAG relative luminance formula to determine whether black or white text provides better contrast:
+
+- **Light backgrounds** (luminance > 0.5) → Black text (#000000)
+- **Dark backgrounds** (luminance ≤ 0.5) → White text (#ffffff)
+
+### Basic Usage
+
+```javascript
+const calendar = new SimpleCalendarJs('#calendar', {
+  autoContrastText: true,  // Enable automatic text color calculation
+  fetchEvents: async (start, end) => {
+    return [
+      {
+        id: 1,
+        title: 'Team Meeting',
+        start: new Date('2024-03-15T10:00:00'),
+        color: '#ffeb3b'  // Yellow background → auto-calculated black text
+      },
+      {
+        id: 2,
+        title: 'Project Review',
+        start: new Date('2024-03-16T14:00:00'),
+        color: '#1a237e'  // Dark blue background → auto-calculated white text
+      }
+    ];
+  }
+});
+```
+
+### Manual Override
+
+Individual events can override the auto-calculated color with a custom `textColor`:
+
+```javascript
+{
+  id: 1,
+  title: 'Special Event',
+  start: new Date('2024-03-15T10:00:00'),
+  color: '#4caf50',      // Green background
+  textColor: '#ffeb3b'   // Force yellow text (overrides auto-contrast)
+}
+```
+
+### Priority Order
+
+Text color is determined in this order:
+1. **`event.textColor`** (highest priority) - Manual override
+2. **`autoContrastText: true`** - Automatic calculation based on background color
+3. **CSS variable** `--cal-event-text` (default) - Fallback to theme default
+
+### When to Use
+
+**Enable `autoContrastText` when:**
+- Events have diverse background colors from user preferences or categories
+- You want consistent readability without manually setting text colors
+- Event colors are generated dynamically
+
+**Disable `autoContrastText` (default) when:**
+- All events use similar colors with known good contrast
+- You prefer full control over text colors via CSS or event properties
+- You want to maintain backward compatibility
+
+### Browser Support
+
+The auto-contrast calculation works in all modern browsers and has no dependencies. It handles:
+- Hex colors with or without `#` prefix (#ff0000 or ff0000)
+- CSS variables (falls back to theme default)
+- Invalid colors (falls back to theme default)
+
+## HTML in Event Titles
+
+SimpleCalendarJs allows basic HTML formatting in event titles for icons, bold/italic text, and simple styling while maintaining security through automatic sanitization.
+
+### Security & Sanitization
+
+All HTML is automatically sanitized to prevent XSS attacks:
+- **Allowed tags**: `<b>`, `<i>`, `<strong>`, `<em>`, `<span>`, `<br>`
+- **Allowed attributes**: `class` (for icon libraries like Font Awesome)
+- **Blocked**: `<script>`, event handlers (`onclick`, `onerror`), dangerous attributes
+- **Character limit**: Class names are sanitized to alphanumeric, dash, underscore, and space only
+
+### Basic Usage
+
+Enable HTML globally for all events:
+
+```javascript
+const calendar = new SimpleCalendarJs('#calendar', {
+  allowHtmlInEvents: true,  // Enable HTML rendering
+  fetchEvents: async (start, end) => {
+    return [
+      {
+        id: 1,
+        title: '<b>Important</b> Meeting',
+        start: new Date('2024-03-15T10:00:00')
+      },
+      {
+        id: 2,
+        title: 'Design <i>Review</i>',
+        start: new Date('2024-03-16T14:00:00')
+      }
+    ];
+  }
+});
+```
+
+### Font Awesome Icons
+
+Perfect for adding visual indicators:
+
+```javascript
+{
+  id: 1,
+  title: '<i class="fas fa-video"></i> Video Call',
+  start: new Date('2024-03-15T10:00:00')
+}
+
+{
+  id: 2,
+  title: '<i class="fas fa-plane"></i> Flight to NYC',
+  start: new Date('2024-03-16T14:00:00'),
+  allDay: true
+}
+
+{
+  id: 3,
+  title: '<i class="fas fa-birthday-cake"></i> <b>Sarah</b> Birthday',
+  start: new Date('2024-03-20T00:00:00'),
+  allDay: true
+}
+```
+
+### Other Icon Libraries
+
+Works with any icon library that uses class names:
+
+```javascript
+// Material Icons
+{ title: '<i class="material-icons">event</i> Meeting' }
+
+// Bootstrap Icons
+{ title: '<i class="bi bi-calendar"></i> Appointment' }
+
+// Ionicons
+{ title: '<i class="ion ion-md-call"></i> Phone Call' }
+```
+
+### Per-Event Control
+
+Override the global setting for specific events:
+
+```javascript
+const calendar = new SimpleCalendarJs('#calendar', {
+  allowHtmlInEvents: false,  // Disabled globally
+  fetchEvents: async (start, end) => {
+    return [
+      {
+        id: 1,
+        title: 'Regular Meeting',  // Plain text
+        start: new Date('2024-03-15T10:00:00')
+      },
+      {
+        id: 2,
+        title: '<i class="fas fa-star"></i> <b>VIP</b> Client Call',
+        start: new Date('2024-03-16T14:00:00'),
+        allowHtml: true  // Enable HTML only for this event
+      }
+    ];
+  }
+});
+```
+
+### Supported HTML Tags
+
+| Tag | Purpose | Example |
+|-----|---------|---------|
+| `<b>`, `<strong>` | Bold text | `<b>Important</b>` |
+| `<i>`, `<em>` | Italic text or icons | `<i class="fas fa-star"></i>` |
+| `<span>` | Inline styling container | `<span class="custom-class">Text</span>` |
+| `<br>` | Line break | `Line 1<br>Line 2` |
+
+### Important Notes
+
+- **Default behavior**: HTML is disabled by default (`allowHtmlInEvents: false`)
+- **Security first**: All HTML is sanitized - dangerous tags and attributes are stripped
+- **Class attribute only**: Only the `class` attribute is preserved (for icons)
+- **No inline styles**: `style` attributes are removed for security
+- **Plain text fallback**: If `allowHtmlInEvents` is false, HTML is escaped and displayed as text
+- **Tooltips**: HTML is NOT rendered in tooltips (security consideration)
+
+### Best Practices
+
+**✓ Recommended**:
+- Use for icons and simple formatting
+- Keep HTML minimal and semantic
+- Test with `allowHtmlInEvents: false` to ensure graceful degradation
+
+**✗ Avoid**:
+- Complex nested HTML structures
+- Custom styles via `style` attribute (use `class` and external CSS)
+- User-generated HTML without validation
+
+### Example: Icon + Formatting
+
+```javascript
+const events = [
+  {
+    id: 1,
+    title: '<i class="fas fa-users"></i> <b>Team Standup</b>',
+    start: new Date('2024-03-15T09:00:00'),
+    color: '#3b82f6'
+  },
+  {
+    id: 2,
+    title: '<i class="fas fa-exclamation-triangle"></i> <b>Urgent</b>: Server Down',
+    start: new Date('2024-03-15T14:30:00'),
+    color: '#ef4444'
+  }
+];
+
+const calendar = new SimpleCalendarJs('#calendar', {
+  allowHtmlInEvents: true,
+  fetchEvents: async () => events
+});
+```
 
 ## API Methods
 

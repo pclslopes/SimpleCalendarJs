@@ -543,7 +543,7 @@
   <header class="page-header">
     <div style="display:flex;align-items:center;gap:10px">
       <h1>SimpleCalendarJs</h1>
-      <span>v3.0.9</span>
+      <span>v3.0.10</span>
     </div>
     <div class="header-controls">
       <a href="docs.html" class="docs-link">Documentation</a>
@@ -800,6 +800,26 @@
       </div>
 
       <div class="option-group">
+        <span class="option-label">Auto-Contrast Text</span>
+        <div style="display:flex;align-items:center;gap:8px;">
+          <button class="opt-toggle-track" id="opt-auto-contrast" role="switch" aria-checked="false">
+            <span class="opt-toggle-thumb"></span>
+          </button>
+          <span class="opt-toggle-label" id="opt-auto-contrast-label">Off</span>
+        </div>
+      </div>
+
+      <div class="option-group">
+        <span class="option-label">Allow HTML in Events</span>
+        <div style="display:flex;align-items:center;gap:8px;">
+          <button class="opt-toggle-track" id="opt-allow-html" role="switch" aria-checked="false">
+            <span class="opt-toggle-thumb"></span>
+          </button>
+          <span class="opt-toggle-label" id="opt-allow-html-label">Off</span>
+        </div>
+      </div>
+
+      <div class="option-group">
         <span class="option-label">Month Timed Event Style</span>
         <select class="option-select" id="opt-month-timed-style">
           <option value="list" selected>List (dot + time + title)</option>
@@ -856,10 +876,10 @@
       // Current month events
       { id: 'md1', title: 'Engineering Offsite',  start: d(-2),       end: d(2),        allDay: true,  color: '#7c3aed', tooltip: 'Team building and strategic planning\nLocation: Mountain View Resort' },
       { id: 'md2', title: 'Company All-Hands',    start: d(5),        end: d(7),        allDay: true,  color: '#0891b2', description: 'Quarterly company-wide meeting\nMain Office Auditorium' },
-      { id: 'md3', title: 'Product Launch Week',  start: d(10),       end: d(15),       allDay: true,  color: '#dc2626', tooltip: 'Major product release v3.0\nPR campaign and demos' },
+      { id: 'md3', title: '<b><i>Product Launch Week</i></b>',  start: d(10),       end: d(15),       allDay: true,  color: '#dc2626', tooltip: 'Major product release v3.0\nPR campaign and demos' },
       { id: 'md4', title: 'Holiday Break is a great way to start the year',        start: d(-10),      end: d(-6),       allDay: true,  color: '#059669' },
       { id: 'md5', title: 'Conf. Prep',           start: d(3),        end: d(5),        allDay: true,  color: '#d97706', description: 'Preparing for TechConf 2026\nSlides and booth materials' },
-      { id: 't1',  title: 'Morning Stand-up',     start: d(0, 9, 15), end: d(0, 9, 45),  color: '#4f46e5', tooltip: 'Daily team sync\nZoom: https://zoom.us/j/123456' },
+      { id: 't1',  title: '<b>Morning Stand-up</b>',     start: d(0, 9, 15), end: d(0, 9, 45),  color: '#4f46e5', tooltip: 'Daily team sync\nZoom: https://zoom.us/j/123456' },
       { id: 't2',  title: 'Design Review',        start: d(0, 10, 30), end: d(0, 11, 45),  color: '#7c3aed', description: 'Review new UI mockups for dashboard\nConference Room A' },
       { id: 't3',  title: 'Lunch with Maria',     start: d(0, 12, 15), end: d(0, 13, 30),  color: '#059669', tooltip: 'Discuss Q2 marketing strategy\nDowntown Bistro' },
       { id: 't4',  title: 'Architecture Planning',start: d(0, 13,45), end: d(0, 15,15),  color: '#0891b2', tooltip: 'Planning microservices migration\nBring architecture diagrams' },
@@ -1026,6 +1046,8 @@
       enabledViews: ['month', 'week', 'day', 'list'],
       enableDragDrop: false,
       enableResize: false,
+      autoContrastText: false,
+      allowHtmlInEvents: false,
       monthTimedEventStyle: 'list',
     };
 
@@ -1357,6 +1379,32 @@
       toggleEnableResize.setAttribute('aria-checked', opts.enableResize);
       labelEnableResize.textContent = opts.enableResize ? 'On' : 'Off';
       log('opt', 'tag-opt', `enableResize → ${opts.enableResize}`);
+      createCalendar();
+    });
+
+    // Auto-Contrast Text
+    const toggleAutoContrast = document.getElementById('opt-auto-contrast');
+    const labelAutoContrast  = document.getElementById('opt-auto-contrast-label');
+
+    toggleAutoContrast.addEventListener('click', () => {
+      opts.autoContrastText = !opts.autoContrastText;
+      toggleAutoContrast.classList.toggle('on', opts.autoContrastText);
+      toggleAutoContrast.setAttribute('aria-checked', opts.autoContrastText);
+      labelAutoContrast.textContent = opts.autoContrastText ? 'On' : 'Off';
+      log('opt', 'tag-opt', `autoContrastText → ${opts.autoContrastText}`);
+      createCalendar();
+    });
+
+    // Allow HTML in Events
+    const toggleAllowHtml = document.getElementById('opt-allow-html');
+    const labelAllowHtml  = document.getElementById('opt-allow-html-label');
+
+    toggleAllowHtml.addEventListener('click', () => {
+      opts.allowHtmlInEvents = !opts.allowHtmlInEvents;
+      toggleAllowHtml.classList.toggle('on', opts.allowHtmlInEvents);
+      toggleAllowHtml.setAttribute('aria-checked', opts.allowHtmlInEvents);
+      labelAllowHtml.textContent = opts.allowHtmlInEvents ? 'On' : 'Off';
+      log('opt', 'tag-opt', `allowHtmlInEvents → ${opts.allowHtmlInEvents}`);
       createCalendar();
     });
 

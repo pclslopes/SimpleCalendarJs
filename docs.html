@@ -279,6 +279,8 @@
       <a href="#tooltips">Tooltips</a>
       <a href="#dragdrop">Drag and Drop</a>
       <a href="#timed-event-style">Timed Event Style</a>
+      <a href="#auto-contrast">Auto-Contrast Text</a>
+      <a href="#html-events">HTML in Events</a>
       <a href="#listview">List View</a>
       <a href="#methods">Methods</a>
       <a href="#preferences">Preferences</a>
@@ -489,6 +491,18 @@ const calendar = new SimpleCalendarJs('#calendar', {
               <td>Enable resizing events to change duration</td>
             </tr>
             <tr>
+              <td><code>autoContrastText</code></td>
+              <td>Boolean</td>
+              <td><code>false</code></td>
+              <td>Automatically calculate contrasting text color (black/white) based on event background color for better readability</td>
+            </tr>
+            <tr>
+              <td><code>allowHtmlInEvents</code></td>
+              <td>Boolean</td>
+              <td><code>false</code></td>
+              <td>Allow basic HTML tags in event titles (sanitized for security). Supports: <code>&lt;b&gt;</code>, <code>&lt;i&gt;</code>, <code>&lt;strong&gt;</code>, <code>&lt;em&gt;</code>, <code>&lt;span&gt;</code>, <code>&lt;br&gt;</code> with <code>class</code> attribute for icons</td>
+            </tr>
+            <tr>
               <td><code>monthTimedEventStyle</code></td>
               <td>String</td>
               <td><code>'list'</code></td>
@@ -591,11 +605,13 @@ new SimpleCalendarJs('#calendar', {
       <p>Events returned from <code>fetchEvents</code> should have the following structure:</p>
       <pre><code>{
   id: 'unique-id',           // Required: Unique identifier
-  title: 'Event Title',      // Required: Event name
+  title: 'Event Title',      // Required: Event name (can contain HTML if allowHtmlInEvents is enabled)
   start: Date,               // Required: Start date/time
   end: Date,                 // Required: End date/time
   allDay: false,             // Optional: All-day event flag
-  color: '#4f46e5',          // Optional: Custom color (hex)
+  color: '#4f46e5',          // Optional: Custom background color (hex)
+  textColor: '#ffffff',      // Optional: Custom text color (hex) - overrides autoContrastText
+  allowHtml: true,           // Optional: Override global allowHtmlInEvents setting for this event
   description: 'Details',    // Optional: Event description (also used for tooltip)
   tooltip: 'Custom tooltip'  // Optional: Custom tooltip text (overrides description)
 }</code></pre>
@@ -991,6 +1007,143 @@ new SimpleCalendarJs('#calendar', {
 
       <div class="note">
         <p><strong>Note:</strong> This option only affects timed events in month view. All-day events always display as blocks, and week/day views always use block style with duration-based heights.</p>
+      </div>
+    </section>
+
+    <!-- Auto-Contrast Text Color -->
+    <section id="auto-contrast" class="section">
+      <h2>Auto-Contrast Text Color</h2>
+      <p>SimpleCalendarJs can automatically calculate the best text color (black or white) for event text based on the background color, ensuring optimal readability.</p>
+
+      <h3>How It Works</h3>
+      <p>When <code>autoContrastText</code> is enabled, the calendar uses the WCAG relative luminance formula to determine whether black or white text provides better contrast:</p>
+      <ul>
+        <li><strong>Light backgrounds</strong> (luminance &gt; 0.5) → Black text (#000000)</li>
+        <li><strong>Dark backgrounds</strong> (luminance ≤ 0.5) → White text (#ffffff)</li>
+      </ul>
+
+      <h3>Basic Usage</h3>
+      <pre><code>const calendar = new SimpleCalendarJs('#calendar', {
+  autoContrastText: true,  // Enable automatic text color calculation
+  fetchEvents: async (start, end) => {
+    return [
+      {
+        id: 1,
+        title: 'Team Meeting',
+        start: new Date('2024-03-15T10:00:00'),
+        color: '#ffeb3b'  // Yellow background → auto-calculated black text
+      },
+      {
+        id: 2,
+        title: 'Project Review',
+        start: new Date('2024-03-16T14:00:00'),
+        color: '#1a237e'  // Dark blue background → auto-calculated white text
+      }
+    ];
+  }
+});</code></pre>
+
+      <h3>Manual Override</h3>
+      <p>Individual events can override the auto-calculated color with a custom <code>textColor</code>:</p>
+      <pre><code>{
+  id: 1,
+  title: 'Special Event',
+  start: new Date('2024-03-15T10:00:00'),
+  color: '#4caf50',      // Green background
+  textColor: '#ffeb3b'   // Force yellow text (overrides auto-contrast)
+}</code></pre>
+
+      <h3>Priority Order</h3>
+      <p>Text color is determined in this order:</p>
+      <ol>
+        <li><code>event.textColor</code> (highest priority) - Manual override</li>
+        <li><code>autoContrastText: true</code> - Automatic calculation based on background color</li>
+        <li>CSS variable <code>--cal-event-text</code> (default) - Fallback to theme default</li>
+      </ol>
+
+      <div class="note">
+        <p><strong>When to use:</strong> Enable <code>autoContrastText</code> when events have diverse background colors from user preferences or categories. Disable it (default) when all events use similar colors with known good contrast.</p>
+      </div>
+    </section>
+
+    <!-- HTML in Event Titles -->
+    <section id="html-events" class="section">
+      <h2>HTML in Event Titles</h2>
+      <p>SimpleCalendarJs allows basic HTML formatting in event titles for icons, bold/italic text, and simple styling while maintaining security through automatic sanitization.</p>
+
+      <h3>Security & Sanitization</h3>
+      <p>All HTML is automatically sanitized to prevent XSS attacks:</p>
+      <ul>
+        <li><strong>Allowed tags:</strong> <code>&lt;b&gt;</code>, <code>&lt;i&gt;</code>, <code>&lt;strong&gt;</code>, <code>&lt;em&gt;</code>, <code>&lt;span&gt;</code>, <code>&lt;br&gt;</code></li>
+        <li><strong>Allowed attributes:</strong> <code>class</code> (for icon libraries like Font Awesome)</li>
+        <li><strong>Blocked:</strong> <code>&lt;script&gt;</code>, event handlers (<code>onclick</code>, <code>onerror</code>), dangerous attributes</li>
+        <li><strong>Character limit:</strong> Class names are sanitized to alphanumeric, dash, underscore, and space only</li>
+      </ul>
+
+      <h3>Basic Usage</h3>
+      <pre><code>const calendar = new SimpleCalendarJs('#calendar', {
+  allowHtmlInEvents: true,  // Enable HTML rendering
+  fetchEvents: async (start, end) => {
+    return [
+      {
+        id: 1,
+        title: '&lt;b&gt;Important&lt;/b&gt; Meeting',
+        start: new Date('2024-03-15T10:00:00')
+      },
+      {
+        id: 2,
+        title: 'Design &lt;i&gt;Review&lt;/i&gt;',
+        start: new Date('2024-03-16T14:00:00')
+      }
+    ];
+  }
+});</code></pre>
+
+      <h3>Font Awesome Icons</h3>
+      <p>Perfect for adding visual indicators:</p>
+      <pre><code>{
+  id: 1,
+  title: '&lt;i class="fas fa-video"&gt;&lt;/i&gt; Video Call',
+  start: new Date('2024-03-15T10:00:00')
+}
+
+{
+  id: 2,
+  title: '&lt;i class="fas fa-plane"&gt;&lt;/i&gt; Flight to NYC',
+  start: new Date('2024-03-16T14:00:00'),
+  allDay: true
+}
+
+{
+  id: 3,
+  title: '&lt;i class="fas fa-birthday-cake"&gt;&lt;/i&gt; &lt;b&gt;Sarah&lt;/b&gt; Birthday',
+  start: new Date('2024-03-20T00:00:00'),
+  allDay: true
+}</code></pre>
+
+      <h3>Per-Event Control</h3>
+      <p>Override the global setting for specific events:</p>
+      <pre><code>const calendar = new SimpleCalendarJs('#calendar', {
+  allowHtmlInEvents: false,  // Disabled globally
+  fetchEvents: async (start, end) => {
+    return [
+      {
+        id: 1,
+        title: 'Regular Meeting',  // Plain text
+        start: new Date('2024-03-15T10:00:00')
+      },
+      {
+        id: 2,
+        title: '&lt;i class="fas fa-star"&gt;&lt;/i&gt; &lt;b&gt;VIP&lt;/b&gt; Client Call',
+        start: new Date('2024-03-16T14:00:00'),
+        allowHtml: true  // Enable HTML only for this event
+      }
+    ];
+  }
+});</code></pre>
+
+      <div class="note">
+        <p><strong>Default behavior:</strong> HTML is disabled by default (<code>allowHtmlInEvents: false</code>). All HTML is sanitized - dangerous tags and attributes are stripped. Tooltips do NOT render HTML (security consideration).</p>
       </div>
     </section>
 

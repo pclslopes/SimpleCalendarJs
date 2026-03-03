@@ -9,6 +9,21 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 No unreleased changes yet.
 
+## [3.0.10] - 2026-03-03
+
+### Added
+- **Auto-contrast text color** - New `autoContrastText` option automatically calculates optimal text color (black/white) based on event background color using WCAG luminance formula
+  - Ensures readable text on both light and dark event backgrounds
+  - Per-event override via `textColor` property
+  - Default: `false` (backward compatible)
+- **HTML rendering in event titles** - New `allowHtmlInEvents` option enables safe HTML formatting in event titles
+  - Supports basic tags: `<b>`, `<i>`, `<strong>`, `<em>`, `<span>`, `<br>`
+  - Perfect for Font Awesome icons: `<i class="fas fa-video"></i> Video Call`
+  - Automatic sanitization prevents XSS attacks (strips scripts, event handlers, dangerous attributes)
+  - Only `class` attribute allowed (sanitized to alphanumeric + `-_`)
+  - Per-event override via `allowHtml` property
+  - Default: `false` (backward compatible)
+
 ## [3.0.9] - 2026-02-25
 
 ### Fixed

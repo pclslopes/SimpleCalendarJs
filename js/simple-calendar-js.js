@@ -1,5 +1,5 @@
 /**
- * SimpleCalendarJs v3.0.9
+ * SimpleCalendarJs v3.0.10
  * A clean, modern, and feature-rich JavaScript calendar component with zero dependencies
  *
  * @author Pedro Lopes <simplecalendarjs@gmail.com>
@@ -155,6 +155,102 @@
       .replace(/>/g, '&gt;')
       .replace(/"/g, '&quot;')
       .replace(/'/g, '&#39;');
+  }
+
+  /**
+   * Sanitize HTML to allow only safe tags and attributes.
+   * Allows: <b>, <i>, <strong>, <em>, <span>, <br> with 'class' attribute for icons.
+   * Strips: <script>, event handlers (onclick, onerror, etc.), and dangerous attributes.
+   */
+  function sanitizeHtml(html) {
+    if (!html) return '';
+
+    // Create a temporary div to parse HTML
+    const temp = document.createElement('div');
+    temp.innerHTML = html;
+
+    // Allowed tags
+    const allowedTags = ['B', 'I', 'STRONG', 'EM', 'SPAN', 'BR'];
+
+    // Recursively clean nodes
+    function cleanNode(node) {
+      // Remove dangerous tags completely
+      if (node.nodeType === 1) { // Element node
+        if (!allowedTags.includes(node.nodeName)) {
+          // Replace with text content only
+          const textNode = document.createTextNode(node.textContent || '');
+          node.parentNode?.replaceChild(textNode, node);
+          return;
+        }
+
+        // Remove all attributes except 'class'
+        const attrs = Array.from(node.attributes);
+        attrs.forEach(attr => {
+          if (attr.name !== 'class') {
+            node.removeAttribute(attr.name);
+          }
+        });
+
+        // Sanitize class attribute - only allow alphanumeric, dash, underscore, space
+        if (node.hasAttribute('class')) {
+          const className = node.getAttribute('class') || '';
+          const sanitizedClass = className.replace(/[^a-zA-Z0-9\s\-_]/g, '');
+          if (sanitizedClass) {
+            node.setAttribute('class', sanitizedClass);
+          } else {
+            node.removeAttribute('class');
+          }
+        }
+      }
+
+      // Process children
+      Array.from(node.childNodes).forEach(child => cleanNode(child));
+    }
+
+    cleanNode(temp);
+    return temp.innerHTML;
+  }
+
+  /**
+   * Helper to get event title HTML - either escaped or sanitized based on settings.
+   */
+  function getEventTitleHtml(title, allowHtmlGlobal, allowHtmlEvent) {
+    if (!title) return '';
+
+    // Check if HTML is allowed (global setting or per-event override)
+    const shouldAllowHtml = allowHtmlEvent !== undefined ? allowHtmlEvent : allowHtmlGlobal;
+
+    return shouldAllowHtml ? sanitizeHtml(title) : esc(title);
+  }
+
+  /* ============================================================
+     COLOR UTILITIES
+     ============================================================ */
+
+  /**
+   * Calculate the best contrasting text color (black or white) for a given background color.
+   * Returns black (#000000) for light backgrounds, white (#ffffff) for dark backgrounds.
+   * Uses WCAG relative luminance formula.
+   */
+  function getContrastColor(hexColor) {
+    // If it's a CSS variable or not a hex color, return default
+    if (!hexColor || hexColor.startsWith('var(') || !hexColor.match(/^#?[0-9A-Fa-f]{6}$/)) {
+      return 'var(--cal-event-text)';
+    }
+
+    // Remove # if present
+    hexColor = hexColor.replace('#', '');
+
+    // Convert to RGB
+    const r = parseInt(hexColor.substr(0, 2), 16);
+    const g = parseInt(hexColor.substr(2, 2), 16);
+    const b = parseInt(hexColor.substr(4, 2), 16);
+
+    // Calculate relative luminance (WCAG formula)
+    const luminance = (0.299 * r + 0.587 * g + 0.114 * b) / 255;
+
+    // Return black for light backgrounds, white for dark backgrounds
+    return luminance > 0.5 ? '#000000' : '#ffffff';
   }
 
   /* ============================================================
@@ -376,6 +472,8 @@
           enabledViews: ['month', 'week', 'day'],
           enableDragDrop: false,
           enableResize: false,
+          autoContrastText: false,
+          allowHtmlInEvents: false,
           fetchEvents: null,
           onEventClick: null,
           onSlotClick: null,
@@ -1020,6 +1118,7 @@
         const topCss = `calc(var(--cal-header-day-height) + ${slot} * (var(--cal-event-height) + var(--cal-event-gap)) + 4px)`;
 
         const color = event.color || 'var(--cal-event-bg)';
+        const textColor = event.textColor || (this._opts.autoContrastText ? getContrastColor(color) : 'var(--cal-event-text)');
         const rl = isStart ? 'var(--cal-event-border-radius)' : '0';
         const rr = isEnd ? 'var(--cal-event-border-radius)' : '0';
         const contL = !isStart ? ' uc-continues-left' : '';
@@ -1033,10 +1132,10 @@
           : '';
         barsHtml += `
           <div class="uc-event-bar${contL}${contR}"
-               style="left:calc(${left}% + 2px);width:calc(${width}% - 4px);top:${topCss};background:${esc(color)};border-radius:${rl} ${rr} ${rr} ${rl};"
+               style="left:calc(${left}% + 2px);width:calc(${width}% - 4px);top:${topCss};background:${esc(color)};color:${esc(textColor)};border-radius:${rl} ${rr} ${rr} ${rl};"
                data-event-id="${esc(event.id)}" data-action="event-click"
                ${tooltipAttr}>
-            ${isStart ? `<span class="uc-event-title">${esc(event.title)}</span>` : '&nbsp;'}
+            ${isStart ? `<span class="uc-event-title">${getEventTitleHtml(event.title, this._opts.allowHtmlInEvents, event.allowHtml)}</span>` : '&nbsp;'}
             ${resizeHandle}
           </div>`;
       }
@@ -1062,6 +1161,7 @@
             maxSlotUsed = Math.max(maxSlotUsed, slot);
             const topCss = `calc(var(--cal-header-day-height) + ${slot} * (var(--cal-event-height) + var(--cal-event-gap)) + 4px)`;
             const color = ev.color || 'var(--cal-event-bg)';
+            const textColor = ev.textColor || (this._opts.autoContrastText ? getContrastColor(color) : 'var(--cal-event-text)');
             const timeStr = fmtTime(ev.start, this._opts.locale, this._opts.use24Hour);
             const tooltipAttr = this._opts.showTooltips
               ? `data-tooltip="${esc(ev.tooltip || ev.description || ev.title)}"`
@@ -1080,7 +1180,7 @@
                    ${tooltipAttr}>
                 <span class="uc-event-dot" style="background:${esc(color)};"></span>
                 ${timeHtml}
-                <span class="uc-event-title">${esc(ev.title)}</span>
+                <span class="uc-event-title">${getEventTitleHtml(ev.title, this._opts.allowHtmlInEvents, ev.allowHtml)}</span>
               </div>`;
             } else {
               // Block style: traditional colored background
@@ -1089,11 +1189,11 @@
                 : '';
               barsHtml += `
               <div class="uc-event-bar"
-                   style="left:calc(${left}% + 2px);width:calc(${cw}% - 4px);top:${topCss};background:${esc(color)};"
+                   style="left:calc(${left}% + 2px);width:calc(${cw}% - 4px);top:${topCss};background:${esc(color)};color:${esc(textColor)};"
                    data-event-id="${esc(ev.id)}" data-action="event-click"
                    ${tooltipAttr}>
                 ${timeHtml}
-                <span class="uc-event-title">${esc(ev.title)}</span>
+                <span class="uc-event-title">${getEventTitleHtml(ev.title, this._opts.allowHtmlInEvents, ev.allowHtml)}</span>
               </div>`;
             }
           });
@@ -1113,6 +1213,7 @@
               maxSlotUsed = Math.max(maxSlotUsed, slot);
               const topCss = `calc(var(--cal-header-day-height) + ${slot} * (var(--cal-event-height) + var(--cal-event-gap)) + 4px)`;
               const color = ev.color || 'var(--cal-event-bg)';
+              const textColor = ev.textColor || (this._opts.autoContrastText ? getContrastColor(color) : 'var(--cal-event-text)');
               const timeStr = fmtTime(ev.start, this._opts.locale, this._opts.use24Hour);
               const tooltipAttr = this._opts.showTooltips
                 ? `data-tooltip="${esc(ev.tooltip || ev.description || ev.title)}"`
@@ -1131,7 +1232,7 @@
                    ${tooltipAttr}>
                 <span class="uc-event-dot" style="background:${esc(color)};"></span>
                 ${timeHtml}
-                <span class="uc-event-title">${esc(ev.title)}</span>
+                <span class="uc-event-title">${getEventTitleHtml(ev.title, this._opts.allowHtmlInEvents, ev.allowHtml)}</span>
               </div>`;
               } else {
                 // Block style: traditional colored background
@@ -1140,11 +1241,11 @@
                   : '';
                 barsHtml += `
               <div class="uc-event-bar"
-                   style="left:calc(${left}% + 2px);width:calc(${cw}% - 4px);top:${topCss};background:${esc(color)};"
+                   style="left:calc(${left}% + 2px);width:calc(${cw}% - 4px);top:${topCss};background:${esc(color)};color:${esc(textColor)};"
                    data-event-id="${esc(ev.id)}" data-action="event-click"
                    ${tooltipAttr}>
                 ${timeHtml}
-                <span class="uc-event-title">${esc(ev.title)}</span>
+                <span class="uc-event-title">${getEventTitleHtml(ev.title, this._opts.allowHtmlInEvents, ev.allowHtml)}</span>
               </div>`;
               }
             } else {
@@ -1246,6 +1347,7 @@
         const width = (endCol - startCol + 1) * cw;
         const topCss = `calc(${slot} * (var(--cal-event-height) + 3px) + 2px)`;
         const color = event.color || 'var(--cal-event-bg)';
+        const textColor = event.textColor || (this._opts.autoContrastText ? getContrastColor(color) : 'var(--cal-event-text)');
         const rl = isStart ? 'var(--cal-event-border-radius)' : '0';
         const rr = isEnd ? 'var(--cal-event-border-radius)' : '0';
         const contL = !isStart ? ' uc-continues-left' : '';
@@ -1259,10 +1361,10 @@
 
         allDayBarsHtml += `
           <div class="uc-event-bar${contL}${contR}"
-               style="left:calc(${left}% + 2px);width:calc(${width}% - 4px);top:${topCss};background:${esc(color)};border-radius:${rl} ${rr} ${rr} ${rl};"
+               style="left:calc(${left}% + 2px);width:calc(${width}% - 4px);top:${topCss};background:${esc(color)};color:${esc(textColor)};border-radius:${rl} ${rr} ${rr} ${rl};"
                data-event-id="${esc(event.id)}" data-action="event-click"
                ${tooltipAttr}>
-            <span class="uc-event-title">${esc(event.title)}</span>
+            <span class="uc-event-title">${getEventTitleHtml(event.title, this._opts.allowHtmlInEvents, event.allowHtml)}</span>
             ${resizeHandle}
           </div>`;
       }
@@ -1306,6 +1408,7 @@
               const leftCss = `calc(${col * cw}% + 1px)`;
               const widthCss = `calc(${cw}% - 2px)`;
               const color = event.color || 'var(--cal-event-bg)';
+              const textColor = event.textColor || (this._opts.autoContrastText ? getContrastColor(color) : 'var(--cal-event-text)');
               const timeStr = fmtTime(event.start, locale, use24Hour);
               const actualDur = em - sm;
               const isShort = actualDur <= 60;
@@ -1324,11 +1427,11 @@
               // Week/day views always use block style
               return `
                 <div class="uc-timed-event${shortClass}"
-                     style="top:${topCss};height:${heightCss};left:${leftCss};width:${widthCss};background:${esc(color)};"
+                     style="top:${topCss};height:${heightCss};left:${leftCss};width:${widthCss};background:${esc(color)};color:${esc(textColor)};"
                      data-event-id="${esc(event.id)}" data-action="event-click"
                      ${tooltipAttr}>
                   ${timeHtml}
-                  <span class="uc-event-title">${esc(event.title)}</span>
+                  <span class="uc-event-title">${getEventTitleHtml(event.title, this._opts.allowHtmlInEvents, event.allowHtml)}</span>
                   ${resizeHandle}
                 </div>`;
             })
@@ -1439,7 +1542,7 @@
               <div class="uc-list-event-indicator" style="background: ${esc(color)};"></div>
               <div class="uc-list-event-time">${esc(timeStr)}</div>
               <div class="uc-list-event-content">
-                <div class="uc-list-event-title">${esc(event.title)}</div>
+                <div class="uc-list-event-title">${getEventTitleHtml(event.title, this._opts.allowHtmlInEvents, event.allowHtml)}</div>
               </div>
             </div>`;
         }).join('');
