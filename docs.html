@@ -494,7 +494,13 @@ const calendar = new SimpleCalendarJs('#calendar', {
               <td><code>autoContrastText</code></td>
               <td>Boolean</td>
               <td><code>false</code></td>
-              <td>Automatically calculate contrasting text color (black/white) based on event background color for better readability</td>
+              <td>Automatically calculate contrasting text color based on event background color for better readability</td>
+            </tr>
+            <tr>
+              <td><code>contrastLevel</code></td>
+              <td>String</td>
+              <td><code>'high'</code></td>
+              <td>Text contrast level when <code>autoContrastText</code> is enabled: <code>'high'</code> (black/white), <code>'medium'</code> (darker/lighter shade), <code>'low'</code> (subtle variation)</td>
             </tr>
             <tr>
               <td><code>allowHtmlInEvents</code></td>
@@ -1013,31 +1019,49 @@ new SimpleCalendarJs('#calendar', {
     <!-- Auto-Contrast Text Color -->
     <section id="auto-contrast" class="section">
       <h2>Auto-Contrast Text Color</h2>
-      <p>SimpleCalendarJs can automatically calculate the best text color (black or white) for event text based on the background color, ensuring optimal readability.</p>
+      <p>SimpleCalendarJs can automatically calculate the best text color for event text based on the background color, ensuring optimal readability with configurable contrast levels.</p>
 
-      <h3>How It Works</h3>
-      <p>When <code>autoContrastText</code> is enabled, the calendar uses the WCAG relative luminance formula to determine whether black or white text provides better contrast:</p>
+      <h3>Contrast Levels</h3>
+      <p>Choose from three contrast levels to match your design preferences:</p>
+
+      <h4>High Contrast (default: <code>'high'</code>)</h4>
+      <p>Pure black or white text for maximum readability:</p>
       <ul>
         <li><strong>Light backgrounds</strong> (luminance &gt; 0.5) → Black text (#000000)</li>
         <li><strong>Dark backgrounds</strong> (luminance ≤ 0.5) → White text (#ffffff)</li>
       </ul>
 
+      <h4>Medium Contrast (<code>'medium'</code>)</h4>
+      <p>Darker or lighter shade of the background color for a more integrated look:</p>
+      <ul>
+        <li><strong>Light backgrounds</strong> → Darkened version of the background color</li>
+        <li><strong>Dark backgrounds</strong> → Lightened version of the background color</li>
+      </ul>
+
+      <h4>Low Contrast (<code>'low'</code>)</h4>
+      <p>Subtle variation that maintains the color family:</p>
+      <ul>
+        <li><strong>Light backgrounds</strong> → Slightly darker shade</li>
+        <li><strong>Dark backgrounds</strong> → Slightly lighter shade</li>
+      </ul>
+
       <h3>Basic Usage</h3>
       <pre><code>const calendar = new SimpleCalendarJs('#calendar', {
-  autoContrastText: true,  // Enable automatic text color calculation
+  autoContrastText: true,     // Enable automatic text color calculation
+  contrastLevel: 'medium',    // Choose: 'high', 'medium', or 'low'
   fetchEvents: async (start, end) => {
     return [
       {
         id: 1,
         title: 'Team Meeting',
         start: new Date('2024-03-15T10:00:00'),
-        color: '#ffeb3b'  // Yellow background → auto-calculated black text
+        color: '#ffeb3b'  // Yellow background → auto-calculated dark yellow text
       },
       {
         id: 2,
         title: 'Project Review',
         start: new Date('2024-03-16T14:00:00'),
-        color: '#1a237e'  // Dark blue background → auto-calculated white text
+        color: '#1a237e'  // Dark blue background → auto-calculated light blue text
       }
     ];
   }

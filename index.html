@@ -810,6 +810,15 @@
       </div>
 
       <div class="option-group">
+        <span class="option-label">Contrast Level</span>
+        <select class="option-select" id="opt-contrast-level">
+          <option value="high" selected>High (black/white)</option>
+          <option value="medium">Medium (darker/lighter)</option>
+          <option value="low">Low (subtle)</option>
+        </select>
+      </div>
+
+      <div class="option-group">
         <span class="option-label">Allow HTML in Events</span>
         <div style="display:flex;align-items:center;gap:8px;">
           <button class="opt-toggle-track" id="opt-allow-html" role="switch" aria-checked="false">
@@ -1047,6 +1056,7 @@
       enableDragDrop: false,
       enableResize: false,
       autoContrastText: false,
+      contrastLevel: 'high',
       allowHtmlInEvents: false,
       monthTimedEventStyle: 'list',
     };
@@ -1392,6 +1402,13 @@
       toggleAutoContrast.setAttribute('aria-checked', opts.autoContrastText);
       labelAutoContrast.textContent = opts.autoContrastText ? 'On' : 'Off';
       log('opt', 'tag-opt', `autoContrastText → ${opts.autoContrastText}`);
+      createCalendar();
+    });
+
+    // Contrast Level
+    document.getElementById('opt-contrast-level').addEventListener('change', e => {
+      opts.contrastLevel = e.target.value;
+      log('opt', 'tag-opt', `contrastLevel → "${opts.contrastLevel}"`);
       createCalendar();
     });
 

@@ -12,10 +12,15 @@ No unreleased changes yet.
 ## [3.0.10] - 2026-03-03
 
 ### Added
-- **Auto-contrast text color** - New `autoContrastText` option automatically calculates optimal text color (black/white) based on event background color using WCAG luminance formula
+- **Auto-contrast text color** - New `autoContrastText` option automatically calculates optimal text color based on event background color using WCAG luminance formula
   - Ensures readable text on both light and dark event backgrounds
   - Per-event override via `textColor` property
   - Default: `false` (backward compatible)
+- **Contrast level control** - New `contrastLevel` option for `autoContrastText` feature with three levels:
+  - `'high'` (default) - Pure black or white text for maximum readability
+  - `'medium'` - Darker/lighter shade of background color for integrated look
+  - `'low'` - Subtle variation maintaining color family
+  - Uses HSL color space for smooth color transitions
 - **HTML rendering in event titles** - New `allowHtmlInEvents` option enables safe HTML formatting in event titles
   - Supports basic tags: `<b>`, `<i>`, `<strong>`, `<em>`, `<span>`, `<br>`
   - Perfect for Font Awesome icons: `<i class="fas fa-video"></i> Video Call`

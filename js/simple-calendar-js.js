@@ -228,11 +228,101 @@
      ============================================================ */
 
   /**
-   * Calculate the best contrasting text color (black or white) for a given background color.
-   * Returns black (#000000) for light backgrounds, white (#ffffff) for dark backgrounds.
-   * Uses WCAG relative luminance formula.
+   * Convert hex color to RGB values
    */
-  function getContrastColor(hexColor) {
+  function hexToRgb(hex) {
+    hex = hex.replace('#', '');
+    return {
+      r: parseInt(hex.substr(0, 2), 16),
+      g: parseInt(hex.substr(2, 2), 16),
+      b: parseInt(hex.substr(4, 2), 16)
+    };
+  }
+
+  /**
+   * Convert RGB to HSL
+   */
+  function rgbToHsl(r, g, b) {
+    r /= 255;
+    g /= 255;
+    b /= 255;
+
+    const max = Math.max(r, g, b);
+    const min = Math.min(r, g, b);
+    let h, s, l = (max + min) / 2;
+
+    if (max === min) {
+      h = s = 0; // achromatic
+    } else {
+      const d = max - min;
+      s = l > 0.5 ? d / (2 - max - min) : d / (max + min);
+
+      switch (max) {
+        case r: h = ((g - b) / d + (g < b ? 6 : 0)) / 6; break;
+        case g: h = ((b - r) / d + 2) / 6; break;
+        case b: h = ((r - g) / d + 4) / 6; break;
+      }
+    }
+
+    return { h: h * 360, s: s * 100, l: l * 100 };
+  }
+
+  /**
+   * Convert HSL to RGB
+   */
+  function hslToRgb(h, s, l) {
+    h /= 360;
+    s /= 100;
+    l /= 100;
+
+    let r, g, b;
+
+    if (s === 0) {
+      r = g = b = l; // achromatic
+    } else {
+      const hue2rgb = (p, q, t) => {
+        if (t < 0) t += 1;
+        if (t > 1) t -= 1;
+        if (t < 1/6) return p + (q - p) * 6 * t;
+        if (t < 1/2) return q;
+        if (t < 2/3) return p + (q - p) * (2/3 - t) * 6;
+        return p;
+      };
+
+      const q = l < 0.5 ? l * (1 + s) : l + s - l * s;
+      const p = 2 * l - q;
+
+      r = hue2rgb(p, q, h + 1/3);
+      g = hue2rgb(p, q, h);
+      b = hue2rgb(p, q, h - 1/3);
+    }
+
+    return {
+      r: Math.round(r * 255),
+      g: Math.round(g * 255),
+      b: Math.round(b * 255)
+    };
+  }
+
+  /**
+   * Convert RGB to hex
+   */
+  function rgbToHex(r, g, b) {
+    const toHex = (n) => {
+      const hex = Math.max(0, Math.min(255, n)).toString(16);
+      return hex.length === 1 ? '0' + hex : hex;
+    };
+    return '#' + toHex(r) + toHex(g) + toHex(b);
+  }
+
+  /**
+   * Calculate the best contrasting text color based on background color and contrast level.
+   *
+   * @param {string} hexColor - Background color in hex format
+   * @param {string} level - Contrast level: 'high' (black/white), 'medium' (darker/lighter shade), 'low' (subtle variation)
+   * @returns {string} Hex color for text
+   */
+  function getContrastColor(hexColor, level = 'high') {
     // If it's a CSS variable or not a hex color, return default
     if (!hexColor || hexColor.startsWith('var(') || !hexColor.match(/^#?[0-9A-Fa-f]{6}$/)) {
       return 'var(--cal-event-text)';
@@ -240,17 +330,49 @@
 
     // Remove # if present
     hexColor = hexColor.replace('#', '');
+    hexColor = '#' + hexColor;
 
     // Convert to RGB
-    const r = parseInt(hexColor.substr(0, 2), 16);
-    const g = parseInt(hexColor.substr(2, 2), 16);
-    const b = parseInt(hexColor.substr(4, 2), 16);
+    const rgb = hexToRgb(hexColor);
 
     // Calculate relative luminance (WCAG formula)
-    const luminance = (0.299 * r + 0.587 * g + 0.114 * b) / 255;
+    const luminance = (0.299 * rgb.r + 0.587 * rgb.g + 0.114 * rgb.b) / 255;
+    const isLight = luminance > 0.5;
 
-    // Return black for light backgrounds, white for dark backgrounds
-    return luminance > 0.5 ? '#000000' : '#ffffff';
+    // High contrast: pure black or white
+    if (level === 'high') {
+      return isLight ? '#000000' : '#ffffff';
+    }
+
+    // Medium/Low contrast: adjust the background color
+    const hsl = rgbToHsl(rgb.r, rgb.g, rgb.b);
+
+    if (level === 'medium') {
+      // Medium contrast: significant lightness shift
+      if (isLight) {
+        // Darken by 40-50%
+        hsl.l = Math.max(10, hsl.l - 50);
+      } else {
+        // Lighten by 40-50%
+        hsl.l = Math.min(90, hsl.l + 50);
+      }
+      // Slightly increase saturation for better visibility
+      hsl.s = Math.min(100, hsl.s + 10);
+    } else if (level === 'low') {
+      // Low contrast: subtle lightness shift
+      if (isLight) {
+        // Darken by 25-30%
+        hsl.l = Math.max(15, hsl.l - 30);
+      } else {
+        // Lighten by 25-30%
+        hsl.l = Math.min(85, hsl.l + 30);
+      }
+      // Keep saturation similar
+      hsl.s = Math.min(100, hsl.s + 5);
+    }
+
+    const newRgb = hslToRgb(hsl.h, hsl.s, hsl.l);
+    return rgbToHex(newRgb.r, newRgb.g, newRgb.b);
   }
 
   /* ============================================================
@@ -473,6 +595,7 @@
           enableDragDrop: false,
           enableResize: false,
           autoContrastText: false,
+          contrastLevel: 'high',
           allowHtmlInEvents: false,
           fetchEvents: null,
           onEventClick: null,
@@ -1118,7 +1241,7 @@
         const topCss = `calc(var(--cal-header-day-height) + ${slot} * (var(--cal-event-height) + var(--cal-event-gap)) + 4px)`;
 
         const color = event.color || 'var(--cal-event-bg)';
-        const textColor = event.textColor || (this._opts.autoContrastText ? getContrastColor(color) : 'var(--cal-event-text)');
+        const textColor = event.textColor || (this._opts.autoContrastText ? getContrastColor(color, this._opts.contrastLevel) : 'var(--cal-event-text)');
         const rl = isStart ? 'var(--cal-event-border-radius)' : '0';
         const rr = isEnd ? 'var(--cal-event-border-radius)' : '0';
         const contL = !isStart ? ' uc-continues-left' : '';
@@ -1161,7 +1284,7 @@
             maxSlotUsed = Math.max(maxSlotUsed, slot);
             const topCss = `calc(var(--cal-header-day-height) + ${slot} * (var(--cal-event-height) + var(--cal-event-gap)) + 4px)`;
             const color = ev.color || 'var(--cal-event-bg)';
-            const textColor = ev.textColor || (this._opts.autoContrastText ? getContrastColor(color) : 'var(--cal-event-text)');
+            const textColor = ev.textColor || (this._opts.autoContrastText ? getContrastColor(color, this._opts.contrastLevel) : 'var(--cal-event-text)');
             const timeStr = fmtTime(ev.start, this._opts.locale, this._opts.use24Hour);
             const tooltipAttr = this._opts.showTooltips
               ? `data-tooltip="${esc(ev.tooltip || ev.description || ev.title)}"`
@@ -1213,7 +1336,7 @@
               maxSlotUsed = Math.max(maxSlotUsed, slot);
               const topCss = `calc(var(--cal-header-day-height) + ${slot} * (var(--cal-event-height) + var(--cal-event-gap)) + 4px)`;
               const color = ev.color || 'var(--cal-event-bg)';
-              const textColor = ev.textColor || (this._opts.autoContrastText ? getContrastColor(color) : 'var(--cal-event-text)');
+              const textColor = ev.textColor || (this._opts.autoContrastText ? getContrastColor(color, this._opts.contrastLevel) : 'var(--cal-event-text)');
               const timeStr = fmtTime(ev.start, this._opts.locale, this._opts.use24Hour);
               const tooltipAttr = this._opts.showTooltips
                 ? `data-tooltip="${esc(ev.tooltip || ev.description || ev.title)}"`
@@ -1347,7 +1470,7 @@
         const width = (endCol - startCol + 1) * cw;
         const topCss = `calc(${slot} * (var(--cal-event-height) + 3px) + 2px)`;
         const color = event.color || 'var(--cal-event-bg)';
-        const textColor = event.textColor || (this._opts.autoContrastText ? getContrastColor(color) : 'var(--cal-event-text)');
+        const textColor = event.textColor || (this._opts.autoContrastText ? getContrastColor(color, this._opts.contrastLevel) : 'var(--cal-event-text)');
         const rl = isStart ? 'var(--cal-event-border-radius)' : '0';
         const rr = isEnd ? 'var(--cal-event-border-radius)' : '0';
         const contL = !isStart ? ' uc-continues-left' : '';
@@ -1408,7 +1531,7 @@
               const leftCss = `calc(${col * cw}% + 1px)`;
               const widthCss = `calc(${cw}% - 2px)`;
               const color = event.color || 'var(--cal-event-bg)';
-              const textColor = event.textColor || (this._opts.autoContrastText ? getContrastColor(color) : 'var(--cal-event-text)');
+              const textColor = event.textColor || (this._opts.autoContrastText ? getContrastColor(color, this._opts.contrastLevel) : 'var(--cal-event-text)');
               const timeStr = fmtTime(event.start, locale, use24Hour);
               const actualDur = em - sm;
               const isShort = actualDur <= 60;

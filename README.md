@@ -179,7 +179,8 @@ export class CalendarComponent {
 | `enabledViews` | string[] | `['month', 'week', 'day']` | Available view modes. Add `'list'` to enable list view |
 | `enableDragDrop` | boolean | `false` | Enable drag and drop to move events |
 | `enableResize` | boolean | `false` | Enable resizing events to change duration |
-| `autoContrastText` | boolean | `false` | Automatically calculate contrasting text color (black/white) based on event background color for better readability |
+| `autoContrastText` | boolean | `false` | Automatically calculate contrasting text color based on event background color for better readability |
+| `contrastLevel` | string | `'high'` | Text contrast level when `autoContrastText` is enabled: `'high'` (black/white), `'medium'` (darker/lighter shade), `'low'` (subtle variation) |
 | `allowHtmlInEvents` | boolean | `false` | Allow basic HTML tags in event titles (sanitized for security). Supports: `<b>`, `<i>`, `<strong>`, `<em>`, `<span>`, `<br>` with `class` attribute for icons |
 | `monthTimedEventStyle` | string | `'list'` | Display style for timed events in month view: `'list'` (schedule format) or `'block'` (traditional blocks) |
 | `fetchEvents` | function | `null` | Async function to fetch events: `async (start, end) => Event[]` |
@@ -559,37 +560,66 @@ const calendar = new SimpleCalendarJs('#calendar', {
 
 ## Auto-Contrast Text Color
 
-SimpleCalendarJs can automatically calculate the best text color (black or white) for event text based on the background color, ensuring optimal readability.
+SimpleCalendarJs can automatically calculate the best text color for event text based on the background color, ensuring optimal readability with configurable contrast levels.
 
-### How It Works
+### Contrast Levels
 
-When `autoContrastText` is enabled, the calendar uses the WCAG relative luminance formula to determine whether black or white text provides better contrast:
+Choose from three contrast levels to match your design preferences:
 
+#### High Contrast (default: `'high'`)
+Pure black or white text for maximum readability:
 - **Light backgrounds** (luminance > 0.5) → Black text (#000000)
 - **Dark backgrounds** (luminance ≤ 0.5) → White text (#ffffff)
+
+#### Medium Contrast (`'medium'`)
+Darker or lighter shade of the background color for a more integrated look:
+- **Light backgrounds** → Darkened version of the background color
+- **Dark backgrounds** → Lightened version of the background color
+
+#### Low Contrast (`'low'`)
+Subtle variation that maintains the color family:
+- **Light backgrounds** → Slightly darker shade
+- **Dark backgrounds** → Slightly lighter shade
 
 ### Basic Usage
 
 ```javascript
 const calendar = new SimpleCalendarJs('#calendar', {
-  autoContrastText: true,  // Enable automatic text color calculation
+  autoContrastText: true,     // Enable automatic text color calculation
+  contrastLevel: 'medium',    // Choose contrast level: 'high', 'medium', or 'low'
   fetchEvents: async (start, end) => {
     return [
       {
         id: 1,
         title: 'Team Meeting',
         start: new Date('2024-03-15T10:00:00'),
-        color: '#ffeb3b'  // Yellow background → auto-calculated black text
+        color: '#ffeb3b'  // Yellow background → auto-calculated dark yellow text
       },
       {
         id: 2,
         title: 'Project Review',
         start: new Date('2024-03-16T14:00:00'),
-        color: '#1a237e'  // Dark blue background → auto-calculated white text
+        color: '#1a237e'  // Dark blue background → auto-calculated light blue text
       }
     ];
   }
 });
+```
+
+### Comparison of Contrast Levels
+
+```javascript
+// High contrast (default) - Black or white
+{ color: '#4f46e5', autoContrastText: true, contrastLevel: 'high' }
+// Result: White text (#ffffff)
+
+// Medium contrast - Darker/lighter shade
+{ color: '#4f46e5', autoContrastText: true, contrastLevel: 'medium' }
+// Result: Light indigo text (calculated from background)
+
+// Low contrast - Subtle variation
+{ color: '#4f46e5', autoContrastText: true, contrastLevel: 'low' }
+// Result: Slightly lighter indigo text
 ```
 
 ### Manual Override
