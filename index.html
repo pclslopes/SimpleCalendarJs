@@ -829,10 +829,29 @@
       </div>
 
       <div class="option-group">
+        <span class="option-label">Fixed Height (600px)</span>
+        <div style="display:flex;align-items:center;gap:8px;">
+          <button class="opt-toggle-track on" id="opt-fixed-height" role="switch" aria-checked="true">
+            <span class="opt-toggle-thumb"></span>
+          </button>
+          <span class="opt-toggle-label" id="opt-fixed-height-label">On</span>
+        </div>
+      </div>
+
+      <div class="option-group">
         <span class="option-label">Month Timed Event Style</span>
         <select class="option-select" id="opt-month-timed-style">
           <option value="list" selected>List (dot + time + title)</option>
           <option value="block">Block (colored background)</option>
+        </select>
+      </div>
+
+      <div class="option-group">
+        <span class="option-label">Month Day Number Align</span>
+        <select class="option-select" id="opt-day-number-align">
+          <option value="left" selected>Left</option>
+          <option value="center">Center</option>
+          <option value="right">Right</option>
         </select>
       </div>
 
@@ -1425,10 +1444,40 @@
       createCalendar();
     });
 
+    // Fixed Height Toggle
+    let isFixedHeight = true;
+    const toggleFixedHeight = document.getElementById('opt-fixed-height');
+    const labelFixedHeight  = document.getElementById('opt-fixed-height-label');
+    const calContainer = document.getElementById('cal');
+
+    toggleFixedHeight.addEventListener('click', () => {
+      isFixedHeight = !isFixedHeight;
+      toggleFixedHeight.classList.toggle('on', isFixedHeight);
+      toggleFixedHeight.setAttribute('aria-checked', isFixedHeight);
+      labelFixedHeight.textContent = isFixedHeight ? 'On' : 'Off';
+
+      // Update container height
+      if (isFixedHeight) {
+        calContainer.style.height = '600px';
+      } else {
+        calContainer.style.height = 'auto';
+      }
+
+      log('opt', 'tag-opt', `Fixed Height → ${isFixedHeight ? '600px' : 'auto'}`);
+      createCalendar();
+    });
+
     // Month Timed Event Style
     document.getElementById('opt-month-timed-style').addEventListener('change', e => {
       opts.monthTimedEventStyle = e.target.value;
       log('opt', 'tag-opt', `monthTimedEventStyle → "${opts.monthTimedEventStyle}"`);
+      createCalendar();
+    });
+
+    // Month Day Number Align
+    document.getElementById('opt-day-number-align').addEventListener('change', e => {
+      opts.monthDayNumberAlign = e.target.value;
+      log('opt', 'tag-opt', `monthDayNumberAlign → "${opts.monthDayNumberAlign}"`);
       createCalendar();
     });
 

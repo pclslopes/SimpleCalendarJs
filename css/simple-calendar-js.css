@@ -583,6 +583,15 @@
   color: var(--cal-text-muted);
 }
 
+/* Day number alignment options */
+.uc-day-cell.uc-day-align-center {
+  text-align: center;
+}
+
+.uc-day-cell.uc-day-align-right {
+  text-align: right;
+}
+
 .uc-day-number {
   display: inline-flex;
   align-items: center;

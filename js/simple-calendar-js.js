@@ -582,6 +582,7 @@
           showTimeInItems: true,
           showGridLines: true,
           monthTimedEventStyle: 'list',
+          monthDayNumberAlign: 'left',
           showToolbar: true,
           showTodayButton: true,
           showNavigation: true,
@@ -1152,40 +1153,7 @@
         ? Math.floor((parentEl.clientHeight - (this._root.querySelector('.uc-toolbar')?.offsetHeight || 50) - (this._root.querySelector('.uc-month-header')?.offsetHeight || 36) - 2) / weeks.length)
         : null;
 
-      // In unlimited mode, calculate max slot across all weeks for uniform row heights
-      let uniformRowHeight = null;
-      if (!hasExplicitHeight && maxEvents === Infinity) {
-        let maxSlotAcrossAllWeeks = -1;
-        weeks.forEach((wk) => {
-          const weekEvents = normEvents.filter((e) =>
-            wk.some((date) => e.start <= endOfDay(date) && e.end >= startOfDay(date))
-          );
-          const multiDay = weekEvents.filter(isMultiDay);
-          const layout = layoutMultiDayForWeek(multiDay, wk);
-          layout.forEach(({ slot }) => {
-            maxSlotAcrossAllWeeks = Math.max(maxSlotAcrossAllWeeks, slot);
-          });
-          // Also check single-day events
-          wk.forEach((date) => {
-            const singleDay = weekEvents.filter((e) => !isMultiDay(e) && isSameDay(e.start, date));
-            const occupiedSlots = layout.filter((item) => {
-              const { startCol, endCol } = item;
-              const colIndex = wk.findIndex((d) => isSameDay(d, date));
-              return colIndex >= startCol && colIndex <= endCol;
-            }).length;
-            const singleDaySlots = occupiedSlots + singleDay.length;
-            maxSlotAcrossAllWeeks = Math.max(maxSlotAcrossAllWeeks, singleDaySlots - 1);
-          });
-        });
-
-        if (maxSlotAcrossAllWeeks >= 0) {
-          uniformRowHeight = `calc(var(--cal-header-day-height) + ${maxSlotAcrossAllWeeks + 1} * (var(--cal-event-height) + var(--cal-event-gap)) + 8px)`;
-        } else {
-          uniformRowHeight = '80px';
-        }
-      }
-
-      const body = weeks.map((wk) => this._buildWeekRow(wk, normEvents, maxEvents, cellHeight, uniformRowHeight)).join('');
+      const body = weeks.map((wk) => this._buildWeekRow(wk, normEvents, maxEvents, cellHeight)).join('');
 
       return `
         <div class="uc-month-view">
@@ -1195,7 +1163,7 @@
       `;
     }
 
-    _buildWeekRow(weekDates, allEvents, MAX, cellHeight = null, uniformRowHeight = null) {
+    _buildWeekRow(weekDates, allEvents, MAX, cellHeight = null) {
       const curMonth = this._date.getMonth();
 
       // Separate multi-day from single-day events
@@ -1216,12 +1184,14 @@
       );
 
       // --- Background cells ---
+      const alignClass = this._opts.monthDayNumberAlign === 'center' ? ' uc-day-align-center' :
+                         this._opts.monthDayNumberAlign === 'right' ? ' uc-day-align-right' : '';
       const cellsHtml = weekDates
         .map((date, col) => {
           const today = isToday(date) ? ' uc-today' : '';
           const other = date.getMonth() !== curMonth ? ' uc-other-month' : '';
           return `
-            <div class="uc-day-cell${today}${other}" data-date="${date.toISOString()}" data-action="day-click">
+            <div class="uc-day-cell${today}${other}${alignClass}" data-date="${date.toISOString()}" data-action="day-click">
               <span class="uc-day-number" data-action="day-number" data-date="${date.toISOString()}">${date.getDate()}</span>
             </div>`;
         })
@@ -1401,11 +1371,14 @@
       if (cellHeight !== null) {
         // Height-constrained mode: enforce exact height
         rowStyle = ` style="height: ${cellHeight}px;"`;
-      } else if (uniformRowHeight !== null) {
-        // Unlimited mode with uniform row height: all rows same height
-        rowStyle = ` style="min-height: ${uniformRowHeight};"`;
+      } else if (MAX === Infinity) {
+        // Unlimited mode: calculate individual row height based on this row's events
+        const rowHeight = maxSlotUsed >= 0
+          ? `calc(var(--cal-header-day-height) + ${maxSlotUsed + 1} * (var(--cal-event-height) + var(--cal-event-gap)) + 8px)`
+          : '80px';
+        rowStyle = ` style="min-height: ${rowHeight};"`;
       }
-      // Natural sizing mode (no cellHeight, no uniformRowHeight): let flex handle it with CSS min-height
+      // Natural sizing mode (limited mode with no explicit height): let flex handle it with CSS min-height
 
       return `
         <div class="uc-week-row"${rowStyle}>

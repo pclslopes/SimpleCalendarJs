@@ -279,6 +279,7 @@
       <a href="#tooltips">Tooltips</a>
       <a href="#dragdrop">Drag and Drop</a>
       <a href="#timed-event-style">Timed Event Style</a>
+      <a href="#row-heights">Row Heights</a>
       <a href="#auto-contrast">Auto-Contrast Text</a>
       <a href="#html-events">HTML in Events</a>
       <a href="#listview">List View</a>
@@ -513,6 +514,12 @@ const calendar = new SimpleCalendarJs('#calendar', {
               <td>String</td>
               <td><code>'list'</code></td>
               <td>Display style for timed events in month view: <code>'list'</code> (schedule format) or <code>'block'</code> (traditional blocks)</td>
+            </tr>
+            <tr>
+              <td><code>monthDayNumberAlign</code></td>
+              <td>String</td>
+              <td><code>'left'</code></td>
+              <td>Horizontal alignment of day numbers in month view cells: <code>'left'</code>, <code>'center'</code>, or <code>'right'</code></td>
             </tr>
           </tbody>
         </table>
@@ -1013,6 +1020,56 @@ new SimpleCalendarJs('#calendar', {
 
       <div class="note">
         <p><strong>Note:</strong> This option only affects timed events in month view. All-day events always display as blocks, and week/day views always use block style with duration-based heights.</p>
+      </div>
+    </section>
+
+    <!-- Month View Row Heights -->
+    <section id="row-heights" class="section">
+      <h2>Month View Row Heights</h2>
+      <p>Month view automatically adapts row heights based on your container's height and event content:</p>
+
+      <h3>Fixed Height Container</h3>
+      <p>When you set an explicit height on the calendar container (e.g., <code>height: 600px</code>), the calendar calculates the maximum number of events that can fit in each cell and displays a "+N more" indicator for overflow events.</p>
+
+      <pre><code>// HTML with fixed height
+&lt;div id="calendar" style="height: 600px;"&gt;&lt;/div&gt;
+
+// Calendar automatically limits events to fit the available space
+const calendar = new SimpleCalendarJs('#calendar', {
+  defaultView: 'month'
+});</code></pre>
+
+      <h3>Natural Height Container (Auto/Unlimited Mode)</h3>
+      <p>When the container has no explicit height (or <code>height: auto</code>), the calendar displays <strong>all events</strong> with <strong>variable row heights</strong>:</p>
+
+      <ul>
+        <li><strong>Rows with many events</strong> → Automatically expand to fit all events</li>
+        <li><strong>Rows with few events</strong> → Use minimal vertical space</li>
+        <li><strong>Empty rows</strong> → Collapse to minimum height (80px)</li>
+        <li><strong>Each row is independent</strong> → Heights calculated individually per row</li>
+      </ul>
+
+      <pre><code>// HTML with natural height
+&lt;div id="calendar" style="height: auto;"&gt;&lt;/div&gt;
+
+// or
+&lt;div id="calendar"&gt;&lt;/div&gt;
+
+// All events displayed, rows adapt to content
+const calendar = new SimpleCalendarJs('#calendar', {
+  defaultView: 'month'
+});</code></pre>
+
+      <h3>Benefits of Variable Row Heights</h3>
+      <ul>
+        <li><strong>Eliminates wasted space</strong>: Empty rows don't take up unnecessary vertical space</li>
+        <li><strong>Optimal density</strong>: Each week row is exactly as tall as it needs to be</li>
+        <li><strong>No uniform padding</strong>: Weeks with 20 events don't force empty weeks to be equally tall</li>
+        <li><strong>Better UX</strong>: Users see all events without clicking "+N more" when there's room</li>
+      </ul>
+
+      <div class="note">
+        <p><strong>Recommendation:</strong> Use fixed height containers when you need predictable layouts, and natural height when you want to show all events with minimal scrolling.</p>
       </div>
     </section>
 

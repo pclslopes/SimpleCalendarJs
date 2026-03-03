@@ -28,6 +28,18 @@ No unreleased changes yet.
   - Only `class` attribute allowed (sanitized to alphanumeric + `-_`)
   - Per-event override via `allowHtml` property
   - Default: `false` (backward compatible)
+- **Month day number alignment** - New `monthDayNumberAlign` option controls horizontal positioning of day numbers in month view cells
+  - Three alignment options: `'left'` (default), `'center'`, `'right'`
+  - Allows customization of calendar appearance to match design preferences
+  - Applied only to month view, does not affect week or day views
+
+### Changed
+- **Variable row heights in month view** - Month view rows now have individual heights based on their event content
+  - Rows with many events automatically expand to fit all events
+  - Rows with few or no events use minimal height (80px minimum)
+  - Eliminates wasted vertical space on empty rows
+  - Each row calculates its own optimal height independently
+  - Replaces previous uniform height behavior where all rows matched the tallest row
 
 ## [3.0.9] - 2026-02-25
 
