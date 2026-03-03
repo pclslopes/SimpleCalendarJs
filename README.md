@@ -19,6 +19,48 @@ A lightweight, zero-dependency JavaScript calendar component with internationali
 - **Accessible** - Semantic HTML with proper ARIA attributes
 - **Small Bundle Size** - ~45KB minified JS + ~22KB CSS (~16KB total gzipped)
 
+## Screenshots
+
+### Four View Modes
+
+<table>
+  <tr>
+    <td width="50%">
+      <img src="https://raw.githubusercontent.com/pclslopes/SimpleCalendarJs/main/screenshots/Screenshot01-MonthView.png" alt="Month View" />
+      <p align="center"><strong>Month View</strong></p>
+    </td>
+    <td width="50%">
+      <img src="https://raw.githubusercontent.com/pclslopes/SimpleCalendarJs/main/screenshots/Screenshot02-WeekView.png" alt="Week View" />
+      <p align="center"><strong>Week View</strong></p>
+    </td>
+  </tr>
+  <tr>
+    <td width="50%">
+      <img src="https://raw.githubusercontent.com/pclslopes/SimpleCalendarJs/main/screenshots/Screenshot03-DayView.png" alt="Day View" />
+      <p align="center"><strong>Day View</strong></p>
+    </td>
+    <td width="50%">
+      <img src="https://raw.githubusercontent.com/pclslopes/SimpleCalendarJs/main/screenshots/Screenshot04-ListView.png" alt="List View" />
+      <p align="center"><strong>List View</strong></p>
+    </td>
+  </tr>
+</table>
+
+### Drag & Drop / Resize Events
+
+<table>
+  <tr>
+    <td width="50%">
+      <img src="https://raw.githubusercontent.com/pclslopes/SimpleCalendarJs/main/screenshots/Screenshot05-Resize.png" alt="Drag and Drop" />
+      <p align="center"><strong>Drag & Drop Events</strong></p>
+    </td>
+    <td width="50%">
+      <img src="https://raw.githubusercontent.com/pclslopes/SimpleCalendarJs/main/screenshots/Screenshot06-Resize.png" alt="Resize Events" />
+      <p align="center"><strong>Resize Events</strong></p>
+    </td>
+  </tr>
+</table>
+
 ## Installation
 
 ### NPM
