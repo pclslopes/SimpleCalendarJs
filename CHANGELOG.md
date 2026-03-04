@@ -9,7 +9,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 No unreleased changes yet.
 
-## [3.0.10] - 2026-03-03
+## [3.0.11] - 2026-03-03
 
 ### Added
 - **Auto-contrast text color** - New `autoContrastText` option automatically calculates optimal text color based on event background color using WCAG luminance formula

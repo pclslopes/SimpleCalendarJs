@@ -1,5 +1,5 @@
 /**
- * SimpleCalendarJs v3.0.10 — React Wrapper
+ * SimpleCalendarJs v3.0.11 — React Wrapper
  * A clean, modern, and feature-rich JavaScript calendar component with zero dependencies
  *
  * @author Pedro Lopes <simplecalendarjs@gmail.com>
