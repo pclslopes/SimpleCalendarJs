@@ -158,8 +158,61 @@
   }
 
   /**
+   * Sanitize URL to allow only safe protocols.
+   * Allows: http://, https://, mailto:, tel:
+   * Blocks: javascript:, data:, vbscript:, and other dangerous protocols
+   */
+  function sanitizeUrl(url) {
+    if (!url) return '#';
+
+    const urlStr = url.trim().toLowerCase();
+    const safeProtocols = ['http://', 'https://', 'mailto:', 'tel:'];
+    const dangerousProtocols = ['javascript:', 'data:', 'vbscript:', 'file:', 'about:'];
+
+    // Check for dangerous protocols
+    if (dangerousProtocols.some(p => urlStr.includes(p))) return '#';
+
+    // Must start with a safe protocol or be relative (starts with / or #)
+    if (!safeProtocols.some(p => urlStr.startsWith(p)) && !urlStr.startsWith('/') && !urlStr.startsWith('#')) {
+      return '#';
+    }
+
+    return url;
+  }
+
+  /**
+   * Sanitize style attribute to allow only safe CSS properties.
+   * Allows: color, background-color
+   * Blocks: CSS expressions, url(), import, and other dangerous constructs
+   */
+  function sanitizeStyle(styleStr) {
+    if (!styleStr) return '';
+
+    const allowedProps = ['color', 'background-color'];
+    const rules = styleStr.split(';').filter(rule => {
+      if (!rule.trim()) return false;
+
+      const colonIndex = rule.indexOf(':');
+      if (colonIndex === -1) return false;
+
+      const prop = rule.substring(0, colonIndex).trim().toLowerCase();
+      const val = rule.substring(colonIndex + 1).trim();
+
+      // Check if property is allowed
+      if (!allowedProps.includes(prop)) return false;
+
+      // Block CSS injection attempts
+      if (/expression|url\(|import|@/i.test(val)) return false;
+
+      return true;
+    });
+
+    return rules.join(';');
+  }
+
+  /**
    * Sanitize HTML to allow only safe tags and attributes.
-   * Allows: <b>, <i>, <strong>, <em>, <span>, <br> with 'class' attribute for icons.
+   * Allows: <b>, <i>, <strong>, <em>, <span>, <br>, <a> with safe attributes.
    * Strips: <script>, event handlers (onclick, onerror, etc.), and dangerous attributes.
    */
   function sanitizeHtml(html) {
@@ -170,7 +223,7 @@
     temp.innerHTML = html;
 
     // Allowed tags
-    const allowedTags = ['B', 'I', 'STRONG', 'EM', 'SPAN', 'BR'];
+    const allowedTags = ['B', 'I', 'STRONG', 'EM', 'SPAN', 'BR', 'A'];
 
     // Recursively clean nodes
     function cleanNode(node) {
@@ -183,10 +236,19 @@
           return;
         }
 
-        // Remove all attributes except 'class'
+        // Determine allowed attributes based on tag
+        const allowedAttrs = ['class'];
+        if (node.nodeName === 'A') {
+          allowedAttrs.push('href');
+        }
+        if (node.nodeName === 'SPAN') {
+          allowedAttrs.push('style');
+        }
+
+        // Remove all attributes except allowed ones
         const attrs = Array.from(node.attributes);
         attrs.forEach(attr => {
-          if (attr.name !== 'class') {
+          if (!allowedAttrs.includes(attr.name)) {
             node.removeAttribute(attr.name);
           }
         });
@@ -199,6 +261,24 @@
             node.setAttribute('class', sanitizedClass);
           } else {
             node.removeAttribute('class');
+          }
+        }
+
+        // Sanitize href attribute for <a> tags
+        if (node.nodeName === 'A' && node.hasAttribute('href')) {
+          const href = node.getAttribute('href') || '';
+          const sanitizedHref = sanitizeUrl(href);
+          node.setAttribute('href', sanitizedHref);
+        }
+
+        // Sanitize style attribute for <span> tags
+        if (node.nodeName === 'SPAN' && node.hasAttribute('style')) {
+          const style = node.getAttribute('style') || '';
+          const sanitizedStyle = sanitizeStyle(style);
+          if (sanitizedStyle) {
+            node.setAttribute('style', sanitizedStyle);
+          } else {
+            node.removeAttribute('style');
           }
         }
       }
@@ -640,6 +720,11 @@
           showYearPicker: true,
           showViewSwitcher: true,
           showTooltips: true,
+          tooltipBgColor: null,
+          tooltipTextColor: null,
+          tooltipMaxWidth: 250,
+          tooltipDelay: 400,
+          tooltipAllowHtml: true,
           showBorder: true,
           listDaysForward: 30,
           enabledViews: ['month', 'week', 'day'],
@@ -647,7 +732,7 @@
           enableResize: false,
           autoContrastText: false,
           contrastLevel: 'high',
-          allowHtmlInEvents: false,
+          allowHtmlInEvents: true,
           showEventBorder: false,
           fetchEvents: null,
           onEventClick: null,
@@ -670,6 +755,9 @@
       this._yearOutsideHandler = null;
       this._dragState = null; // Drag and drop state
       this._clickSuppressed = false; // Suppress click after drag
+      this._tooltipElement = null; // Tooltip DOM element
+      this._tooltipTimeout = null; // Tooltip show delay timeout
+      this._currentTooltipTarget = null; // Current element being hovered
 
       this._root = document.createElement('div');
       this._root.className = 'uc-calendar';
@@ -685,9 +773,11 @@
       this._onClick = this._handleClick.bind(this);
       this._root.addEventListener('click', this._onClick);
 
-      // Tooltip positioning handler
-      this._onMouseMove = this._handleTooltipPosition.bind(this);
-      this._root.addEventListener('mouseover', this._onMouseMove);
+      // Tooltip handlers
+      this._onMouseOver = this._handleTooltipHover.bind(this);
+      this._onMouseOut = this._handleTooltipMouseOut.bind(this);
+      this._root.addEventListener('mouseover', this._onMouseOver);
+      this._root.addEventListener('mouseout', this._onMouseOut);
 
       // Drag, drop, and resize listeners
       if (this._opts.enableDragDrop || this._opts.enableResize) {
@@ -790,7 +880,18 @@
       if (this._resizeObserver) this._resizeObserver.disconnect();
       if (this._yearOutsideHandler) document.removeEventListener('click', this._yearOutsideHandler);
       this._root.removeEventListener('click', this._onClick);
-      this._root.removeEventListener('mouseover', this._onMouseMove);
+      this._root.removeEventListener('mouseover', this._onMouseOver);
+      this._root.removeEventListener('mouseout', this._onMouseOut);
+
+      // Clean up tooltip
+      if (this._tooltipElement) {
+        this._tooltipElement.remove();
+        this._tooltipElement = null;
+      }
+      if (this._tooltipTimeout) {
+        clearTimeout(this._tooltipTimeout);
+        this._tooltipTimeout = null;
+      }
 
       // Remove drag, drop, and resize listeners
       if (this._opts.enableDragDrop || this._opts.enableResize) {
@@ -1893,34 +1994,164 @@
 
     }
 
-    _handleTooltipPosition(evt) {
+    /**
+     * Handle tooltip hover - show tooltip with HTML support.
+     */
+    _handleTooltipHover(evt) {
       const target = evt.target.closest('[data-tooltip]');
-      if (!target || !target.dataset.tooltip) return;
+      if (!target) return;
 
-      // Only position if tooltip has content
-      const tooltipText = target.dataset.tooltip.trim();
-      if (!tooltipText) return;
+      const content = target.dataset.tooltip;
+      if (!content || !content.trim()) return;
 
-      // Get viewport dimensions
-      const rect = target.getBoundingClientRect();
-      const viewportWidth = window.innerWidth;
+      // Determine if HTML is allowed
+      // Check for per-event override via data-tooltip-html attribute
+      const allowHtmlAttr = target.dataset.tooltipHtml;
+      const allowHtml = allowHtmlAttr === 'true' ? true : this._opts.tooltipAllowHtml;
 
-      // Remove positioning classes
-      target.classList.remove('uc-tooltip-left', 'uc-tooltip-right', 'uc-tooltip-bottom');
+      this._showTooltip(target, content, allowHtml);
+    }
 
-      // Check if tooltip would overflow right edge (default: show on top-center)
-      const tooltipWidth = 250; // max-width from CSS
-      const centerOffset = (rect.width / 2) - (tooltipWidth / 2);
+    /**
+     * Handle mouse out - hide tooltip when leaving the element.
+     */
+    _handleTooltipMouseOut(evt) {
+      const target = evt.target.closest('[data-tooltip]');
+      if (!target) return;
 
-      if (rect.left + centerOffset + tooltipWidth > viewportWidth - 10) {
-        target.classList.add('uc-tooltip-left'); // Align to right
-      } else if (rect.left + centerOffset < 10) {
-        target.classList.add('uc-tooltip-right'); // Align to left
+      // Only hide if moving out of the tooltip target
+      if (!evt.relatedTarget || !target.contains(evt.relatedTarget)) {
+        this._hideTooltip();
+      }
+    }
+
+    /**
+     * Create the tooltip DOM element (singleton pattern).
+     * Appends to document.body for fixed positioning.
+     */
+    _createTooltipElement() {
+      if (this._tooltipElement) return this._tooltipElement;
+
+      const container = document.createElement('div');
+      container.className = 'uc-tooltip-container';
+      container.innerHTML = '<div class="uc-tooltip-content"></div><div class="uc-tooltip-arrow"></div>';
+
+      // Apply custom colors if configured
+      if (this._opts.tooltipBgColor) {
+        container.style.setProperty('--tooltip-bg', this._opts.tooltipBgColor);
+      }
+      if (this._opts.tooltipTextColor) {
+        container.style.setProperty('--tooltip-text', this._opts.tooltipTextColor);
+      }
+      if (this._opts.tooltipMaxWidth) {
+        container.style.setProperty('--tooltip-max-width', this._opts.tooltipMaxWidth + 'px');
       }
 
-      // Check if tooltip would overflow top edge
-      if (rect.top < 50) {
-        target.classList.add('uc-tooltip-bottom'); // Show below instead
+      document.body.appendChild(container);
+      this._tooltipElement = container;
+      return container;
+    }
+
+    /**
+     * Show tooltip with HTML support and delay.
+     */
+    _showTooltip(target, content, allowHtml) {
+      if (!this._opts.showTooltips || !content) return;
+
+      // Clear existing timeout
+      if (this._tooltipTimeout) {
+        clearTimeout(this._tooltipTimeout);
+      }
+
+      // Set delay before showing
+      this._tooltipTimeout = setTimeout(() => {
+        // Create tooltip element if it doesn't exist
+        if (!this._tooltipElement) {
+          this._createTooltipElement();
+        }
+
+        // Sanitize and set content
+        const contentEl = this._tooltipElement.querySelector('.uc-tooltip-content');
+        if (allowHtml) {
+          contentEl.innerHTML = sanitizeHtml(content);
+
+          // Add target="_blank" and rel="noopener noreferrer" to all links for security
+          contentEl.querySelectorAll('a').forEach(link => {
+            link.setAttribute('target', '_blank');
+            link.setAttribute('rel', 'noopener noreferrer');
+          });
+        } else {
+          contentEl.textContent = content;
+        }
+
+        // Position and show
+        this._positionTooltipFixed(target);
+        this._tooltipElement.style.opacity = '1';
+        this._tooltipElement.style.visibility = 'visible';
+
+        this._currentTooltipTarget = target;
+      }, this._opts.tooltipDelay);
+    }
+
+    /**
+     * Hide tooltip and clear timeout.
+     */
+    _hideTooltip() {
+      if (this._tooltipTimeout) {
+        clearTimeout(this._tooltipTimeout);
+        this._tooltipTimeout = null;
+      }
+
+      if (this._tooltipElement) {
+        this._tooltipElement.style.opacity = '0';
+        this._tooltipElement.style.visibility = 'hidden';
+      }
+
+      this._currentTooltipTarget = null;
+    }
+
+    /**
+     * Position tooltip using fixed positioning relative to viewport.
+     * Handles edge detection to prevent overflow.
+     */
+    _positionTooltipFixed(target) {
+      if (!this._tooltipElement) return;
+
+      const rect = target.getBoundingClientRect();
+      const tooltipRect = this._tooltipElement.getBoundingClientRect();
+      const offset = 8; // --cal-tooltip-offset
+      const padding = 10;
+
+      // Default: show above, centered
+      let top = rect.top - tooltipRect.height - offset;
+      let left = rect.left + (rect.width / 2) - (tooltipRect.width / 2);
+
+      // Horizontal overflow detection
+      if (left + tooltipRect.width > window.innerWidth - padding) {
+        left = window.innerWidth - tooltipRect.width - padding;
+      }
+      if (left < padding) {
+        left = padding;
+      }
+
+      // Vertical overflow detection
+      if (top < padding) {
+        // Show below instead
+        top = rect.bottom + offset;
+        this._tooltipElement.classList.add('uc-tooltip-position-bottom');
+      } else {
+        this._tooltipElement.classList.remove('uc-tooltip-position-bottom');
+      }
+
+      // Apply positioning
+      this._tooltipElement.style.top = top + 'px';
+      this._tooltipElement.style.left = left + 'px';
+
+      // Position arrow to point at element center
+      const arrowLeft = rect.left + (rect.width / 2) - left;
+      const arrow = this._tooltipElement.querySelector('.uc-tooltip-arrow');
+      if (arrow) {
+        arrow.style.left = arrowLeft + 'px';
       }
     }
 

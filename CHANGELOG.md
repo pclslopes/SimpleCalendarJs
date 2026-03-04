@@ -9,7 +9,55 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 No unreleased changes yet.
 
-## [3.0.11] - 2026-03-03
+## [3.0.11] - 2026-03-04
+
+### Added
+- **Rich HTML tooltip system** - Reimagined tooltip system with HTML support, fixed positioning, and enhanced customization
+  - **HTML formatting support** - Tooltips now support rich HTML content with secure sanitization:
+    - Allowed tags: `<b>`, `<i>`, `<strong>`, `<em>`, `<span>`, `<br>`, `<a>`
+    - Links (`<a>` tags) with URL validation (blocks `javascript:`, `data:`, `vbscript:` protocols)
+    - Inline color styles via `<span style="color: ...">` (sanitized to prevent CSS injection)
+    - Automatic `target="_blank"` and `rel="noopener noreferrer"` on all links for security
+    - Per-event HTML override via `tooltipAllowHtml` property
+    - Global control via new `tooltipAllowHtml` option (default: `true`)
+  - **Fixed positioning** - Tooltips use `position: fixed` and attach to `document.body`:
+    - Never clipped by calendar container's `overflow: hidden`
+    - Intelligent edge detection prevents overflow outside viewport
+    - Tooltips reposition above/below and left/right based on available space
+    - Arrow dynamically points to hovered element center
+  - **Customizable styling** - New configuration options for tooltip appearance:
+    - `tooltipBgColor` - Global background color (default: `null` uses CSS variable)
+    - `tooltipTextColor` - Global text color (default: `null` uses CSS variable)
+    - `tooltipMaxWidth` - Maximum width in pixels (default: `250`)
+    - `tooltipDelay` - Show delay in milliseconds (default: `400`)
+  - **Multiline support** - Natural multiline rendering with `<br>` tags or line breaks
+  - **DOM-based architecture** - Replaced CSS pseudo-elements (`::before`/`::after`) with real DOM elements:
+    - Singleton pattern (one tooltip element per calendar instance)
+    - Efficient memory management with automatic cleanup in `destroy()`
+    - Better performance with reusable tooltip element
+
+### Changed
+- **Tooltip implementation** - Migrated from CSS pseudo-element system to DOM-based tooltips
+  - Old `::before` and `::after` tooltip styles commented out (deprecated but preserved for reference)
+  - Tooltips now render as separate DOM elements for HTML support
+  - Backward compatible: text-only tooltips work unchanged when `tooltipAllowHtml` is `false`
+- **Default HTML enabled** - HTML rendering now enabled by default for both events and tooltips
+  - `allowHtmlInEvents` default changed from `false` to `true`
+  - `tooltipAllowHtml` default changed from `false` to `true`
+  - Event titles and tooltips now support HTML formatting by default (bold, italic, links, colors, etc.)
+  - All HTML is sanitized for security (comprehensive XSS protection)
+  - To disable HTML, explicitly set `allowHtmlInEvents: false` and/or `tooltipAllowHtml: false`
+
+### Security
+- **Enhanced HTML sanitization** - Added comprehensive security measures for HTML tooltips:
+  - DOM-based parsing (browser handles HTML edge cases safely)
+  - Tag allowlist (only safe formatting tags permitted)
+  - URL protocol validation (blocks dangerous schemes)
+  - CSS sanitization (only `color` properties allowed, blocks `expression`, `url()`, `import`)
+  - Automatic event handler stripping (prevents inline JavaScript)
+  - Recursive node cleaning (prevents nesting attacks)
+
+## [3.0.10] - 2026-03-03
 
 ### Added
 - **Auto-contrast text color** - New `autoContrastText` option automatically calculates optimal text color based on event background color using WCAG luminance formula

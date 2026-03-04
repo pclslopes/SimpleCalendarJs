@@ -714,6 +714,40 @@
       </div>
 
       <div class="option-group">
+        <span class="option-label">Allow HTML in Tooltips</span>
+        <div class="option-toggle-row">
+          <button class="opt-toggle-track on" id="opt-tooltip-html" role="switch" aria-checked="true">
+            <span class="opt-toggle-thumb"></span>
+          </button>
+          <span class="opt-toggle-label" id="opt-tooltip-html-label">On</span>
+        </div>
+      </div>
+
+      <div class="option-group">
+        <span class="option-label">Tooltip Background Color</span>
+        <input type="color" class="option-color" id="opt-tooltip-bg-color" value="#1f2937" style="width: 60px; height: 32px; border: 1px solid var(--border-color); border-radius: 4px; cursor: pointer;">
+        <button id="reset-tooltip-bg" style="margin-left: 8px; padding: 6px 10px; font-size: 11px; border: 1px solid var(--border-color); background: var(--bg-secondary); color: var(--text-primary); border-radius: 4px; cursor: pointer;">Reset</button>
+      </div>
+
+      <div class="option-group">
+        <span class="option-label">Tooltip Text Color</span>
+        <input type="color" class="option-color" id="opt-tooltip-text-color" value="#f9fafb" style="width: 60px; height: 32px; border: 1px solid var(--border-color); border-radius: 4px; cursor: pointer;">
+        <button id="reset-tooltip-text" style="margin-left: 8px; padding: 6px 10px; font-size: 11px; border: 1px solid var(--border-color); background: var(--bg-secondary); color: var(--text-primary); border-radius: 4px; cursor: pointer;">Reset</button>
+      </div>
+
+      <div class="option-group">
+        <span class="option-label">Tooltip Max Width</span>
+        <input type="number" class="option-select" id="opt-tooltip-max-width" min="100" max="600" value="250" style="width: 80px; padding: 6px 10px;">
+        <span style="font-size: 11px; color: var(--text-muted); margin-left: 8px;">(pixels)</span>
+      </div>
+
+      <div class="option-group">
+        <span class="option-label">Tooltip Delay</span>
+        <input type="number" class="option-select" id="opt-tooltip-delay" min="0" max="2000" step="100" value="400" style="width: 80px; padding: 6px 10px;">
+        <span style="font-size: 11px; color: var(--text-muted); margin-left: 8px;">(milliseconds)</span>
+      </div>
+
+      <div class="option-group">
         <span class="option-label">List Days Forward</span>
         <input type="number" class="option-select" id="opt-list-days" min="1" max="365" value="30" style="width: 80px; padding: 6px 10px;">
         <span style="font-size: 11px; color: var(--text-muted); margin-left: 8px;">(days to show in list view)</span>
@@ -821,10 +855,10 @@
       <div class="option-group">
         <span class="option-label">Allow HTML in Events</span>
         <div style="display:flex;align-items:center;gap:8px;">
-          <button class="opt-toggle-track" id="opt-allow-html" role="switch" aria-checked="false">
+          <button class="opt-toggle-track on" id="opt-allow-html" role="switch" aria-checked="true">
             <span class="opt-toggle-thumb"></span>
           </button>
-          <span class="opt-toggle-label" id="opt-allow-html-label">Off</span>
+          <span class="opt-toggle-label" id="opt-allow-html-label">On</span>
         </div>
       </div>
 
@@ -911,24 +945,56 @@
       { id: 'prev3', title: 'Team Building',        start: d(-18),      end: d(-18),      allDay: true,  color: '#059669', tooltip: 'Monthly team activity' },
       { id: 'prev4', title: 'Code Sprint',          start: d(-15, 9, 0), end: d(-15, 17, 0), color: '#4f46e5', description: 'Feature development sprint' },
 
-      // Current month events
-      { id: 'md1', title: 'Engineering Offsite',  start: d(-2),       end: d(2),        allDay: true,  color: '#7c3aed', tooltip: 'Team building and strategic planning\nLocation: Mountain View Resort' },
-      { id: 'md2', title: 'Company All-Hands',    start: d(5),        end: d(7),        allDay: true,  color: '#0891b2', description: 'Quarterly company-wide meeting\nMain Office Auditorium' },
-      { id: 'md3', title: '<b><i>Product Launch Week</i></b>',  start: d(10),       end: d(15),       allDay: true,  color: '#dc2626', tooltip: 'Major product release v3.0\nPR campaign and demos' },
-      { id: 'md4', title: 'Holiday Break is a great way to start the year',        start: d(-10),      end: d(-6),       allDay: true,  color: '#059669' },
-      { id: 'md5', title: 'Conf. Prep',           start: d(3),        end: d(5),        allDay: true,  color: '#d97706', description: 'Preparing for TechConf 2026\nSlides and booth materials' },
-      { id: 't1',  title: '<b>Morning Stand-up</b>',     start: d(0, 9, 15), end: d(0, 9, 45),  color: '#4f46e5', tooltip: 'Daily team sync\nZoom: https://zoom.us/j/123456' },
-      { id: 't2',  title: 'Design Review',        start: d(0, 10, 30), end: d(0, 11, 45),  color: '#7c3aed', description: 'Review new UI mockups for dashboard\nConference Room A' },
-      { id: 't3',  title: 'Lunch with Maria',     start: d(0, 12, 15), end: d(0, 13, 30),  color: '#059669', tooltip: 'Discuss Q2 marketing strategy\nDowntown Bistro' },
-      { id: 't4',  title: 'Architecture Planning',start: d(0, 13,45), end: d(0, 15,15),  color: '#0891b2', tooltip: 'Planning microservices migration\nBring architecture diagrams' },
-      { id: 't5',  title: 'Sprint Retrospective', start: d(0, 15, 30), end: d(0, 16, 30),  color: '#d97706', description: 'Review sprint 23 outcomes\nIdentify improvements' },
-      { id: 't6',  title: '1:1 with Manager',     start: d(0, 16,45), end: d(0, 17, 30),  color: '#dc2626', tooltip: 'Performance review and goals\nOffice or Zoom' },
-      { id: 't7',  title: 'Product Demo',         start: d(1, 10, 15), end: d(1, 11,45),  color: '#4f46e5', description: 'Demo new features to stakeholders\nMain Conference Room' },
-      { id: 't8',  title: 'Client Call — ACME',   start: d(1, 14, 20), end: d(1, 15, 10),  color: '#0891b2', tooltip: 'Requirements gathering session\nPrepare questions about API integration' },
+      // Current month events with HTML tooltip examples
+      { id: 'md1', title: 'Engineering Offsite',  start: d(-2),       end: d(2),        allDay: true,  color: '#7c3aed',
+        tooltip: '<b>Team Building & Strategic Planning</b><br><i>Location:</i> Mountain View Resort<br><br><span style="color: #10b981;">✓ All expenses covered</span>',
+        tooltipAllowHtml: true },
+      { id: 'md2', title: 'Company All-Hands',    start: d(5),        end: d(7),        allDay: true,  color: '#0891b2',
+        tooltip: '<b>Quarterly Meeting</b><br>📍 Main Office Auditorium<br><br><i>Topics:</i><br>• Q1 Results<br>• Product Roadmap<br>• Team Updates',
+        tooltipAllowHtml: true },
+      { id: 'md3', title: '<b><i>Product Launch Week</i></b>',  start: d(10),       end: d(15),       allDay: true,  color: '#dc2626',
+        tooltip: '<span style="color: #dc2626;"><b>🚀 MAJOR RELEASE v3.0</b></span><br><br>PR campaign, demos & webinars<br><a href="https://example.com/launch">Launch materials</a>',
+        tooltipAllowHtml: true },
+      { id: 'md4', title: 'Holiday Break is a great way to start the year',        start: d(-10),      end: d(-6),       allDay: true,  color: '#059669',
+        tooltip: '<b>Enjoy your break! 🌴</b><br><i>Office closed</i>',
+        tooltipAllowHtml: true },
+      { id: 'md5', title: 'Conf. Prep',           start: d(3),        end: d(5),        allDay: true,  color: '#d97706',
+        tooltip: '<b>TechConf 2026 Preparation</b><br><br><i>Deliverables:</i><br>• Presentation slides<br>• Booth materials<br>• Product demos<br><br><a href="https://techconf.example.com">Conference website</a>',
+        tooltipAllowHtml: true },
+      { id: 't1',  title: '<b>Morning Stand-up</b>',     start: d(0, 9, 15), end: d(0, 9, 45),  color: '#4f46e5',
+        tooltip: '<b>Daily Team Sync</b><br><br>Quick 15-min check-in<br><a href="https://zoom.us/j/123456">Join Zoom Meeting</a>',
+        tooltipAllowHtml: true },
+      { id: 't2',  title: 'Design Review',        start: d(0, 10, 30), end: d(0, 11, 45),  color: '#7c3aed',
+        tooltip: '<b>UI Mockup Review</b><br>📐 Dashboard redesign<br><br><i>Attendees:</i> Design team + Product<br>📍 Conference Room A',
+        tooltipAllowHtml: true },
+      { id: 't3',  title: 'Lunch with Maria',     start: d(0, 12, 15), end: d(0, 13, 30),  color: '#059669',
+        tooltip: '<b>Q2 Marketing Strategy</b><br><br>🍽️ Downtown Bistro<br><i>Bring campaign ideas</i>',
+        tooltipAllowHtml: true },
+      { id: 't4',  title: 'Architecture Planning',start: d(0, 13,45), end: d(0, 15,15),  color: '#0891b2',
+        tooltip: '<b>Microservices Migration</b><br><br><span style="color: #f59e0b;">⚠️ High priority</span><br><br><i>Required:</i><br>• Current architecture diagrams<br>• Performance benchmarks<br>• Migration timeline draft',
+        tooltipAllowHtml: true },
+      { id: 't5',  title: 'Sprint Retrospective', start: d(0, 15, 30), end: d(0, 16, 30),  color: '#d97706',
+        tooltip: '<b>Sprint 23 Retrospective</b><br><br><i>Review:</i><br>• What went well<br>• What to improve<br>• Action items<br><br><span style="color: #10b981;">Team feedback welcome!</span>',
+        tooltipAllowHtml: true },
+      { id: 't6',  title: '1:1 with Manager',     start: d(0, 16,45), end: d(0, 17, 30),  color: '#dc2626',
+        tooltip: '<b>Performance Review</b><br><br><i>Agenda:</i><br>• Q1 achievements<br>• Goal setting for Q2<br>• Career development<br><br>📍 Office or <a href="https://zoom.us">Zoom</a>',
+        tooltipAllowHtml: true },
+      { id: 't7',  title: 'Product Demo',         start: d(1, 10, 15), end: d(1, 11,45),  color: '#4f46e5',
+        tooltip: '<b>Stakeholder Demo</b><br><br><i>Features to showcase:</i><br>• New dashboard<br>• Advanced analytics<br>• Mobile app preview<br><br>📍 Main Conference Room',
+        tooltipAllowHtml: true },
+      { id: 't8',  title: 'Client Call — ACME',   start: d(1, 14, 20), end: d(1, 15, 10),  color: '#0891b2',
+        tooltip: '<b>ACME Corp - Requirements Gathering</b><br><br><span style="color: #f59e0b;">⚠️ Prepare API integration questions</span><br><br><a href="https://example.com/acme-notes">Previous meeting notes</a>',
+        tooltipAllowHtml: true },
       { id: 't9',  title: 'Code Review',          start: d(1, 11, 50), end: d(1, 12, 40),  color: '#059669' },
-      { id: 't10', title: 'Investor Update',      start: d(2, 9, 30),  end: d(2, 10, 45),  color: '#7c3aed' },
-      { id: 't11', title: 'Tech Talk',            start: d(2, 15, 15), end: d(2, 16,45),  color: '#d97706' },
-      { id: 't12', title: 'Team Lunch',           start: d(3, 12, 0), end: d(3, 13,30),  color: '#059669' },
+      { id: 't10', title: 'Investor Update',      start: d(2, 9, 30),  end: d(2, 10, 45),  color: '#7c3aed',
+        tooltip: '<b>Q1 Investor Briefing</b><br><br><span style="color: #dc2626;"><b>📊 Confidential</b></span><br><br><i>Prepare:</i><br>• Financial slides<br>• Growth metrics<br>• Roadmap overview',
+        tooltipAllowHtml: true },
+      { id: 't11', title: 'Tech Talk',            start: d(2, 15, 15), end: d(2, 16,45),  color: '#d97706',
+        tooltip: '<b>"Building Scalable APIs"</b><br><i>Speaker: John Smith</i><br><br>🎤 Engineering All-Hands<br><br><a href="https://example.com/tech-talks">Previous recordings</a>',
+        tooltipAllowHtml: true },
+      { id: 't12', title: 'Team Lunch',           start: d(3, 12, 0), end: d(3, 13,30),  color: '#059669',
+        tooltip: '<b>Team Lunch 🍕</b><br><br><i>Celebrating Sarah\'s promotion!</i><br><br>📍 Luigi\'s Italian Restaurant<br><span style="color: #10b981;">RSVP by tomorrow</span>',
+        tooltipAllowHtml: true },
       { id: 't13', title: 'UX Workshop is awesome and great to learn',          start: d(3, 9, 20),  end: d(3, 11, 50),  color: '#0891b2' },
       { id: 't14', title: 'Roadmap Planning',     start: d(4, 10, 15), end: d(4, 12, 0),  color: '#4f46e5' },
       { id: 't15', title: 'Release Sign-off',     start: d(4, 14, 5), end: d(4, 14,35),  color: '#dc2626' },
@@ -946,10 +1012,29 @@
       { id: 'ov5', title: 'Workshop E',           start: d(6, 14, 0), end: d(6, 15, 0),  color: '#d97706' },
 
       // Next month events
-      { id: 'next1', title: 'Strategy Session',     start: d(20),       end: d(22),       allDay: true,  color: '#7c3aed', tooltip: 'Q3 planning and strategy' },
-      { id: 'next2', title: 'Customer Visit',       start: d(25, 10, 0), end: d(25, 16, 0), color: '#dc2626', description: 'Site visit from major client' },
-      { id: 'next3', title: 'Tech Conference',      start: d(28),       end: d(30),       allDay: true,  color: '#4f46e5', tooltip: 'Annual tech conference attendance' },
-      { id: 'next4', title: 'Team Offsite',         start: d(35),       end: d(37),       allDay: true,  color: '#059669', description: 'Summer team retreat' },
+      { id: 'next1', title: 'Strategy Session',     start: d(20),       end: d(22),       allDay: true,  color: '#7c3aed',
+        tooltip: '<b>Q3 Strategy Planning</b><br><br><i>Executive team retreat</i><br>📍 Offsite location<br><br><span style="color: #8b5cf6;">Key decisions ahead</span>',
+        tooltipAllowHtml: true },
+      { id: 'next2', title: 'Customer Visit',       start: d(25, 10, 0), end: d(25, 16, 0), color: '#dc2626',
+        tooltip: '<b>VIP Client Site Visit</b><br><br><span style="color: #dc2626;">🏢 Major account</span><br><br><i>Agenda:</i><br>• Facility tour<br>• Product demo<br>• Contract renewal discussion',
+        tooltipAllowHtml: true },
+      { id: 'next3', title: 'Tech Conference',      start: d(28),       end: d(30),       allDay: true,  color: '#4f46e5',
+        tooltip: '<b>DevCon 2026 🎪</b><br><i>Annual technology conference</i><br><br>📍 San Francisco<br><br><a href="https://devcon.example.com">Conference schedule</a><br><a href="https://devcon.example.com/speakers">Speaker list</a>',
+        tooltipAllowHtml: true },
+      { id: 'next4', title: 'Team Offsite',         start: d(35),       end: d(37),       allDay: true,  color: '#059669',
+        tooltip: '<b>Summer Team Retreat 🏖️</b><br><br><i>Location: Coastal Resort</i><br><br>Activities:<br>• Team building games<br>• Strategic workshops<br>• Celebration dinner<br><br><span style="color: #10b981;">Families welcome!</span>',
+        tooltipAllowHtml: true },
+
+      // Additional HTML tooltip showcase events
+      { id: 'html1', title: 'Design Review ✨', start: d(11, 14, 0), end: d(11, 15, 30), color: '#8b5cf6',
+        tooltip: '<b>Product Design Review</b><br><br><i>New feature mockups:</i><br>• Dashboard v2.0<br>• Mobile redesign<br>• Dark mode support<br><br><a href="https://figma.com/example">View in Figma</a>',
+        tooltipAllowHtml: true },
+      { id: 'html2', title: 'Client Demo 🎯', start: d(12, 10, 0), end: d(12, 11, 0), color: '#ef4444',
+        tooltip: '<span style="color: #ef4444;"><b>⚡ HIGH PRIORITY</b></span><br><br>Q4 Business Review<br><i>Executive presentation</i><br><br><b>Must prepare:</b><br>• Financial projections<br>• ROI analysis<br>• Growth charts',
+        tooltipAllowHtml: true },
+      { id: 'html3', title: 'Training Session 📚', start: d(13), end: d(13), allDay: true, color: '#10b981',
+        tooltip: '<b>Professional Development Day</b><br><br><i>Morning Sessions:</i><br>• <b>Advanced JavaScript</b> (9-11am)<br>• <b>React Best Practices</b> (11am-1pm)<br><br><i>Afternoon Sessions:</i><br>• <b>Performance Optimization</b> (2-4pm)<br>• <b>Testing Strategies</b> (4-5pm)<br><br>📚 <a href="https://learn.example.com">Course materials</a><br>🎓 <a href="https://certs.example.com">Get certified</a>',
+        tooltipAllowHtml: true },
     ];
 
     /* ============================================================
@@ -1074,6 +1159,11 @@
       showGridLines: true,
       showBorder: true,
       showTooltips: true,
+      tooltipAllowHtml: true,
+      tooltipBgColor: null,
+      tooltipTextColor: null,
+      tooltipMaxWidth: 250,
+      tooltipDelay: 400,
       listDaysForward: 30,
       showToolbar: true,
       showTodayButton: true,
@@ -1086,7 +1176,7 @@
       enableResize: false,
       autoContrastText: false,
       contrastLevel: 'high',
-      allowHtmlInEvents: false,
+      allowHtmlInEvents: true,
       monthTimedEventStyle: 'list',
     };
 
@@ -1300,6 +1390,81 @@
       toggleShowTooltips.setAttribute('aria-checked', opts.showTooltips);
       labelShowTooltips.textContent = opts.showTooltips ? 'On' : 'Off';
       log('opt', 'tag-opt', `showTooltips → ${opts.showTooltips}`);
+      createCalendar();
+    });
+
+    // Allow HTML in Tooltips
+    const toggleTooltipHtml = document.getElementById('opt-tooltip-html');
+    const labelTooltipHtml  = document.getElementById('opt-tooltip-html-label');
+
+    toggleTooltipHtml.addEventListener('click', () => {
+      opts.tooltipAllowHtml = !opts.tooltipAllowHtml;
+      toggleTooltipHtml.classList.toggle('on', opts.tooltipAllowHtml);
+      toggleTooltipHtml.setAttribute('aria-checked', opts.tooltipAllowHtml);
+      labelTooltipHtml.textContent = opts.tooltipAllowHtml ? 'On' : 'Off';
+      log('opt', 'tag-opt', `tooltipAllowHtml → ${opts.tooltipAllowHtml}`);
+      createCalendar();
+    });
+
+    // Tooltip Background Color
+    const tooltipBgColorInput = document.getElementById('opt-tooltip-bg-color');
+    const resetTooltipBgBtn = document.getElementById('reset-tooltip-bg');
+
+    tooltipBgColorInput.addEventListener('change', () => {
+      opts.tooltipBgColor = tooltipBgColorInput.value;
+      log('opt', 'tag-opt', `tooltipBgColor → ${opts.tooltipBgColor}`);
+      createCalendar();
+    });
+
+    resetTooltipBgBtn.addEventListener('click', () => {
+      opts.tooltipBgColor = null;
+      tooltipBgColorInput.value = '#1f2937';
+      log('opt', 'tag-opt', `tooltipBgColor → default`);
+      createCalendar();
+    });
+
+    // Tooltip Text Color
+    const tooltipTextColorInput = document.getElementById('opt-tooltip-text-color');
+    const resetTooltipTextBtn = document.getElementById('reset-tooltip-text');
+
+    tooltipTextColorInput.addEventListener('change', () => {
+      opts.tooltipTextColor = tooltipTextColorInput.value;
+      log('opt', 'tag-opt', `tooltipTextColor → ${opts.tooltipTextColor}`);
+      createCalendar();
+    });
+
+    resetTooltipTextBtn.addEventListener('click', () => {
+      opts.tooltipTextColor = null;
+      tooltipTextColorInput.value = '#f9fafb';
+      log('opt', 'tag-opt', `tooltipTextColor → default`);
+      createCalendar();
+    });
+
+    // Tooltip Max Width
+    const tooltipMaxWidthInput = document.getElementById('opt-tooltip-max-width');
+
+    tooltipMaxWidthInput.addEventListener('change', () => {
+      const value = parseInt(tooltipMaxWidthInput.value, 10);
+      if (isNaN(value) || value < 100 || value > 600) {
+        tooltipMaxWidthInput.value = opts.tooltipMaxWidth;
+        return;
+      }
+      opts.tooltipMaxWidth = value;
+      log('opt', 'tag-opt', `tooltipMaxWidth → ${opts.tooltipMaxWidth}px`);
+      createCalendar();
+    });
+
+    // Tooltip Delay
+    const tooltipDelayInput = document.getElementById('opt-tooltip-delay');
+
+    tooltipDelayInput.addEventListener('change', () => {
+      const value = parseInt(tooltipDelayInput.value, 10);
+      if (isNaN(value) || value < 0 || value > 2000) {
+        tooltipDelayInput.value = opts.tooltipDelay;
+        return;
+      }
+      opts.tooltipDelay = value;
+      log('opt', 'tag-opt', `tooltipDelay → ${opts.tooltipDelay}ms`);
       createCalendar();
     });
 

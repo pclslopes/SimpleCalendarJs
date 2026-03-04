@@ -480,6 +480,36 @@ const calendar = new SimpleCalendarJs('#calendar', {
               <td>Show/hide event tooltips on hover</td>
             </tr>
             <tr>
+              <td><code>tooltipAllowHtml</code></td>
+              <td>Boolean</td>
+              <td><code>true</code></td>
+              <td>Allow HTML in tooltips (sanitized for security). Supports: <code>&lt;b&gt;</code>, <code>&lt;i&gt;</code>, <code>&lt;strong&gt;</code>, <code>&lt;em&gt;</code>, <code>&lt;span&gt;</code>, <code>&lt;br&gt;</code>, <code>&lt;a&gt;</code> with safe attributes and URL validation</td>
+            </tr>
+            <tr>
+              <td><code>tooltipBgColor</code></td>
+              <td>String | null</td>
+              <td><code>null</code></td>
+              <td>Custom tooltip background color (hex). If <code>null</code>, uses CSS variable <code>--cal-tooltip-bg</code></td>
+            </tr>
+            <tr>
+              <td><code>tooltipTextColor</code></td>
+              <td>String | null</td>
+              <td><code>null</code></td>
+              <td>Custom tooltip text color (hex). If <code>null</code>, uses CSS variable <code>--cal-tooltip-text</code></td>
+            </tr>
+            <tr>
+              <td><code>tooltipMaxWidth</code></td>
+              <td>Number</td>
+              <td><code>250</code></td>
+              <td>Maximum tooltip width in pixels</td>
+            </tr>
+            <tr>
+              <td><code>tooltipDelay</code></td>
+              <td>Number</td>
+              <td><code>400</code></td>
+              <td>Delay in milliseconds before tooltip appears on hover</td>
+            </tr>
+            <tr>
               <td><code>enableDragDrop</code></td>
               <td>Boolean</td>
               <td><code>false</code></td>
@@ -506,7 +536,7 @@ const calendar = new SimpleCalendarJs('#calendar', {
             <tr>
               <td><code>allowHtmlInEvents</code></td>
               <td>Boolean</td>
-              <td><code>false</code></td>
+              <td><code>true</code></td>
               <td>Allow basic HTML tags in event titles (sanitized for security). Supports: <code>&lt;b&gt;</code>, <code>&lt;i&gt;</code>, <code>&lt;strong&gt;</code>, <code>&lt;em&gt;</code>, <code>&lt;span&gt;</code>, <code>&lt;br&gt;</code> with <code>class</code> attribute for icons</td>
             </tr>
             <tr>
@@ -756,81 +786,104 @@ new SimpleCalendarJs('#calendar', {
     <!-- Tooltips -->
     <section id="tooltips" class="section">
       <h2>Tooltips</h2>
-      <p>SimpleCalendarJs includes built-in tooltip support for displaying additional event information on hover.</p>
+      <p>SimpleCalendarJs includes a powerful tooltip system with <strong>HTML support</strong>, smart positioning, and extensive customization options.</p>
 
       <h3>How Tooltips Work</h3>
-      <p>Tooltips appear when you hover over an event for 400ms. They display content based on the following priority:</p>
+      <p>Tooltips appear when you hover over an event (default 400ms delay). They display content based on the following priority:</p>
       <ol>
-        <li><strong><code>tooltip</code> property</strong> (highest priority) - Custom tooltip text</li>
+        <li><strong><code>tooltip</code> property</strong> (highest priority) - Custom tooltip content</li>
         <li><strong><code>description</code> property</strong> - Falls back if no tooltip is provided</li>
         <li><strong><code>title</code> property</strong> - Falls back if neither tooltip nor description is provided</li>
       </ol>
 
-      <h3>Basic Usage</h3>
+      <h3>Basic Text Tooltips</h3>
       <pre><code>const events = [
   {
     id: 1,
     title: 'Team Meeting',
     start: new Date(2024, 2, 15, 10, 0),
     end: new Date(2024, 2, 15, 11, 0),
-    tooltip: 'Weekly team sync\nDiscuss Q1 roadmap'  // Custom tooltip
+    tooltip: 'Weekly team sync'  // Simple text tooltip
   },
   {
     id: 2,
     title: 'Client Call',
     start: new Date(2024, 2, 15, 14, 0),
     end: new Date(2024, 2, 15, 15, 0),
-    description: 'Requirements gathering\nPrepare demo'  // Used as tooltip
-  },
-  {
-    id: 3,
-    title: 'Code Review',
-    start: new Date(2024, 2, 15, 16, 0),
-    end: new Date(2024, 2, 15, 17, 0)
-    // No tooltip/description - will show title
+    description: 'Requirements gathering session'  // Used as tooltip
   }
 ];</code></pre>
 
-      <h3>Multiline Tooltips</h3>
-      <p>Use <code>\n</code> (newline character) in your tooltip or description text to create multiple lines:</p>
+      <h3>Rich HTML Tooltips</h3>
+      <p><strong>By default</strong>, tooltips support HTML formatting with secure sanitization:</p>
       <pre><code>{
   id: 1,
-  title: 'Project Kickoff',
-  start: new Date(2024, 2, 20, 9, 0),
-  end: new Date(2024, 2, 20, 10, 30),
-  tooltip: 'Project Kickoff Meeting\n\nAgenda:\n- Introductions\n- Timeline review\n- Q&A session\n\nLocation: Conference Room A'
+  title: 'Design Review',
+  start: new Date(2024, 2, 20, 14, 0),
+  end: new Date(2024, 2, 20, 15, 30),
+  tooltip: '&lt;b&gt;Product Design Review&lt;/b&gt;&lt;br&gt;&lt;br&gt;&lt;i&gt;New feature mockups:&lt;/i&gt;&lt;br&gt;• Dashboard v2.0&lt;br&gt;• Mobile redesign&lt;br&gt;&lt;br&gt;&lt;a href="https://figma.com/example"&gt;View in Figma&lt;/a&gt;'
 }</code></pre>
 
-      <h3>Tooltip Features</h3>
       <div class="card">
-        <h4>Smart Positioning</h4>
-        <p>Tooltips automatically adjust their position to stay visible:</p>
+        <h4>Supported HTML Tags</h4>
         <ul>
-          <li>Events near the <strong>top</strong> of the viewport: tooltip shows below</li>
-          <li>Events near the <strong>right edge</strong>: tooltip aligns to the right</li>
-          <li>Events near the <strong>left edge</strong>: tooltip aligns to the left</li>
+          <li><code>&lt;b&gt;</code>, <code>&lt;strong&gt;</code> - Bold text</li>
+          <li><code>&lt;i&gt;</code>, <code>&lt;em&gt;</code> - Italic text</li>
+          <li><code>&lt;br&gt;</code> - Line breaks</li>
+          <li><code>&lt;span style="color: #xxx;"&gt;</code> - Colored text (only <code>color</code> and <code>background-color</code> allowed)</li>
+          <li><code>&lt;a href="..."&gt;</code> - Links (automatically open in new tab, URL validated for safety)</li>
         </ul>
       </div>
 
       <div class="card">
-        <h4>Visual Design</h4>
+        <h4>Security Features</h4>
         <ul>
-          <li>Dark background with rounded corners</li>
-          <li>Small arrow pointing to the event</li>
-          <li>Smooth fade-in animation (400ms delay)</li>
-          <li>Supports both light and dark themes</li>
+          <li>Dangerous protocols blocked (<code>javascript:</code>, <code>data:</code>, <code>vbscript:</code>)</li>
+          <li>Only safe CSS properties allowed in <code>style</code> attributes</li>
+          <li>All event handlers stripped (<code>onclick</code>, etc.)</li>
+          <li>Script tags and other dangerous elements removed</li>
         </ul>
       </div>
 
-      <h3>Disabling Tooltips</h3>
-      <p>You can disable tooltips globally using the <code>showTooltips</code> option:</p>
+      <h3>Configuration Options</h3>
+      <p>Control tooltip behavior globally:</p>
       <pre><code>const calendar = new SimpleCalendarJs('#calendar', {
-  showTooltips: false,  // Disable all tooltips
+  showTooltips: true,           // Enable/disable tooltips (default: true)
+  tooltipAllowHtml: true,       // Allow HTML in tooltips (default: true)
+  tooltipBgColor: '#1f2937',    // Custom background color (default: null)
+  tooltipTextColor: '#f9fafb',  // Custom text color (default: null)
+  tooltipMaxWidth: 250,         // Maximum width in pixels (default: 250)
+  tooltipDelay: 400,            // Hover delay in milliseconds (default: 400)
   fetchEvents: async (start, end) => { /* ... */ }
 });</code></pre>
 
+      <h3>Per-Event HTML Override</h3>
+      <p>Override the global <code>tooltipAllowHtml</code> setting for specific events:</p>
+      <pre><code>{
+  id: 1,
+  title: 'Secure Event',
+  tooltip: '&lt;script&gt;alert("xss")&lt;/script&gt;',  // This will be sanitized/removed
+  tooltipAllowHtml: false  // Force plain text for this event only
+}</code></pre>
+
+      <h3>Smart Positioning</h3>
+      <p>Tooltips use <strong>fixed positioning</strong> and automatically adjust to stay visible:</p>
+      <div class="card">
+        <ul>
+          <li><strong>Fixed to viewport</strong>: Never clipped by calendar container boundaries</li>
+          <li><strong>Edge detection</strong>:
+            <ul>
+              <li>Near <strong>top</strong>: tooltip appears below the event</li>
+              <li>Near <strong>right edge</strong>: tooltip shifts left</li>
+              <li>Near <strong>left edge</strong>: tooltip shifts right</li>
+            </ul>
+          </li>
+          <li><strong>Dynamic arrow</strong>: Arrow always points to the hovered event center</li>
+        </ul>
+      </div>
+
       <h3>Styling Tooltips</h3>
-      <p>Tooltips use CSS custom properties and can be customized:</p>
+      <p>Customize via CSS variables:</p>
       <pre><code>:root {
   --cal-tooltip-bg: #1f2937;           /* Background color */
   --cal-tooltip-text: #f9fafb;         /* Text color */
@@ -840,10 +893,36 @@ new SimpleCalendarJs('#calendar', {
   --cal-tooltip-radius: 6px;           /* Border radius */
   --cal-tooltip-font-size: 12px;       /* Font size */
   --cal-tooltip-offset: 8px;           /* Distance from event */
+  --cal-tooltip-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);  /* Shadow */
+}</code></pre>
+
+      <p>Or use configuration options for colors:</p>
+      <pre><code>const calendar = new SimpleCalendarJs('#calendar', {
+  tooltipBgColor: '#dc2626',      // Red background
+  tooltipTextColor: '#ffffff',    // White text
+});</code></pre>
+
+      <h3>Advanced Example</h3>
+      <pre><code>{
+  id: 1,
+  title: 'Client Demo',
+  start: new Date(2024, 2, 25, 10, 0),
+  end: new Date(2024, 2, 25, 11, 0),
+  tooltip: `
+    &lt;span style="color: #ef4444;"&gt;&lt;b&gt;⚡ HIGH PRIORITY&lt;/b&gt;&lt;/span&gt;&lt;br&gt;&lt;br&gt;
+    &lt;b&gt;Q4 Business Review&lt;/b&gt;&lt;br&gt;
+    &lt;i&gt;Executive presentation&lt;/i&gt;&lt;br&gt;&lt;br&gt;
+    &lt;b&gt;Must prepare:&lt;/b&gt;&lt;br&gt;
+    • Financial projections&lt;br&gt;
+    • ROI analysis&lt;br&gt;
+    • Growth charts&lt;br&gt;&lt;br&gt;
+    &lt;a href="https://example.com/deck"&gt;View presentation deck&lt;/a&gt;
+  `,
+  tooltipAllowHtml: true
 }</code></pre>
 
       <div class="note">
-        <p><strong>Limitations:</strong> Tooltips display plain text only (no HTML rendering). Special characters are automatically escaped for security. Maximum width is 250px by default (customizable via CSS variables).</p>
+        <p><strong>Note:</strong> HTML is enabled by default for tooltips. To disable, set <code>tooltipAllowHtml: false</code> globally or per-event. All HTML is sanitized for security with comprehensive XSS protection.</p>
       </div>
     </section>
 
