@@ -536,6 +536,18 @@
     }
 
     body.dark-page .custom-color-label { color: #94a3b8; }
+
+    /* Picker demo headings */
+    .picker-heading {
+      margin-bottom: 12px;
+      font-size: 14px;
+      font-weight: 600;
+      color: #1e293b;
+    }
+
+    body.dark-page .picker-heading {
+      color: #e2e8f0;
+    }
   </style>
 </head>
 <body>
@@ -543,7 +555,7 @@
   <header class="page-header">
     <div style="display:flex;align-items:center;gap:10px">
       <h1>SimpleCalendarJs</h1>
-      <span>v3.0.11</span>
+      <span>v3.0.12</span>
     </div>
     <div class="header-controls">
       <a href="docs.html" class="docs-link">Documentation</a>
@@ -571,6 +583,18 @@
         <ul id="log-list">
           <li><span class="log-tag tag-nav">info</span>Calendar mounted — interact to see callbacks here.</li>
         </ul>
+      </div>
+
+      <!-- Picker Modes Demo -->
+      <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 20px; margin-top: 20px;">
+        <div>
+          <h3 class="picker-heading">Date Picker Mode</h3>
+          <div id="cal-date-picker" style="height: 400px;"></div>
+        </div>
+        <div>
+          <h3 class="picker-heading">Range Picker Mode</h3>
+          <div id="cal-range-picker" style="height: 400px;"></div>
+        </div>
       </div>
     </div>
 
@@ -1114,6 +1138,32 @@
       return rgbToHex(r, g, b);
     }
 
+    function updatePickerColors(color) {
+      if (!calDatePicker || !calRangePicker) return;
+
+      const primaryLight = lighten(color, 90);
+      const primaryDark = darken(color, 15);
+      const primaryLightDark = darken(color, 60);
+      const todayBgDark = darken(color, 65);
+      const selectedBgDark = darken(color, 55);
+
+      [calDatePicker, calRangePicker].forEach(cal => {
+        const root = cal._root;
+        root.style.setProperty('--cal-primary', color);
+        root.style.setProperty('--cal-primary-dark', primaryDark);
+
+        if (!isDark) {
+          root.style.setProperty('--cal-primary-light', primaryLight);
+          root.style.removeProperty('--cal-today-bg');
+          root.style.removeProperty('--cal-selected-bg');
+        } else {
+          root.style.setProperty('--cal-primary-light', primaryLightDark);
+          root.style.setProperty('--cal-today-bg', todayBgDark);
+          root.style.setProperty('--cal-selected-bg', selectedBgDark);
+        }
+      });
+    }
+
     function updateCalendarColor(color) {
       if (!cal) return;
 
@@ -1142,6 +1192,9 @@
         root.style.setProperty('--cal-today-bg', todayBgDark);
         root.style.setProperty('--cal-selected-bg', selectedBgDark);
       }
+
+      // Also update picker calendars
+      updatePickerColors(color);
 
       log('opt', 'tag-opt', `primaryColor → ${color}`);
     }
@@ -1251,6 +1304,62 @@
       }
     }
 
+    function createPickerCalendars() {
+      // Destroy existing pickers if they exist
+      if (calDatePicker) calDatePicker.destroy();
+      if (calRangePicker) calRangePicker.destroy();
+
+      // Create date picker with current options
+      calDatePicker = new SimpleCalendarJs('#cal-date-picker', {
+        mode: 'date-picker',
+        weekStartsOn: opts.weekStartsOn,
+        locale: opts.locale,
+        weekdayFormat: opts.weekdayFormat,
+        showGridLines: opts.showGridLines,
+        showBorder: opts.showBorder,
+        showToolbar: opts.showToolbar,
+        showTodayButton: opts.showTodayButton,
+        showNavigation: opts.showNavigation,
+        showTitle: opts.showTitle,
+        showYearPicker: opts.showYearPicker,
+        onDateSelect: (date) => {
+          log('picker', 'tag-event', `Date selected: ${fmtFull(date)}`);
+        }
+      });
+
+      // Create range picker with current options
+      calRangePicker = new SimpleCalendarJs('#cal-range-picker', {
+        mode: 'range-picker',
+        weekStartsOn: opts.weekStartsOn,
+        locale: opts.locale,
+        weekdayFormat: opts.weekdayFormat,
+        showGridLines: opts.showGridLines,
+        showBorder: opts.showBorder,
+        showToolbar: opts.showToolbar,
+        showTodayButton: opts.showTodayButton,
+        showNavigation: opts.showNavigation,
+        showTitle: opts.showTitle,
+        showYearPicker: opts.showYearPicker,
+        onRangeSelect: (startDate, endDate) => {
+          log('picker', 'tag-event', `Range selected: ${fmtFull(startDate)} → ${fmtFull(endDate)}`);
+        }
+      });
+
+      // Apply dark mode if active
+      if (isDark) {
+        calDatePicker._root.classList.add('uc-dark');
+        calRangePicker._root.classList.add('uc-dark');
+      }
+
+      // Apply custom color if set
+      const currentColor = customColorPicker.value;
+      if (currentColor !== '#4f46e5') {
+        updatePickerColors(currentColor);
+      } else if (isDark) {
+        updatePickerColors(currentColor);
+      }
+    }
+
     /* ============================================================
        OPTION CONTROLS
        ============================================================ */
@@ -1312,6 +1421,7 @@
       setActiveBtn(e.currentTarget, opts.weekStartsOn);
       log('opt', 'tag-opt', `weekStartsOn → ${opts.weekStartsOn === 0 ? '0 (Sunday)' : '1 (Monday)'}`);
       createCalendar();
+      createPickerCalendars();
     });
 
     // Locale
@@ -1319,6 +1429,7 @@
       opts.locale = e.target.value;
       log('opt', 'tag-opt', `locale → "${opts.locale}"`);
       createCalendar();
+      createPickerCalendars();
     });
 
     // Weekday Format
@@ -1326,6 +1437,7 @@
       opts.weekdayFormat = e.target.value;
       log('opt', 'tag-opt', `weekdayFormat → "${opts.weekdayFormat}"`);
       createCalendar();
+      createPickerCalendars();
     });
 
     // 24-Hour Clock
@@ -1365,6 +1477,7 @@
       labelShowGrid.textContent = opts.showGridLines ? 'On' : 'Off';
       log('opt', 'tag-opt', `showGridLines → ${opts.showGridLines}`);
       createCalendar();
+      createPickerCalendars();
     });
 
     // Show Border
@@ -1378,6 +1491,7 @@
       labelShowBorder.textContent = opts.showBorder ? 'On' : 'Off';
       log('opt', 'tag-opt', `showBorder → ${opts.showBorder}`);
       createCalendar();
+      createPickerCalendars();
     });
 
     // Show Tooltips
@@ -1493,6 +1607,7 @@
       labelShowToolbar.textContent = opts.showToolbar ? 'On' : 'Off';
       log('opt', 'tag-opt', `showToolbar → ${opts.showToolbar}`);
       createCalendar();
+      createPickerCalendars();
     });
 
     // Show Today Button
@@ -1506,6 +1621,7 @@
       labelShowToday.textContent = opts.showTodayButton ? 'On' : 'Off';
       log('opt', 'tag-opt', `showTodayButton → ${opts.showTodayButton}`);
       createCalendar();
+      createPickerCalendars();
     });
 
     // Show Navigation
@@ -1519,6 +1635,7 @@
       labelShowNav.textContent = opts.showNavigation ? 'On' : 'Off';
       log('opt', 'tag-opt', `showNavigation → ${opts.showNavigation}`);
       createCalendar();
+      createPickerCalendars();
     });
 
     // Show Title
@@ -1532,6 +1649,7 @@
       labelShowTitle.textContent = opts.showTitle ? 'On' : 'Off';
       log('opt', 'tag-opt', `showTitle → ${opts.showTitle}`);
       createCalendar();
+      createPickerCalendars();
     });
 
     // Show Year Picker
@@ -1545,6 +1663,7 @@
       labelShowYear.textContent = opts.showYearPicker ? 'On' : 'Off';
       log('opt', 'tag-opt', `showYearPicker → ${opts.showYearPicker}`);
       createCalendar();
+      createPickerCalendars();
     });
 
     // Show View Switcher
@@ -1708,6 +1827,10 @@
        ============================================================ */
     const themeBtn = document.getElementById('theme-toggle-btn');
 
+    // Store picker calendars references (will be populated after init)
+    let calDatePicker = null;
+    let calRangePicker = null;
+
     themeBtn.addEventListener('click', () => {
       isDark = themeBtn.classList.toggle('on');
       themeBtn.setAttribute('aria-checked', isDark);
@@ -1718,12 +1841,16 @@
         const currentColor = customColorPicker.value;
         updateCalendarColor(currentColor);
       }
+      // Apply dark mode to picker calendars
+      if (calDatePicker) calDatePicker._root.classList.toggle('uc-dark', isDark);
+      if (calRangePicker) calRangePicker._root.classList.toggle('uc-dark', isDark);
     });
 
     /* ============================================================
        INIT
        ============================================================ */
     createCalendar();
+    createPickerCalendars();
   </script>
 </body>
 </html>

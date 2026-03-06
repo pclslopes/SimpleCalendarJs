@@ -1,5 +1,5 @@
 /**
- * SimpleCalendarJs v3.0.11 — simple-calendar-js.css
+ * SimpleCalendarJs v3.0.12 — simple-calendar-js.css
  * A clean, modern, and feature-rich JavaScript calendar component with zero dependencies
  *
  * @author Pedro Lopes <simplecalendarjs@gmail.com>
@@ -592,6 +592,14 @@
   text-align: right;
 }
 
+/* Picker mode: center alignment both horizontally and vertically */
+.uc-day-cell.uc-day-align-center-picker {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  text-align: center;
+}
+
 .uc-day-number {
   display: inline-flex;
   align-items: center;
@@ -618,6 +626,43 @@
 }
 
 .uc-today .uc-day-number:hover {
+  background: var(--cal-primary-dark);
+}
+
+/* Date picker selected state */
+.uc-day-cell.uc-selected {
+  background: var(--cal-selected-bg);
+}
+
+.uc-day-cell.uc-selected .uc-day-number {
+  background: var(--cal-primary);
+  color: #fff;
+  font-weight: 700;
+}
+
+.uc-day-cell.uc-selected .uc-day-number:hover {
+  background: var(--cal-primary-dark);
+}
+
+/* Range picker selected state */
+.uc-day-cell.uc-in-range {
+  background: var(--cal-primary-light);
+}
+
+.uc-day-cell.uc-range-start,
+.uc-day-cell.uc-range-end {
+  background: var(--cal-selected-bg);
+}
+
+.uc-day-cell.uc-range-start .uc-day-number,
+.uc-day-cell.uc-range-end .uc-day-number {
+  background: var(--cal-primary);
+  color: #fff;
+  font-weight: 700;
+}
+
+.uc-day-cell.uc-range-start .uc-day-number:hover,
+.uc-day-cell.uc-range-end .uc-day-number:hover {
   background: var(--cal-primary-dark);
 }
 

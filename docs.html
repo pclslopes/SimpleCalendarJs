@@ -274,6 +274,7 @@
       <a href="#installation">Installation</a>
       <a href="#quickstart">Quick Start</a>
       <a href="#options">Options</a>
+      <a href="#picker-modes">Picker Modes</a>
       <a href="#callbacks">Callbacks</a>
       <a href="#timezones">Timezones</a>
       <a href="#tooltips">Tooltips</a>
@@ -360,6 +361,12 @@ const calendar = new SimpleCalendarJs('#calendar', {
             </tr>
           </thead>
           <tbody>
+            <tr>
+              <td><code>mode</code></td>
+              <td>String</td>
+              <td><code>'calendar'</code></td>
+              <td>Calendar mode: <code>'calendar'</code> (standard calendar with events), <code>'date-picker'</code> (single date selection), or <code>'range-picker'</code> (date range selection)</td>
+            </tr>
             <tr>
               <td><code>defaultView</code></td>
               <td>String</td>
@@ -602,6 +609,100 @@ new SimpleCalendarJs('#calendar', {
     </section>
 
     <!-- Callbacks -->
+    <section id="picker-modes" class="section">
+      <h2>Picker Modes</h2>
+      <p>SimpleCalendarJs includes built-in date selection functionality with two picker modes:</p>
+
+      <h3>Date Picker Mode</h3>
+      <p>Select a single date:</p>
+      <pre><code>const datePicker = new SimpleCalendarJs('#date-picker', {
+  mode: 'date-picker',
+  onDateSelect: (date) => {
+    console.log('Selected date:', date);
+    // Update your form, input field, etc.
+  }
+});
+
+// Programmatic selection
+datePicker.setSelectedDate(new Date('2024-12-25'));
+
+// Get selected date
+const selected = datePicker.getSelectedDate();</code></pre>
+
+      <h3>Range Picker Mode</h3>
+      <p>Select a date range (start and end dates):</p>
+      <pre><code>const rangePicker = new SimpleCalendarJs('#range-picker', {
+  mode: 'range-picker',
+  onRangeSelect: (startDate, endDate) => {
+    console.log('Selected range:', startDate, 'to', endDate);
+    // Update your booking form, filter dates, etc.
+  }
+});
+
+// Programmatic selection
+rangePicker.setSelectedRange(
+  new Date('2024-12-01'),
+  new Date('2024-12-07')
+);
+
+// Get selected range
+const range = rangePicker.getSelectedRange();  // { start: Date, end: Date }
+
+// Clear selection
+rangePicker.clearSelection();</code></pre>
+
+      <h3>Picker Mode Behavior</h3>
+      <p>When using picker modes:</p>
+      <ul>
+        <li><strong>No events displayed</strong> - Events are not fetched or rendered</li>
+        <li><strong>Month view only</strong> - View switcher is automatically hidden</li>
+        <li><strong>Centered day numbers</strong> - Day numbers are always centered (ignores monthDayNumberAlign)</li>
+        <li><strong>No today highlight</strong> - Today's date is not highlighted to avoid confusion with selection</li>
+        <li><strong>Visual feedback</strong> - Selected dates are highlighted with clear visual indicators</li>
+        <li><strong>Smart range selection</strong> - In range-picker mode, dates are automatically ordered</li>
+      </ul>
+
+      <h3>Picker API Methods</h3>
+      <div class="table-wrapper">
+        <table>
+          <thead>
+            <tr>
+              <th>Method</th>
+              <th>Returns</th>
+              <th>Description</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr>
+              <td><code>getSelectedDate()</code></td>
+              <td>Date | null</td>
+              <td>Returns the currently selected date (date-picker mode)</td>
+            </tr>
+            <tr>
+              <td><code>setSelectedDate(date)</code></td>
+              <td>void</td>
+              <td>Programmatically set the selected date (date-picker mode)</td>
+            </tr>
+            <tr>
+              <td><code>getSelectedRange()</code></td>
+              <td>{start: Date, end: Date}</td>
+              <td>Returns the currently selected range (range-picker mode)</td>
+            </tr>
+            <tr>
+              <td><code>setSelectedRange(startDate, endDate)</code></td>
+              <td>void</td>
+              <td>Programmatically set the selected range (range-picker mode)</td>
+            </tr>
+            <tr>
+              <td><code>clearSelection()</code></td>
+              <td>void</td>
+              <td>Clear all selections (works in both picker modes)</td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+    </section>
+
     <section id="callbacks" class="section">
       <h2>Callbacks</h2>
       <p>Register event handlers for user interactions:</p>
@@ -630,6 +731,16 @@ new SimpleCalendarJs('#calendar', {
               <td><code>onSlotClick</code></td>
               <td><code>(date: Date)</code></td>
               <td>Called when an empty time slot is clicked</td>
+            </tr>
+            <tr>
+              <td><code>onDateSelect</code></td>
+              <td><code>(date: Date)</code></td>
+              <td>Called when a date is selected in date-picker mode</td>
+            </tr>
+            <tr>
+              <td><code>onRangeSelect</code></td>
+              <td><code>(startDate: Date, endDate: Date)</code></td>
+              <td>Called when a date range is selected in range-picker mode</td>
             </tr>
             <tr>
               <td><code>onViewChange</code></td>
@@ -2100,7 +2211,7 @@ export class CalendarDemoComponent {
   </div>
 
   <div class="footer">
-    <p>SimpleCalendarJs v3.0.5 — A zero-dependency JavaScript calendar component</p>
+    <p>SimpleCalendarJs v3.0.12 — A zero-dependency JavaScript calendar component</p>
   </div>
 
 </body>

@@ -9,6 +9,7 @@ A lightweight, zero-dependency JavaScript calendar component with internationali
 
 - **Zero Dependencies** - Pure vanilla JavaScript, no external libraries
 - **Four View Modes** - Month, week, day, and list views with smooth transitions
+- **Picker Modes** - Built-in date picker and date range picker modes for date selection
 - **Full Internationalization** - Built on Intl.DateTimeFormat API for native locale support
 - **Framework Wrappers** - Official React, Vue 3, and Angular components included
 - **Module System Support** - Works as UMD (CommonJS, AMD, ES modules, or browser global)
@@ -26,21 +27,21 @@ A lightweight, zero-dependency JavaScript calendar component with internationali
 <table>
   <tr>
     <td width="50%">
-      <img src="https://github.com/pclslopes/SimpleCalendarJs/raw/main/screenshots/Screenshot01-MonthView.png" alt="Month View" />
+      <img src="https://www.simplecalendarjs.com/Screenshots/Screenshot01-MonthView.png" alt="Month View" />
       <p align="center"><strong>Month View</strong></p>
     </td>
     <td width="50%">
-      <img src="https://github.com/pclslopes/SimpleCalendarJs/raw/main/screenshots/Screenshot02-WeekView.png" alt="Week View" />
+      <img src="https://www.simplecalendarjs.com/Screenshots/Screenshot02-WeekView.png" alt="Week View" />
       <p align="center"><strong>Week View</strong></p>
     </td>
   </tr>
   <tr>
     <td width="50%">
-      <img src="https://github.com/pclslopes/SimpleCalendarJs/raw/main/screenshots/Screenshot03-DayView.png" alt="Day View" />
+      <img src="https://www.simplecalendarjs.com/Screenshots/Screenshot03-DayView.png" alt="Day View" />
       <p align="center"><strong>Day View</strong></p>
     </td>
     <td width="50%">
-      <img src="https://github.com/pclslopes/SimpleCalendarJs/raw/main/screenshots/Screenshot04-ListView.png" alt="List View" />
+      <img src="https://www.simplecalendarjs.com/Screenshots/Screenshot04-ListView.png" alt="List View" />
       <p align="center"><strong>List View</strong></p>
     </td>
   </tr>
@@ -51,12 +52,27 @@ A lightweight, zero-dependency JavaScript calendar component with internationali
 <table>
   <tr>
     <td width="50%">
-      <img src="https://github.com/pclslopes/SimpleCalendarJs/raw/main/screenshots/Screenshot05-Resize.png" alt="Drag and Drop" />
+      <img src="https://www.simplecalendarjs.com/Screenshots/Screenshot05-Resize.png" alt="Drag and Drop" />
       <p align="center"><strong>Drag & Drop Events</strong></p>
     </td>
     <td width="50%">
-      <img src="https://github.com/pclslopes/SimpleCalendarJs/raw/main/screenshots/Screenshot06-Resize.png" alt="Resize Events" />
+      <img src="https://www.simplecalendarjs.com/Screenshots/Screenshot06-Resize.png" alt="Resize Events" />
       <p align="center"><strong>Resize Events</strong></p>
+    </td>
+  </tr>
+</table>
+
+### Date Picker & Range Picker
+
+<table>
+  <tr>
+    <td width="50%">
+      <img src="https://www.simplecalendarjs.com/Screenshots/Screenshot07-DatePicker.png" alt="Date Picker Mode" />
+      <p align="center"><strong>Date Picker Mode</strong></p>
+    </td>
+    <td width="50%">
+      <img src="https://www.simplecalendarjs.com/Screenshots/Screenshot08-RangePicker.png" alt="Range Picker Mode" />
+      <p align="center"><strong>Range Picker Mode</strong></p>
     </td>
   </tr>
 </table>
@@ -197,10 +213,71 @@ export class CalendarComponent {
 }
 ```
 
+## Picker Modes
+
+SimpleCalendarJs includes built-in date selection functionality with two picker modes:
+
+### Date Picker Mode
+
+Select a single date:
+
+```javascript
+const datePicker = new SimpleCalendarJs('#date-picker', {
+  mode: 'date-picker',
+  onDateSelect: (date) => {
+    console.log('Selected date:', date);
+    // Update your form, input field, etc.
+  }
+});
+
+// Programmatic selection
+datePicker.setSelectedDate(new Date('2024-12-25'));
+
+// Get selected date
+const selected = datePicker.getSelectedDate();
+```
+
+### Range Picker Mode
+
+Select a date range (start and end dates):
+
+```javascript
+const rangePicker = new SimpleCalendarJs('#range-picker', {
+  mode: 'range-picker',
+  onRangeSelect: (startDate, endDate) => {
+    console.log('Selected range:', startDate, 'to', endDate);
+    // Update your booking form, filter dates, etc.
+  }
+});
+
+// Programmatic selection
+rangePicker.setSelectedRange(
+  new Date('2024-12-01'),
+  new Date('2024-12-07')
+);
+
+// Get selected range
+const range = rangePicker.getSelectedRange();  // { start: Date, end: Date }
+
+// Clear selection
+rangePicker.clearSelection();
+```
+
+### Picker Mode Behavior
+
+When using picker modes:
+- **No events displayed** - Events are not fetched or rendered
+- **Month view only** - View switcher is automatically hidden
+- **Centered day numbers** - Day numbers are always centered (ignores `monthDayNumberAlign`)
+- **No today highlight** - Today's date is not highlighted to avoid confusion with selection
+- **Visual feedback** - Selected dates are highlighted with clear visual indicators
+- **Smart range selection** - In range-picker mode, dates are automatically ordered
+
 ## Configuration Options
 
 | Option | Type | Default | Description |
 |--------|------|---------|-------------|
+| `mode` | string | `'calendar'` | Calendar mode: `'calendar'` (standard calendar with events), `'date-picker'` (single date selection), or `'range-picker'` (date range selection) |
 | `defaultView` | string | `'month'` | Initial view: `'month'`, `'week'`, `'day'`, or `'list'` |
 | `defaultDate` | Date | `new Date()` | Initial date to display |
 | `weekStartsOn` | number | `0` | First day of week: `0` (Sunday) or `1` (Monday) |
@@ -235,6 +312,8 @@ export class CalendarComponent {
 | `fetchEvents` | function | `null` | Async function to fetch events: `async (start, end) => Event[]` |
 | `onEventClick` | function | `null` | Callback when event is clicked: `(event, mouseEvent) => void` |
 | `onSlotClick` | function | `null` | Callback when time slot is clicked: `(date, mouseEvent) => void` |
+| `onDateSelect` | function | `null` | Callback when date is selected in date-picker mode: `(date) => void` |
+| `onRangeSelect` | function | `null` | Callback when date range is selected in range-picker mode: `(startDate, endDate) => void` |
 | `onViewChange` | function | `null` | Callback when view changes: `(view) => void` |
 | `onNavigate` | function | `null` | Callback when date range changes: `(startDate, endDate) => void` |
 | `onEventDrop` | function | `null` | Callback when event is dropped: `(event, oldStart, oldEnd, newStart, newEnd) => void` |
@@ -990,6 +1069,8 @@ const calendar = new SimpleCalendarJs('#calendar', {
 
 ## API Methods
 
+### General Methods
+
 ```javascript
 // Switch view
 calendar.setView('week');
@@ -1009,6 +1090,30 @@ calendar.refresh();
 
 // Cleanup (important for SPAs)
 calendar.destroy();
+```
+
+### Picker Mode Methods
+
+Available when using `mode: 'date-picker'` or `mode: 'range-picker'`:
+
+```javascript
+// Get selected date (date-picker mode)
+const selectedDate = calendar.getSelectedDate();  // Returns Date or null
+
+// Set selected date (date-picker mode)
+calendar.setSelectedDate(new Date('2024-12-25'));
+
+// Get selected range (range-picker mode)
+const range = calendar.getSelectedRange();  // Returns {start: Date, end: Date}
+
+// Set selected range (range-picker mode)
+calendar.setSelectedRange(
+  new Date('2024-12-01'),  // start date
+  new Date('2024-12-07')   // end date
+);
+
+// Clear all selections (both picker modes)
+calendar.clearSelection();
 ```
 
 ### Event Caching

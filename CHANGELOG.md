@@ -9,6 +9,45 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 No unreleased changes yet.
 
+## [3.0.12] - 2026-03-06
+
+### Added
+- **Picker modes** - New `mode` configuration option enables date selection functionality
+  - `'calendar'` (default) - Standard calendar view with events
+  - `'date-picker'` - Single date selection mode for choosing individual dates
+  - `'range-picker'` - Date range selection mode for choosing start and end dates
+- **Date selection callbacks** - New callback functions for picker modes:
+  - `onDateSelect(date)` - Triggered when a date is selected in date-picker mode
+  - `onRangeSelect(startDate, endDate)` - Triggered when a complete range is selected in range-picker mode
+- **Selection state management** - New public API methods for programmatic date selection:
+  - `getSelectedDate()` - Returns the currently selected date (date-picker mode)
+  - `setSelectedDate(date)` - Programmatically set the selected date
+  - `getSelectedRange()` - Returns the currently selected range as `{start, end}` (range-picker mode)
+  - `setSelectedRange(startDate, endDate)` - Programmatically set the selected range
+  - `clearSelection()` - Clear all selections (works in both picker modes)
+- **Visual selection styling** - New CSS classes for selected date states:
+  - `.uc-selected` - Single date selection highlight (date-picker mode)
+  - `.uc-in-range` - Dates within a selected range (range-picker mode)
+  - `.uc-range-start` - Start date of range selection
+  - `.uc-range-end` - End date of range selection
+
+### Changed
+- **Picker mode behavior** - Picker modes automatically disable event-related features:
+  - No events are fetched or displayed (`fetchEvents` is skipped)
+  - View switcher is hidden (only month view available)
+  - Day numbers are always centered (both horizontally and vertically)
+  - Today's date is not highlighted to avoid confusion with selection
+  - Month day number alignment option is ignored (always centered in picker modes)
+- **Range selection interaction** - In range-picker mode:
+  - First click selects the start date
+  - Second click selects the end date
+  - Dates are automatically ordered (start always before end)
+  - Third click starts a new range selection
+  - Complete range highlights all dates between start and end
+
+### Fixed
+- Day number positioning in picker modes now consistently centered regardless of `monthDayNumberAlign` setting
+
 ## [3.0.11] - 2026-03-04
 
 ### Added

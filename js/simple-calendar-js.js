@@ -1,5 +1,5 @@
 /**
- * SimpleCalendarJs v3.0.11
+ * SimpleCalendarJs v3.0.12
  * A clean, modern, and feature-rich JavaScript calendar component with zero dependencies
  *
  * @author Pedro Lopes <simplecalendarjs@gmail.com>
@@ -673,6 +673,7 @@
     /**
      * @param {string|HTMLElement} container  CSS selector or DOM element
      * @param {object} options
+     * @param {string}   [options.mode='calendar']       'calendar'|'date-picker'|'range-picker'
      * @param {string}   [options.defaultView='month']  'month'|'week'|'day'
      * @param {Date}     [options.defaultDate=null]     Initial date to display (defaults to today)
      * @param {number}   [options.weekStartsOn=0]       0=Sun, 1=Mon
@@ -690,6 +691,8 @@
      * @param {function} [options.fetchEvents]           async (start, end) => CalendarEvent[]
      * @param {function} [options.onEventClick]          (event, mouseEvent) => void
      * @param {function} [options.onSlotClick]           (date, mouseEvent) => void
+     * @param {function} [options.onDateSelect]          (date) => void (for date-picker mode)
+     * @param {function} [options.onRangeSelect]         (startDate, endDate) => void (for range-picker mode)
      * @param {function} [options.onViewChange]          (view) => void
      * @param {function} [options.onNavigate]            (rangeStart, rangeEnd) => void
      */
@@ -703,6 +706,7 @@
 
       this._opts = Object.assign(
         {
+          mode: 'calendar', // 'calendar' | 'date-picker' | 'range-picker'
           defaultView: 'month',
           defaultDate: null,
           weekStartsOn: 0,
@@ -737,6 +741,8 @@
           fetchEvents: null,
           onEventClick: null,
           onSlotClick: null,
+          onDateSelect: null,
+          onRangeSelect: null,
           onViewChange: null,
           onNavigate: null,
           onEventDrop: null,
@@ -752,6 +758,8 @@
       this._nowInterval = null;
       this._yearPickerOpen = false;
       this._yearPickerBase = 0;
+      this._selectedDate = null; // For date-picker mode
+      this._selectedRange = { start: null, end: null }; // For range-picker mode
       this._yearOutsideHandler = null;
       this._dragState = null; // Drag and drop state
       this._clickSuppressed = false; // Suppress click after drag
@@ -873,6 +881,61 @@
       this._fetchAndRender();
     }
 
+    /**
+     * Get the selected date (date-picker mode).
+     * @returns {Date|null} The selected date or null if none selected
+     */
+    getSelectedDate() {
+      return this._selectedDate;
+    }
+
+    /**
+     * Set the selected date (date-picker mode).
+     * @param {Date|null} date - The date to select, or null to clear selection
+     */
+    setSelectedDate(date) {
+      if (this._opts.mode !== 'date-picker') {
+        console.warn('setSelectedDate() only works in date-picker mode');
+        return;
+      }
+      this._selectedDate = date ? startOfDay(date) : null;
+      this._renderView();
+    }
+
+    /**
+     * Get the selected range (range-picker mode).
+     * @returns {{start: Date|null, end: Date|null}} The selected range
+     */
+    getSelectedRange() {
+      return { ...this._selectedRange };
+    }
+
+    /**
+     * Set the selected range (range-picker mode).
+     * @param {Date|null} startDate - The start date, or null to clear
+     * @param {Date|null} endDate - The end date, or null for incomplete range
+     */
+    setSelectedRange(startDate, endDate = null) {
+      if (this._opts.mode !== 'range-picker') {
+        console.warn('setSelectedRange() only works in range-picker mode');
+        return;
+      }
+      this._selectedRange = {
+        start: startDate ? startOfDay(startDate) : null,
+        end: endDate ? startOfDay(endDate) : null
+      };
+      this._renderView();
+    }
+
+    /**
+     * Clear all selections (works in both picker modes).
+     */
+    clearSelection() {
+      this._selectedDate = null;
+      this._selectedRange = { start: null, end: null };
+      this._renderView();
+    }
+
     /** Tear down — removes DOM and clears the interval. */
     destroy() {
       if (this._nowInterval) clearInterval(this._nowInterval);
@@ -946,7 +1009,9 @@
       // Update toolbar only (don't rebuild entire shell)
       this._updateToolbar();
 
-      if (!this._opts.fetchEvents) {
+      // Skip event fetching in picker modes
+      const isPickerMode = this._opts.mode === 'date-picker' || this._opts.mode === 'range-picker';
+      if (!this._opts.fetchEvents || isPickerMode) {
         this._renderView();
         return;
       }
@@ -1186,9 +1251,10 @@
           </div>`;
       }
 
-      // Right section (view switcher)
+      // Right section (view switcher) - hide in picker modes
       let rightSection = '';
-      if (this._opts.showViewSwitcher) {
+      const isPickerMode = this._opts.mode === 'date-picker' || this._opts.mode === 'range-picker';
+      if (this._opts.showViewSwitcher && !isPickerMode) {
         const enabledViews = this._opts.enabledViews;
         const viewButtons = [];
         const dropdownOptions = [];
@@ -1336,14 +1402,38 @@
       );
 
       // --- Background cells ---
-      const alignClass = this._opts.monthDayNumberAlign === 'center' ? ' uc-day-align-center' :
-                         this._opts.monthDayNumberAlign === 'right' ? ' uc-day-align-right' : '';
+      const isPickerMode = this._opts.mode === 'date-picker' || this._opts.mode === 'range-picker';
+      // In picker modes, always center-align day numbers; otherwise use the configured alignment
+      const alignClass = isPickerMode ? ' uc-day-align-center-picker' :
+                         (this._opts.monthDayNumberAlign === 'center' ? ' uc-day-align-center' :
+                         this._opts.monthDayNumberAlign === 'right' ? ' uc-day-align-right' : '');
       const cellsHtml = weekDates
         .map((date, col) => {
-          const today = isToday(date) ? ' uc-today' : '';
+          // Don't highlight today in picker modes to avoid confusion with selection
+          const today = (!isPickerMode && isToday(date)) ? ' uc-today' : '';
           const other = date.getMonth() !== curMonth ? ' uc-other-month' : '';
+
+          // Add selected class for picker modes
+          let selected = '';
+          if (this._opts.mode === 'date-picker' && this._selectedDate) {
+            selected = isSameDay(date, this._selectedDate) ? ' uc-selected' : '';
+          } else if (this._opts.mode === 'range-picker' && this._selectedRange.start) {
+            if (this._selectedRange.end) {
+              // Complete range - highlight all dates in range
+              const inRange = date >= this._selectedRange.start && date <= this._selectedRange.end;
+              const isRangeStart = isSameDay(date, this._selectedRange.start);
+              const isRangeEnd = isSameDay(date, this._selectedRange.end);
+              selected = inRange ? ' uc-in-range' : '';
+              if (isRangeStart) selected += ' uc-range-start';
+              if (isRangeEnd) selected += ' uc-range-end';
+            } else {
+              // Only start date selected
+              selected = isSameDay(date, this._selectedRange.start) ? ' uc-range-start' : '';
+            }
+          }
+
           return `
-            <div class="uc-day-cell${today}${other}${alignClass}" data-date="${date.toISOString()}" data-action="day-click">
+            <div class="uc-day-cell${today}${other}${selected}${alignClass}" data-date="${date.toISOString()}" data-action="day-click">
               <span class="uc-day-number" data-action="day-number" data-date="${date.toISOString()}">${date.getDate()}</span>
             </div>`;
         })
@@ -1946,18 +2036,36 @@
           if (evt.target.closest('[data-action="day-number"]')) break;
           if (evt.target.closest('[data-action="event-click"]')) break;
           const date = new Date(actionEl.dataset.date);
-          if (this._opts.onSlotClick) this._opts.onSlotClick(date, evt);
+
+          // Handle picker modes
+          if (this._opts.mode === 'date-picker') {
+            this._handleDateSelection(date);
+          } else if (this._opts.mode === 'range-picker') {
+            this._handleRangeSelection(date);
+          } else {
+            // Calendar mode - use normal onSlotClick behavior
+            if (this._opts.onSlotClick) this._opts.onSlotClick(date, evt);
+          }
           break;
         }
 
         case 'day-number': {
           evt.stopPropagation();
-          if (!this._opts.enabledViews.includes('day')) break;
           const date = new Date(actionEl.dataset.date);
-          this._date = startOfDay(date);
-          this._view = 'day';
-          if (this._opts.onViewChange) this._opts.onViewChange('day');
-          this._fetchAndRender();
+
+          // Handle picker modes
+          if (this._opts.mode === 'date-picker') {
+            this._handleDateSelection(date);
+          } else if (this._opts.mode === 'range-picker') {
+            this._handleRangeSelection(date);
+          } else {
+            // Calendar mode - switch to day view
+            if (!this._opts.enabledViews.includes('day')) break;
+            this._date = startOfDay(date);
+            this._view = 'day';
+            if (this._opts.onViewChange) this._opts.onViewChange('day');
+            this._fetchAndRender();
+          }
           break;
         }
 
@@ -1992,6 +2100,45 @@
         }
       }
 
+    }
+
+    /**
+     * Handle date selection in date-picker mode.
+     */
+    _handleDateSelection(date) {
+      const normalizedDate = startOfDay(date);
+      this._selectedDate = normalizedDate;
+      this._renderView(); // Re-render to show selection
+      if (this._opts.onDateSelect) {
+        this._opts.onDateSelect(normalizedDate);
+      }
+    }
+
+    /**
+     * Handle date selection in range-picker mode.
+     */
+    _handleRangeSelection(date) {
+      const normalizedDate = startOfDay(date);
+
+      // If no start date, or both start and end are set, start a new range
+      if (!this._selectedRange.start || (this._selectedRange.start && this._selectedRange.end)) {
+        this._selectedRange = { start: normalizedDate, end: null };
+      } else {
+        // We have a start but no end - set the end
+        // Ensure start is before end
+        if (normalizedDate < this._selectedRange.start) {
+          this._selectedRange = { start: normalizedDate, end: this._selectedRange.start };
+        } else {
+          this._selectedRange.end = normalizedDate;
+        }
+
+        // Call the callback with the complete range
+        if (this._opts.onRangeSelect) {
+          this._opts.onRangeSelect(this._selectedRange.start, this._selectedRange.end);
+        }
+      }
+
+      this._renderView(); // Re-render to show selection
     }
 
     /**
