@@ -1,3 +1,4 @@
 secret_stuff.txt
 node_modules/
 dist/
+.DS_Store
