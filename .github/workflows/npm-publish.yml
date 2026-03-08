@@ -3,8 +3,8 @@ name: Publish to NPM
 on:
   push:
     tags:
-      - 'live'  # Triggers only on the 'live' tag
-  workflow_dispatch:  # Add this to enable manual triggers
+      - 'v*'  # Triggers on version tags (v1.0.0, v1.2.3, etc.)
+  workflow_dispatch:  # Allows manual triggering from GitHub Actions tab
 
 jobs:
   publish:

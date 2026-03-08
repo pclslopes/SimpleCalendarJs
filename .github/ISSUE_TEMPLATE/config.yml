@@ -1,0 +1,8 @@
+blank_issues_enabled: true
+contact_links:
+  - name: Commercial License Inquiry
+    url: https://www.simplecalendarjs.com
+    about: Purchase a commercial license for business use
+  - name: General Questions
+    url: https://github.com/pclslopes/SimpleCalendarJs/issues
+    about: Ask questions or start a discussion

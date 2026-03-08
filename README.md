@@ -1657,10 +1657,32 @@ export class AppComponent {
 - Safari 12+
 - Edge 79+
 
+## Support & Issues
+
+Found a bug or have a feature request? Please open an issue on [GitHub Issues](https://github.com/pclslopes/SimpleCalendarJs/issues).
+
+When reporting bugs, please include:
+- Steps to reproduce
+- Expected vs actual behavior
+- Browser and version
+- Code snippets or examples
+
+## Contributing
+
+This project does not accept code contributions or pull requests. All development is handled by the maintainer to ensure code quality and licensing integrity.
+
+However, you can help by:
+- Reporting bugs via GitHub Issues
+- Suggesting features
+- Helping other users in discussions
+- Sharing your implementation examples
+
+See [CONTRIBUTING.md](CONTRIBUTING.md) for more details.
+
 ## License
 
 This project is available for personal, educational, and non-commercial use.
 
-**Commercial use requires a separate license.** See [LICENSE](https://unpkg.com/simple-calendar-js/LICENSE) file for full terms.
+**Commercial use requires a separate license.** See [LICENSE](LICENSE) file for full terms.
 
 For commercial licensing inquiries: simplecalendarjs@gmail.com or visit [www.simplecalendarjs.com](https://www.simplecalendarjs.com)

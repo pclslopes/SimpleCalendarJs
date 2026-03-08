@@ -1,13 +1,14 @@
 # Deployment Guide
 
-This document explains how to set up automatic NPM publishing for SimpleCalendarJs.
+**Note: This document is for the project maintainer only.** SimpleCalendarJs does not accept external contributions or pull requests. See [CONTRIBUTING.md](CONTRIBUTING.md) for more information.
+
+This document explains the automatic NPM publishing workflow for SimpleCalendarJs.
 
 ## Setup Requirements
 
 ### 1. GitHub Repository Setup
-1. Create a GitHub repository for your project
-2. Push your code to the repository
-3. Update the repository URLs in `package.json`
+1. Repository: https://github.com/pclslopes/SimpleCalendarJs
+2. Already configured in `package.json`
 
 ### 2. NPM Account Setup
 1. Create an account at [npmjs.com](https://npmjs.com)
@@ -44,11 +45,20 @@ This will:
 - Create a GitHub release
 
 ### Method 2: Auto-Publishing on Main Branch
-If you prefer to publish on every commit to main:
-
-1. Rename `.github/workflows/npm-publish-main.yml.example` to `.github/workflows/npm-publish-main.yml`
-2. Delete or disable `npm-publish.yml`
-3. Update version in `package.json` before each commit you want to publish
+If you prefer to publish on every commit to main, you can modify the existing `npm-publish.yml` workflow to trigger on pushes to main instead of tags. Change the trigger from:
+```yaml
+on:
+  push:
+    tags:
+      - 'v*'
+```
+to:
+```yaml
+on:
+  push:
+    branches:
+      - main
+```
 
 ## Version Management
 
@@ -75,10 +85,13 @@ npm version major   # 1.0.0 → 2.0.0
 5. **Create Release**: Makes a GitHub release (tag method only)
 
 ### Files included in NPM package:
-- `js/SimpleCalendarJs.js`
-- `css/SimpleCalendarJs.css`
+- `dist/simple-calendar-js.min.js`
+- `dist/simple-calendar-js.min.css`
+- `frameworks/` (React, Vue, Angular wrappers)
 - `LICENSE`
 - `README.md`
+- `CHANGELOG.md`
+- `CONTRIBUTING.md`
 
 ## Troubleshooting
 

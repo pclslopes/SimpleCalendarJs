@@ -9,7 +9,8 @@
     "frameworks/",
     "LICENSE",
     "README.md",
-    "CHANGELOG.md"
+    "CHANGELOG.md",
+    "CONTRIBUTING.md"
   ],
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1",
@@ -41,8 +42,12 @@
   ],
   "author": "Pedro Lopes <simplecalendarjs@gmail.com> (https://www.simplecalendarjs.com)",
   "license": "SEE LICENSE IN LICENSE",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/pclslopes/SimpleCalendarJs.git"
+  },
   "bugs": {
-    "url": "https://www.simplecalendarjs.com",
+    "url": "https://github.com/pclslopes/SimpleCalendarJs/issues",
     "email": "simplecalendarjs@gmail.com"
   },
   "homepage": "https://www.simplecalendarjs.com",
