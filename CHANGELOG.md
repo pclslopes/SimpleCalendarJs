@@ -9,6 +9,15 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 No unreleased changes yet.
 
+## [3.0.13] - 2026-03-08
+
+### Changed
+- Simplified README from 1688 to 337 lines for better readability
+- Moved detailed documentation to website (simplecalendarjs.com/docs)
+- Fixed all relative links in README to use full GitHub URLs for npm compatibility
+- Updated repository configuration for public release
+- Added comprehensive contributing guidelines and issue templates
+
 ## [3.0.12] - 2026-03-06
 
 ### Added
