@@ -844,8 +844,8 @@
     navigate(delta) {
       const d = new Date(this._date);
       if (this._view === 'month') {
-        d.setMonth(d.getMonth() + delta);
         d.setDate(1);
+        d.setMonth(d.getMonth() + delta);
       } else if (this._view === 'week') {
         d.setDate(d.getDate() + delta * 7);
       } else {

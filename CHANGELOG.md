@@ -9,6 +9,11 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 No unreleased changes yet.
 
+## [3.0.14] - 2026-06-29
+
+### Fixed
+- Month navigation overflow bug where navigating from end-of-month dates (e.g. May 31st) would skip a month forward or appear to do nothing when going backward
+
 ## [3.0.13] - 2026-03-08
 
 ### Changed
