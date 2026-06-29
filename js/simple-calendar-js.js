@@ -1,5 +1,5 @@
 /**
- * SimpleCalendarJs v3.0.13
+ * SimpleCalendarJs v3.0.14
  * A clean, modern, and feature-rich JavaScript calendar component with zero dependencies
  *
  * @author Pedro Lopes <simplecalendarjs@gmail.com>

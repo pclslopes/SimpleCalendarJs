@@ -1,7 +1,7 @@
 {
   "name": "simple-calendar-js",
   "version": "3.0.14",
-  "description": "A clean, modern, and feature-rich JavaScript calendar component with zero dependencies. Responsive design and intuitive navigation.",
+  "description": "Lightweight JavaScript calendar component (~16KB gzipped). Zero dependencies, framework-agnostic (React, Vue, Angular, vanilla JS). Month, week, day, and list views. Built-in date & range picker. Free for personal use — commercial license at simplecalendarjs.com.",
   "main": "dist/simple-calendar-js.min.js",
   "style": "dist/simple-calendar-js.min.css",
   "files": [
@@ -38,7 +38,12 @@
     "framework-agnostic",
     "react",
     "vue",
-    "angular"
+    "angular",
+    "fullcalendar-alternative",
+    "event-calendar",
+    "calendar-component",
+    "booking",
+    "scheduling"
   ],
   "author": "Pedro Lopes <simplecalendarjs@gmail.com> (https://www.simplecalendarjs.com)",
   "license": "SEE LICENSE IN LICENSE",

@@ -1,6 +1,6 @@
 # SimpleCalendarJs
 
-A lightweight, zero-dependency JavaScript calendar component with internationalization support and framework wrappers for React, Vue, and Angular.
+Lightweight JS calendar (~16KB gzipped). Zero dependencies. Works in React, Vue, Angular, or vanilla JS out of the box. Month, week, day, and list views. Built-in date & range picker. No FullCalendar bloat.
 
 [![npm version](https://img.shields.io/npm/v/simple-calendar-js)](https://www.npmjs.com/package/simple-calendar-js)
 [![license](https://img.shields.io/npm/l/simple-calendar-js)](https://github.com/pclslopes/SimpleCalendarJs/blob/main/LICENSE)
@@ -96,6 +96,8 @@ npm install simple-calendar-js
 ### Manual Download
 
 Download the files from the [dist/](https://github.com/pclslopes/SimpleCalendarJs/tree/main/dist) folder and include them in your project.
+
+> **License:** Free for personal and open source use. Commercial projects require a license → [simplecalendarjs.com/#pricing](https://www.simplecalendarjs.com/#pricing)
 
 ## Quick Start
 
@@ -334,4 +336,4 @@ This project is available for personal, educational, and non-commercial use.
 
 **Commercial use requires a separate license.** See [LICENSE](https://github.com/pclslopes/SimpleCalendarJs/blob/main/LICENSE) file for full terms.
 
-For commercial licensing inquiries: simplecalendarjs@gmail.com or visit [www.simplecalendarjs.com](https://www.simplecalendarjs.com)
+For commercial licensing inquiries: simplecalendarjs@gmail.com or visit [www.simplecalendarjs.com/#pricing](https://www.simplecalendarjs.com/#pricing)
