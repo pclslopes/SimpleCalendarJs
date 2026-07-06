@@ -1,9 +1,12 @@
 # SimpleCalendarJs
 
-Lightweight JS calendar (~16KB gzipped). Zero dependencies. Works in React, Vue, Angular, or vanilla JS out of the box. Month, week, day, and list views. Built-in date & range picker. No FullCalendar bloat.
+Lightweight JS calendar (~18KB gzipped). Zero dependencies. Works in React, Vue, Angular, or vanilla JS out of the box. Month, week, day, and list views. Built-in date & range picker. No FullCalendar bloat.
 
 [![npm version](https://img.shields.io/npm/v/simple-calendar-js)](https://www.npmjs.com/package/simple-calendar-js)
+[![npm downloads](https://img.shields.io/npm/dw/simple-calendar-js)](https://www.npmjs.com/package/simple-calendar-js)
 [![license](https://img.shields.io/npm/l/simple-calendar-js)](https://github.com/pclslopes/SimpleCalendarJs/blob/main/LICENSE)
+
+[Live Demo →](https://www.simplecalendarjs.com/sandbox)
 
 ## Features
 
@@ -19,7 +22,18 @@ Lightweight JS calendar (~16KB gzipped). Zero dependencies. Works in React, Vue,
 - **Responsive Design** - Adapts to any screen size
 - **Customizable Styling** - CSS custom properties for easy theming
 - **Accessible** - Semantic HTML with proper ARIA attributes
-- **Small Bundle Size** - ~45KB minified JS + ~22KB CSS (~16KB total gzipped)
+- **Small Bundle Size** - ~45KB minified JS + ~22KB CSS (~18KB total gzipped)
+
+## Why SimpleCalendarJS?
+
+| | SimpleCalendarJS | FullCalendar | React Big Calendar |
+|---|---|---|---|
+| Gzipped size | ~18KB (JS+CSS) | ~77KB+ (JS only) | ~52KB (JS only) |
+| Dependencies | 0 | ships Preact | 16 |
+| Framework | Any | Any | React only |
+| Views | Month, Week, Day, List | Month, Week, Day, List | Month, Week, Day |
+| Date & Range Picker | Built-in | Plugin | No |
+| Price | Free / Commercial | Free / Premium | Free (MIT) |
 
 ## Screenshots
 
@@ -320,7 +334,7 @@ When reporting bugs, please include:
 
 ## Contributing
 
-This project does not accept code contributions or pull requests. All development is handled by the maintainer to ensure code quality and licensing integrity.
+Development is maintained by a single author to ensure quality and licensing integrity — but contributions are very welcome via issues and feedback.
 
 However, you can help by:
 - Reporting bugs via GitHub Issues
