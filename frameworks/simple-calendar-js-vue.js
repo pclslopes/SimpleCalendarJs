@@ -1,5 +1,5 @@
 /**
- * SimpleCalendarJs v3.0.15 — Vue 3 Wrapper
+ * SimpleCalendarJs v3.0.16 — Vue 3 Wrapper
  * A clean, modern, and feature-rich JavaScript calendar component with zero dependencies
  *
  * @author Pedro Lopes <simplecalendarjs@gmail.com>
@@ -14,7 +14,13 @@
  *   calRef.value.goToDate(new Date());
  *   calRef.value.goToToday();
  *   calRef.value.refresh();
+ *   calRef.value.getSelectedDate(); // also setSelectedDate, getSelectedRange, setSelectedRange, clearSelection
  *   calRef.value.getInstance(); // Get raw instance
+ *
+ * Every SimpleCalendarJs option is a prop (changing one re-creates the calendar),
+ * plus :fetchEvents and :darkMode. Events: @eventClick, @slotClick, @viewChange,
+ * @navigate (start, end), @dateSelect, @rangeSelect (start, end),
+ * @eventDrop (event, oldStart, oldEnd, newStart, newEnd).
  *
  * Example with theme switching:
  *   <script setup>
@@ -41,9 +47,11 @@
  */
 
 import { ref, onMounted, onUnmounted, watch, defineComponent, h } from 'vue';
+import SimpleCalendarJsCore from '../dist/simple-calendar-js.min.js';
 
 // Props that require re-mounting when changed
 const INIT_PROPS = [
+  'mode',
   'defaultView',
   'defaultDate',
   'weekStartsOn',
@@ -62,16 +70,27 @@ const INIT_PROPS = [
   'showBorder',
   'listDaysForward',
   'enabledViews',
+  'monthTimedEventStyle',
+  'monthDayNumberAlign',
+  'tooltipBgColor',
+  'tooltipTextColor',
+  'tooltipMaxWidth',
+  'tooltipDelay',
+  'tooltipAllowHtml',
+  'enableDragDrop',
+  'enableResize',
+  'autoContrastText',
+  'contrastLevel',
+  'allowHtmlInEvents',
+  'showEventBorder',
 ];
-
-// Callback props that map to Vue events
-const CALLBACK_PROPS = ['fetchEvents', 'onEventClick', 'onSlotClick', 'onViewChange', 'onNavigate'];
 
 export default defineComponent({
   name: 'SimpleCalendarJs',
 
   props: {
-    // Init-only props
+    // Init-only props (defaults match the SimpleCalendarJs constructor)
+    mode: { type: String, default: 'calendar' },
     defaultView: { type: String, default: 'month' },
     defaultDate: { type: Date, default: null },
     weekStartsOn: { type: Number, default: 0 },
@@ -90,6 +109,19 @@ export default defineComponent({
     showBorder: { type: Boolean, default: true },
     listDaysForward: { type: Number, default: 30 },
     enabledViews: { type: Array, default: () => ['month', 'week', 'day'] },
+    monthTimedEventStyle: { type: String, default: 'list' },
+    monthDayNumberAlign: { type: String, default: 'left' },
+    tooltipBgColor: { type: String, default: null },
+    tooltipTextColor: { type: String, default: null },
+    tooltipMaxWidth: { type: Number, default: 250 },
+    tooltipDelay: { type: Number, default: 400 },
+    tooltipAllowHtml: { type: Boolean, default: true },
+    enableDragDrop: { type: Boolean, default: false },
+    enableResize: { type: Boolean, default: false },
+    autoContrastText: { type: Boolean, default: false },
+    contrastLevel: { type: String, default: 'high' },
+    allowHtmlInEvents: { type: Boolean, default: true },
+    showEventBorder: { type: Boolean, default: false },
 
     // Callback props
     fetchEvents: { type: Function, default: null },
@@ -101,7 +133,7 @@ export default defineComponent({
     customClass: { type: String, default: '' },
   },
 
-  emits: ['eventClick', 'slotClick', 'viewChange', 'navigate'],
+  emits: ['eventClick', 'slotClick', 'viewChange', 'navigate', 'dateSelect', 'rangeSelect', 'eventDrop'],
 
   setup(props, { emit, expose }) {
     const containerRef = ref(null);
@@ -111,7 +143,7 @@ export default defineComponent({
     const resolveClass = () => {
       if (typeof SimpleCalendarJs !== 'undefined') return SimpleCalendarJs;
       if (typeof window !== 'undefined' && window.SimpleCalendarJs) return window.SimpleCalendarJs;
-      return null;
+      return SimpleCalendarJsCore || null;
     };
 
     // Create calendar instance
@@ -147,6 +179,10 @@ export default defineComponent({
       options.onSlotClick = (date) => emit('slotClick', date);
       options.onViewChange = (view) => emit('viewChange', view);
       options.onNavigate = (start, end) => emit('navigate', start, end);
+      options.onDateSelect = (date) => emit('dateSelect', date);
+      options.onRangeSelect = (start, end) => emit('rangeSelect', start, end);
+      options.onEventDrop = (event, oldStart, oldEnd, newStart, newEnd) =>
+        emit('eventDrop', event, oldStart, oldEnd, newStart, newEnd);
 
       instanceRef.value = new Cal(containerRef.value, options);
 
@@ -204,6 +240,11 @@ export default defineComponent({
       goToDate: (date) => instanceRef.value?.goToDate(date),
       goToToday: () => instanceRef.value?.goToToday(),
       refresh: () => instanceRef.value?.refresh(),
+      getSelectedDate: () => instanceRef.value?.getSelectedDate() ?? null,
+      setSelectedDate: (date) => instanceRef.value?.setSelectedDate(date),
+      getSelectedRange: () => instanceRef.value?.getSelectedRange() ?? { start: null, end: null },
+      setSelectedRange: (start, end) => instanceRef.value?.setSelectedRange(start, end),
+      clearSelection: () => instanceRef.value?.clearSelection(),
       getInstance: () => instanceRef.value,
     });
 

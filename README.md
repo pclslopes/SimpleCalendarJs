@@ -193,7 +193,9 @@ calendar.refresh();
   textColor: '#ffffff',       // Optional: text color
   borderColor: '#3730a3',     // Optional: border color
   description: 'Details',     // Optional: description (also used for the tooltip)
-  tooltip: 'Custom tooltip'   // Optional: tooltip text (overrides description)
+  tooltip: 'Custom tooltip',  // Optional: tooltip text (overrides description)
+  allowHtml: false,           // Optional: override allowHtmlInEvents for this event's title
+  tooltipAllowHtml: false     // Optional: override tooltipAllowHtml for this event's tooltip
 }
 ```
 
@@ -201,16 +203,15 @@ calendar.refresh();
 
 ## Framework Usage
 
-The wrappers look for the `SimpleCalendarJs` class as a global. Bundlers don't create that global automatically, so import the core class once and expose it, as shown in each example below.
+React, Vue and Angular wrappers are included. Every option is a prop (or `@Input`) and every callback is a prop or event; changing an option re-creates the calendar. Each wrapper also takes a `darkMode` boolean.
+
+> Before 3.0.16 the React and Vue wrappers needed `globalThis.SimpleCalendarJs = SimpleCalendarJs;` (after importing the core class). From 3.0.16 they import it themselves; the line is harmless if you keep it.
 
 ### React
 
 ```jsx
-import SimpleCalendarJs from 'simple-calendar-js';
 import SimpleCalendarJsReact from 'simple-calendar-js/frameworks/simple-calendar-js-react.jsx';
 import 'simple-calendar-js/dist/simple-calendar-js.min.css';
-
-globalThis.SimpleCalendarJs = SimpleCalendarJs; // required by the wrapper
 
 const fetchEvents = async (start, end) => {
   const res = await fetch(`/api/events?start=${start.toISOString()}&end=${end.toISOString()}`);
@@ -232,17 +233,14 @@ export default function MyCalendar() {
 
 **Next.js:** add `'use client';` at the top of the file, and add `transpilePackages: ['simple-calendar-js']` to `next.config.js` (the wrapper ships as a `.jsx` file).
 
-Methods are available through a ref: `ref.current.setView('week')`, `navigate(1)`, `goToDate(date)`, `goToToday()`, `refresh()`, `getInstance()`.
+Methods are available through a ref: `ref.current.setView('week')`, `navigate(1)`, `goToDate(date)`, `goToToday()`, `refresh()`, the picker methods (`getSelectedDate()`, `getSelectedRange()`…) and `getInstance()`.
 
 ### Vue 3
 
 ```vue
 <script setup>
-import SimpleCalendarJs from 'simple-calendar-js';
 import SimpleCalendarJsVue from 'simple-calendar-js/frameworks/simple-calendar-js-vue.js';
 import 'simple-calendar-js/dist/simple-calendar-js.min.css';
-
-globalThis.SimpleCalendarJs = SimpleCalendarJs; // required by the wrapper
 
 const fetchEvents = async (start, end) => {
   const res = await fetch(`/api/events?start=${start.toISOString()}&end=${end.toISOString()}`);
@@ -263,42 +261,43 @@ const handleEventClick = (event) => console.log('Event clicked:', event);
 </template>
 ```
 
-Emitted events: `eventClick`, `slotClick`, `viewChange`, `navigate`. Methods are exposed through a template ref (same as React).
+Emitted events: `eventClick`, `slotClick`, `viewChange`, `navigate`, `dateSelect`, `rangeSelect`, `eventDrop`. Methods are exposed through a template ref (same as React).
 
 ### Angular
 
-Angular CLI doesn't compile TypeScript from `node_modules`, so use the core class directly in a component:
+Angular CLI doesn't compile TypeScript from `node_modules`, so copy `node_modules/simple-calendar-js/frameworks/simple-calendar-js-angular.component.ts` into your project (e.g. `src/app/`). Then:
 
 ```typescript
-import { Component, ElementRef, ViewChild, AfterViewInit, OnDestroy } from '@angular/core';
-import SimpleCalendarJs from 'simple-calendar-js';
+import { Component } from '@angular/core';
+import { SimpleCalendarJsComponent } from './simple-calendar-js-angular.component';
 
 @Component({
   selector: 'app-calendar',
   standalone: true,
-  template: `<div #calendar style="height: 600px"></div>`
+  imports: [SimpleCalendarJsComponent],
+  template: `
+    <simple-calendar-js
+      [defaultView]="'month'"
+      [locale]="'en-US'"
+      [fetchEvents]="fetchEvents"
+      (eventClick)="onEventClick($event)"
+      [customStyle]="{ height: '600px' }"
+    ></simple-calendar-js>
+  `
 })
-export class CalendarComponent implements AfterViewInit, OnDestroy {
-  @ViewChild('calendar', { static: true }) el!: ElementRef<HTMLDivElement>;
-  private calendar: any;
+export class CalendarComponent {
+  fetchEvents = async (start: Date, end: Date) => {
+    const res = await fetch(`/api/events?start=${start.toISOString()}&end=${end.toISOString()}`);
+    return await res.json();
+  };
 
-  ngAfterViewInit() {
-    this.calendar = new SimpleCalendarJs(this.el.nativeElement, {
-      defaultView: 'month',
-      locale: 'en-US',
-      fetchEvents: async (start: Date, end: Date) => {
-        const res = await fetch(`/api/events?start=${start.toISOString()}&end=${end.toISOString()}`);
-        return await res.json();
-      },
-      onEventClick: (event: any) => console.log('Event clicked:', event)
-    });
-  }
-
-  ngOnDestroy() {
-    this.calendar?.destroy();
+  onEventClick(event: any) {
+    console.log('Event clicked:', event);
   }
 }
 ```
+
+Outputs: `(eventClick)`, `(slotClick)`, `(viewChange)`, `(navigated)`, `(dateSelect)`, `(rangeSelect)`, `(eventDrop)`. Methods via `@ViewChild(SimpleCalendarJsComponent)`: `setView()`, `navigate()`, `goToDate()`, `goToToday()`, `refresh()` and the picker methods.
 
 The package has no TypeScript types yet, so add a declaration file (e.g. `src/simple-calendar-js.d.ts`):
 
@@ -312,9 +311,7 @@ Add the stylesheet to the `styles` array in `angular.json`:
 "styles": ["node_modules/simple-calendar-js/dist/simple-calendar-js.min.css", "src/styles.css"]
 ```
 
-### Wrapper limitations
-
-The React and Vue wrappers pass through display options (`defaultView`, `defaultDate`, `weekStartsOn`, `locale`, `use24Hour`, `enabledViews`, the `show*` options, etc.), `fetchEvents`, the click/view/navigate callbacks, and `darkMode`. For **date-picker / range-picker modes** and **drag & drop**, create the calendar with the core class directly, as in the Angular example.
+You can also skip the wrapper and create the calendar with the core class (`new SimpleCalendarJs(element, options)`) in `ngAfterViewInit`, calling `destroy()` in `ngOnDestroy`.
 
 ## Configuration Options
 
@@ -395,6 +392,8 @@ const picker = new SimpleCalendarJs('#picker', {
   onRangeSelect: (start, end) => console.log(start, end)
 });
 ```
+
+Picker modes always use month view (the view switcher is hidden).
 
 ## Dark Theme
 

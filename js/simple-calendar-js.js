@@ -1,5 +1,5 @@
 /**
- * SimpleCalendarJs v3.0.15
+ * SimpleCalendarJs v3.0.16
  * A clean, modern, and feature-rich JavaScript calendar component with zero dependencies
  *
  * @author Pedro Lopes <simplecalendarjs@gmail.com>
@@ -301,6 +301,15 @@
     const shouldAllowHtml = allowHtmlEvent !== undefined ? allowHtmlEvent : allowHtmlGlobal;
 
     return shouldAllowHtml ? sanitizeHtml(title) : esc(title);
+  }
+
+  /**
+   * The data-tooltip attribute for an event, plus data-tooltip-html when the
+   * event overrides the global tooltipAllowHtml setting.
+   */
+  function tooltipAttrs(event, text) {
+    const override = typeof event.tooltipAllowHtml === 'boolean' ? ` data-tooltip-html="${event.tooltipAllowHtml}"` : '';
+    return `data-tooltip="${esc(text)}"${override}`;
   }
 
   /* ============================================================
@@ -750,7 +759,9 @@
         options
       );
 
-      this._view = this._opts.defaultView;
+      this._isPicker = this._opts.mode === 'date-picker' || this._opts.mode === 'range-picker';
+      // Picker modes show the selection in month view only
+      this._view = this._isPicker ? 'month' : this._opts.defaultView;
       this._date = startOfDay(this._opts.defaultDate || new Date());
       this._events = [];
       this._cachedRange = null; // Cache the last fetched date range
@@ -832,9 +843,13 @@
 
     /* ---- Public API ---- */
 
-    /** Switch to a different view. */
+    /** Switch to a different view. Picker modes stay in month view. */
     setView(view) {
       if (view === this._view) return;
+      if (this._isPicker && view !== 'month') {
+        console.warn('SimpleCalendarJs: picker modes only support month view');
+        return;
+      }
       this._view = view;
       if (this._opts.onViewChange) this._opts.onViewChange(view);
       this._fetchAndRender();
@@ -1462,7 +1477,7 @@
         const contR = !isEnd ? ' uc-continues-right' : '';
 
         const tooltipAttr = this._opts.showTooltips
-          ? `data-tooltip="${esc(event.tooltip || event.description || event.title)}"`
+          ? tooltipAttrs(event, event.tooltip || event.description || event.title)
           : '';
         const resizeHandle = this._opts.enableResize && isEnd
           ? `<div class="uc-resize-handle-right" data-action="resize-handle"></div>`
@@ -1501,7 +1516,7 @@
             const textColor = ev.textColor || (this._opts.autoContrastText ? getContrastColor(color, this._opts.contrastLevel) : 'var(--cal-event-text)');
             const timeStr = fmtTime(ev.start, this._opts.locale, this._opts.use24Hour);
             const tooltipAttr = this._opts.showTooltips
-              ? `data-tooltip="${esc(ev.tooltip || ev.description || ev.title)}"`
+              ? tooltipAttrs(ev, ev.tooltip || ev.description || ev.title)
               : '';
 
             // Render based on monthTimedEventStyle option
@@ -1555,7 +1570,7 @@
               const textColor = ev.textColor || (this._opts.autoContrastText ? getContrastColor(color, this._opts.contrastLevel) : 'var(--cal-event-text)');
               const timeStr = fmtTime(ev.start, this._opts.locale, this._opts.use24Hour);
               const tooltipAttr = this._opts.showTooltips
-                ? `data-tooltip="${esc(ev.tooltip || ev.description || ev.title)}"`
+                ? tooltipAttrs(ev, ev.tooltip || ev.description || ev.title)
                 : '';
 
               // Render based on monthTimedEventStyle option
@@ -1699,7 +1714,7 @@
         const contL = !isStart ? ' uc-continues-left' : '';
         const contR = !isEnd ? ' uc-continues-right' : '';
         const tooltipAttr = this._opts.showTooltips
-          ? `data-tooltip="${esc(event.tooltip || event.description || event.title)}"`
+          ? tooltipAttrs(event, event.tooltip || event.description || event.title)
           : '';
         const resizeHandle = this._opts.enableResize && isEnd
           ? `<div class="uc-resize-handle-right" data-action="resize-handle"></div>`
@@ -1765,7 +1780,7 @@
                 ? `<span class="uc-event-time">${esc(timeStr)}</span>`
                 : '';
               const tooltipAttr = this._opts.showTooltips
-                ? `data-tooltip="${esc(event.tooltip || event.description || event.title)}"`
+                ? tooltipAttrs(event, event.tooltip || event.description || event.title)
                 : '';
 
               const resizeHandle = this._opts.enableResize
@@ -1882,7 +1897,7 @@
 
           const color = event.color || 'var(--cal-event-bg)';
           const tooltipAttr = this._opts.showTooltips
-            ? `data-tooltip="${esc(event.tooltip || event.description || '')}"`
+            ? tooltipAttrs(event, event.tooltip || event.description || '')
             : '';
 
           return `
@@ -2152,9 +2167,9 @@
       if (!content || !content.trim()) return;
 
       // Determine if HTML is allowed
-      // Check for per-event override via data-tooltip-html attribute
+      // Per-event override (event.tooltipAllowHtml) via the data-tooltip-html attribute
       const allowHtmlAttr = target.dataset.tooltipHtml;
-      const allowHtml = allowHtmlAttr === 'true' ? true : this._opts.tooltipAllowHtml;
+      const allowHtml = allowHtmlAttr === undefined ? this._opts.tooltipAllowHtml : allowHtmlAttr === 'true';
 
       this._showTooltip(target, content, allowHtml);
     }

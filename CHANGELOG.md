@@ -9,6 +9,17 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 No unreleased changes yet.
 
+## [3.0.16] - 2026-11-11
+
+### Fixed
+- Per-event `tooltipAllowHtml` now works (it was read from an attribute that was never set); `false` forces a plain-text tooltip for that event
+- Picker modes (`date-picker`, `range-picker`) stay in month view, the only view that shows the selection: `defaultView` is ignored and `setView()` warns instead of switching
+- React and Vue wrappers import the core class from the package, so they work in bundlers without setting `globalThis.SimpleCalendarJs` (a global, if set, is still used)
+- React, Vue and Angular wrappers pass through every option and callback (`mode`, `enableDragDrop`, `enableResize`, `onDateSelect`, `onRangeSelect`, `onEventDrop`, tooltip and styling options) and expose the picker methods
+- Angular wrapper compiles: imports `NgStyle`, no longer declares an output and a method both named `navigate` (the output is now `navigated`), passes every input, and imports the core class
+- The minified build keeps `console.warn` and `console.error`, so `fetchEvents` errors and option warnings are visible
+- Range picker: days between start and end are tinted from `--cal-primary`, so the range is visible in light and dark themes (it was nearly invisible)
+
 ## [3.0.15] - 2026-11-11
 
 ### Fixed

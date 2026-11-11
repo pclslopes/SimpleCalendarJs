@@ -1,5 +1,5 @@
 /**
- * SimpleCalendarJs v3.0.15 — simple-calendar-js.css
+ * SimpleCalendarJs v3.0.16 — simple-calendar-js.css
  * A clean, modern, and feature-rich JavaScript calendar component with zero dependencies
  *
  * @author Pedro Lopes <simplecalendarjs@gmail.com>
@@ -647,6 +647,8 @@
 /* Range picker selected state */
 .uc-day-cell.uc-in-range {
   background: var(--cal-primary-light);
+  /* Tint from the primary color so the range stays visible in any theme */
+  background: color-mix(in srgb, var(--cal-primary) 18%, var(--cal-bg));
 }
 
 .uc-day-cell.uc-range-start,

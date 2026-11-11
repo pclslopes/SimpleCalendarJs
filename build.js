@@ -13,7 +13,8 @@ async function build() {
   const jsResult = await minify(jsSource, {
     compress: {
       dead_code: true,
-      drop_console: true,
+      // Keep console.warn/error: they tell developers about bad options and fetchEvents errors
+      pure_funcs: ['console.log', 'console.info', 'console.debug'],
       drop_debugger: true
     },
     mangle: { toplevel: true },

@@ -1,5 +1,5 @@
 /**
- * SimpleCalendarJs v3.0.15 — React Wrapper
+ * SimpleCalendarJs v3.0.16 — React Wrapper
  * A clean, modern, and feature-rich JavaScript calendar component with zero dependencies
  *
  * @author Pedro Lopes <simplecalendarjs@gmail.com>
@@ -7,9 +7,15 @@
  * @license SEE LICENSE IN LICENSE
  * @repository https://github.com/pclslopes/SimpleCalendarJs
  *
+ * Every SimpleCalendarJs option and callback is a prop (fetchEvents, onEventClick,
+ * onSlotClick, onViewChange, onNavigate, onDateSelect, onRangeSelect, onEventDrop).
+ * Changing an option re-creates the calendar; callbacks update in place.
+ *
  * Imperative handle (via ref):
  *   const ref = useRef();
- *   // ref.current exposes: { setView, navigate, goToDate, goToToday, refresh }
+ *   // ref.current exposes: { setView, navigate, goToDate, goToToday, refresh,
+ *   //   getSelectedDate, setSelectedDate, getSelectedRange, setSelectedRange,
+ *   //   clearSelection, getInstance }
  *
  * Example with theme switching:
  *   function MyApp() {
@@ -28,12 +34,23 @@
  */
 
 import { useEffect, useRef, useImperativeHandle, forwardRef, memo } from 'react';
+import SimpleCalendarJsCore from '../dist/simple-calendar-js.min.js';
 
 // Callback prop names — these are updated on the instance without re-mounting
-const CALLBACK_PROPS = ['fetchEvents', 'onEventClick', 'onSlotClick', 'onViewChange', 'onNavigate'];
+const CALLBACK_PROPS = [
+  'fetchEvents',
+  'onEventClick',
+  'onSlotClick',
+  'onViewChange',
+  'onNavigate',
+  'onDateSelect',
+  'onRangeSelect',
+  'onEventDrop',
+];
 
 // Init-only props — changes require a full re-mount
 const INIT_PROPS = [
+  'mode',
   'defaultView',
   'defaultDate',
   'weekStartsOn',
@@ -52,6 +69,19 @@ const INIT_PROPS = [
   'showBorder',
   'listDaysForward',
   'enabledViews',
+  'monthTimedEventStyle',
+  'monthDayNumberAlign',
+  'tooltipBgColor',
+  'tooltipTextColor',
+  'tooltipMaxWidth',
+  'tooltipDelay',
+  'tooltipAllowHtml',
+  'enableDragDrop',
+  'enableResize',
+  'autoContrastText',
+  'contrastLevel',
+  'allowHtmlInEvents',
+  'showEventBorder',
 ];
 
 const SimpleCalendarJsReact = forwardRef(function SimpleCalendarJsReact(props, ref) {
@@ -80,6 +110,11 @@ const SimpleCalendarJsReact = forwardRef(function SimpleCalendarJsReact(props, r
       goToDate: (d) => instanceRef.current?.goToDate(d),
       goToToday: () => instanceRef.current?.goToToday(),
       refresh: () => instanceRef.current?.refresh(),
+      getSelectedDate: () => instanceRef.current?.getSelectedDate() ?? null,
+      setSelectedDate: (d) => instanceRef.current?.setSelectedDate(d),
+      getSelectedRange: () => instanceRef.current?.getSelectedRange() ?? { start: null, end: null },
+      setSelectedRange: (start, end) => instanceRef.current?.setSelectedRange(start, end),
+      clearSelection: () => instanceRef.current?.clearSelection(),
       getInstance: () => instanceRef.current,
     }),
     []
@@ -152,11 +187,11 @@ export default memo(SimpleCalendarJsReact);
 /* ---- helpers ---- */
 
 function resolveClass() {
-  // Works whether SimpleCalendarJs was imported as an ES module
-  // or loaded as a UMD script (window.SimpleCalendarJs).
+  // A global SimpleCalendarJs (script tag, or set by the app) wins; otherwise the
+  // copy imported from this package's dist/ folder.
   if (typeof SimpleCalendarJs !== 'undefined') return SimpleCalendarJs; // eslint-disable-line no-undef
   if (typeof window !== 'undefined' && window.SimpleCalendarJs) return window.SimpleCalendarJs;
-  return null;
+  return SimpleCalendarJsCore || null;
 }
 
 function pickKeys(obj, keys) {

@@ -30,7 +30,7 @@ const calendar = new SimpleCalendarJs('#calendar', {
 
 ## Environment
 - Browser: [e.g. Chrome 120, Firefox 115, Safari 17]
-- SimpleCalendarJs Version: [e.g. 3.0.15]
+- SimpleCalendarJs Version: [e.g. 3.0.16]
 - Installation Method: [NPM / CDN / Manual]
 - Framework: [Vanilla JS / React / Vue / Angular]
 
