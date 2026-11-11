@@ -1,7 +1,7 @@
 {
   "name": "simple-calendar-js",
-  "version": "3.0.14",
-  "description": "Lightweight JavaScript calendar component (~16KB gzipped). Zero dependencies, framework-agnostic (React, Vue, Angular, vanilla JS). Month, week, day, and list views. Built-in date & range picker. Free for personal use — commercial license at simplecalendarjs.com.",
+  "version": "3.0.15",
+  "description": "Lightweight JavaScript calendar component (~14KB gzipped). Zero dependencies, framework-agnostic (React, Vue, Angular, vanilla JS). Month, week, day, and list views. Built-in date & range picker. Free for personal use — commercial license at simplecalendarjs.com.",
   "main": "dist/simple-calendar-js.min.js",
   "style": "dist/simple-calendar-js.min.css",
   "files": [

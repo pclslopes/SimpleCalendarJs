@@ -9,6 +9,21 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 No unreleased changes yet.
 
+## [3.0.15] - 2026-11-11
+
+### Fixed
+- README: examples now match the actual API (`fetchEvents`, `setView`, `navigate`, `goToToday`, `goToDate`, `refresh`); removed documented options and methods that don't exist (`events`, `addEvent`, `updateEvent`, `deleteEvent`, `refetchEvents`, `next`, `prev`, `today`, `changeView`, `getCurrentView`, `firstDayOfWeek`, `onDateClick`, `onEventResize`, `darkMode: 'auto'`, `timezone`, `enableHtmlInTitles`)
+- README: React and Vue examples now import the core class and expose it for the wrappers, so they render in bundler setups (Vite, webpack, Next.js)
+- README: Angular example uses the core class directly, since Angular CLI doesn't compile TypeScript from `node_modules`
+- README: manual download links point to unpkg (the `dist/` folder isn't in the repository)
+
+### Added
+- README: event object format, static events, updating events with `refresh()`, picker mode and dark theme examples, wrapper limitations
+
+### Changed
+- Consistent bundle size figures (~14KB gzipped JS, ~19KB with CSS)
+- Updated version headers in the React and Angular wrappers
+
 ## [3.0.14] - 2026-06-29
 
 ### Fixed
